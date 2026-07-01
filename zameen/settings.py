@@ -1,6 +1,5 @@
 from pathlib import Path
 import os
-import sys
 import dj_database_url
 import cloudinary
 import cloudinary.uploader
@@ -24,7 +23,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-3a@=a=ir!)nxbf3ru342_
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 
-# ── APPS ───────────────────────────────────────────────
+# ── APPS ���──────────────────────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -83,31 +82,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'zameen.wsgi.application'
 
 # ── DATABASE ───────────────────────────────────────────
-DATABASE_URL = os.environ.get('DATABASE_URL')
-
-if DATABASE_URL:
-    try:
-        DATABASES = {
-            'default': dj_database_url.config(
-                default=DATABASE_URL,
-                conn_max_age=600,
-                conn_health_checks=True,
-                engine='django.db.backends.postgresql'
-            )
-        }
-        print("✅ Using PostgreSQL from DATABASE_URL")
-    except Exception as e:
-        print(f"❌ Error parsing DATABASE_URL: {e}", file=sys.stderr)
-        # Fallback to SQLite if parsing fails
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
-        }
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True
+        )
+    }
 else:
-    # Local development
-    print("⚠️  No DATABASE_URL found. Using SQLite for local development.")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
