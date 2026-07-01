@@ -1,19 +1,23 @@
-services:
-  - type: web
-    name: urbantenants
-    env: python
-    plan: free
-    rootDir: .
-    buildCommand: bash build.sh
-    startCommand: gunicorn zameen.wsgi:application --bind 0.0.0.0:$PORT
-    envVars:
-      - key: DEBUG
-        value: "False"
-      - key: SECRET_KEY
-        generateValue: true
-      - key: PYTHON_VERSION
-        value: "3.11.9"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: housify-db
-          property: connectionString
+# services:
+#   - type: web
+#     name: urbantenants
+#     env: python
+#     plan: free
+#     rootDir: .
+#     buildCommand: bash build.sh
+#     startCommand: gunicorn zameen.wsgi:application --bind 0.0.0.0:$PORT
+
+#     envVars:
+#       - key: DEBUG
+#         value: "False"
+
+#       - key: SECRET_KEY
+#         generateValue: true
+
+#       - key: PYTHON_VERSION
+#         value: "3.11.9"
+
+#       - key: DATABASE_URL
+#         fromDatabase:
+#           name: housify-db
+#           property: connectionString
