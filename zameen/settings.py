@@ -82,16 +82,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'zameen.wsgi.application'
 
-# ── DATABASE ───────────────────────────────────────────
-try:
-    if os.environ.get('DATABASE_URL'):
-        DATABASES = {'default': dj_database_url.config(conn_max_age=600)}
-    else:
-        DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'}}
-except Exception as e:
-    print(f"Database config error: {e}", file=sys.stderr)
-    DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'}}
-
+DATABASES = {
+  'default': dj_database_url.config(
+    default='postgresql://postgres:postgres@localhost:5432/mysite',
+    conn_max_age=600
+  )
+}
 # ── PASSWORD VALIDATION ────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
