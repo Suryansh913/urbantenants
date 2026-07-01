@@ -82,27 +82,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'zameen.wsgi.application'
 
 # ── DATABASE ───────────────────────────────────────────
-DATABASE_URL = os.environ.get('DATABASE_URL')
-
-if DATABASE_URL:
-    # Parse PostgreSQL URL manually
-    # Format: postgresql://user:password@host:port/database
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'CONN_MAX_AGE': 600,
-        }
+# SQLite for everything (local + production)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    # Fallback to SQLite
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
-# ── PASSWORD VALIDATION ─────────��──────────────────────
+# ── PASSWORD VALIDATION ────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
