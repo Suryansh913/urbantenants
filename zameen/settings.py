@@ -86,27 +86,24 @@ from django.conf import settings
 import os
 import dj_database_url
 
-DATABASE_URL = os.environ.get("DATABASE_URL", "").strip().strip('"').strip("'")
+import dj_database_url
 
-if DATABASE_URL:
-    DATABASES = {
-        "default": dj_database_url.parse(
-            DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=True,   # Render Postgres ke liye SSL zaroori hota hai
-        )
-    }
-else:
-    # Fallback — agar env var missing/empty ho to build crash na ho
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
+raw_db_url = os.environ.get("DATABASE_URL")
+print("RAW DATABASE_URL REPR:", repr(raw_db_url))
 
-if DEBUG:
-    print("DATABASES CONFIG:", {k: v for k, v in DATABASES["default"].items() if k != "PASSWORD"})
+if not raw_db_url or not raw_db_url.strip():
+    raise Exception(
+        "DATABASE_URL env variable Render dashboard pe set nahi hai ya khaali hai! "
+        "Environment tab mein jaake add karo."
+    )
+
+DATABASES = {
+    "default": dj_database_url.parse(
+        raw_db_url.strip(),
+        conn_max_age=600,
+        ssl_require=True,
+    )
+}
 print("USING SQLITE DATABASE")
 
 # ── PASSWORD VALIDATION ────────────────────────────────
