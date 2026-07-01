@@ -8,6 +8,7 @@ import cloudinary.api
 BASE_DIR = Path(__file__).resolve().parent.parent
 from dotenv import load_dotenv
 load_dotenv()
+
 # ── EMAIL ──────────────────────────────────────────────
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp-relay.brevo.com"
@@ -81,19 +82,17 @@ TEMPLATES = [
 WSGI_APPLICATION = 'zameen.wsgi.application'
 
 # ── DATABASE ───────────────────────────────────────────
-import os
-import dj_database_url
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
-if os.environ.get('DATABASE_URL'):
+if DATABASE_URL:
     # 🔴 PRODUCTION (Render / PostgreSQL)
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL'),
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
-    }
-
+    try:
+        DATABASES = {
+            'default': dj_database_url.config(conn_max_age=600, conn_health_checks=True)
+        }
+    except Exception as e:
+        print(f"Error parsing DATABASE_URL: {e}")
+        raise
 else:
     # 🟢 LOCAL (SQLite)
     DATABASES = {
@@ -102,6 +101,7 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
 # ── PASSWORD VALIDATION ────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
