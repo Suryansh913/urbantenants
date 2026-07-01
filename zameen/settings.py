@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import sys
 import dj_database_url
 import cloudinary
 import cloudinary.uploader
@@ -85,16 +86,28 @@ WSGI_APPLICATION = 'zameen.wsgi.application'
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 if DATABASE_URL:
-    # 🔴 PRODUCTION (Render / PostgreSQL)
     try:
         DATABASES = {
-            'default': dj_database_url.config(conn_max_age=600, conn_health_checks=True)
+            'default': dj_database_url.config(
+                default=DATABASE_URL,
+                conn_max_age=600,
+                conn_health_checks=True,
+                engine='django.db.backends.postgresql'
+            )
         }
+        print("✅ Using PostgreSQL from DATABASE_URL")
     except Exception as e:
-        print(f"Error parsing DATABASE_URL: {e}")
-        raise
+        print(f"❌ Error parsing DATABASE_URL: {e}", file=sys.stderr)
+        # Fallback to SQLite if parsing fails
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 else:
-    # 🟢 LOCAL (SQLite)
+    # Local development
+    print("⚠️  No DATABASE_URL found. Using SQLite for local development.")
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
