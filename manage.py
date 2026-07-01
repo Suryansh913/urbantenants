@@ -20,3 +20,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+import os
+print("SETTINGS MODULE:", os.environ.get("DJANGO_SETTINGS_MODULE"))

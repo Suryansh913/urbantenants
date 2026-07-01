@@ -80,15 +80,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'zameen.wsgi.application'
-
+from django.conf import settings
 # ── DATABASE ───────────────────────────────────────────
 # SQLite for everything (local + production)
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+print("USING SQLITE DATABASE")
 
 # ── PASSWORD VALIDATION ────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
@@ -163,3 +165,5 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 SITE_ID = int(os.environ.get('SITE_ID', 1))
+print("FINAL DATABASES:", DATABASES)
+print("hi")
