@@ -1,0 +1,206 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Housify</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link rel="stylesheet" href="{% static 'header.css' %}">
+</head>
+<body>
+
+<!-- ── OVERLAY (closes sidebar on click) ── -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE-IN SIDEBAR
+══════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar" aria-hidden="true">
+
+    <div class="sidebar-head">
+        <div class="logo-mark" style="width:28px;height:28px;font-size:13px">U</div>
+        <span style="font-family:'Playfair Display',serif;color:#fff;font-size:1.1rem;font-weight:700"> UrbnaTenants</span>
+        <button class="sidebar-close" id="sidebarClose" aria-label="Close navigation">&#x2715;</button>
+    </div>
+
+    <nav class="sidebar-body" aria-label="Sidebar navigation">
+
+        <div class="s-label">Main</div>
+
+        <a class="s-link {% if request.resolver_match.url_name == 'home' %}active-s{% endif %}" href="/">
+            <i class="ti ti-home" aria-hidden="true"></i>Home
+        </a>
+        <a class="s-link" href="{% url 'mybooking' %}">
+            <i class="ti ti-calendar" aria-hidden="true"></i>My Booking
+        </a>
+        <a class="s-link" href="/partner/register">
+            <i class="ti ti-building-estate" aria-hidden="true"></i>Add Property
+            <span class="s-badge">Partner</span>
+        </a>
+
+        <div class="s-label">Browse</div>
+
+        <a class="s-link {% if request.path == '/2bhk/' or request.path == '/2bhk' %}active-s{% endif %}" href="/2bhk">
+            <i class="ti ti-building" aria-hidden="true"></i>2 BHK
+        </a>
+        <a class="s-link {% if request.path == '/3bhk/' or request.path == '/3bhk' %}active-s{% endif %}" href="/3bhk">
+            <i class="ti ti-building" aria-hidden="true"></i>3 BHK
+        </a>
+        <a class="s-link {% if request.path == '/pg/' or request.path == '/pg' %}active-s{% endif %}" href="/pg">
+            <i class="ti ti-bed" aria-hidden="true"></i>PG / Hostel
+        </a>
+        <div class="s-label">Legal</div>
+
+        <a class="s-link {% if request.resolver_match.url_name == 'aboutus' %}active-s{% endif %}" href="{% url 'aboutus' %}">
+            <i class="ti ti-info-circle" aria-hidden="true"></i>About Us
+        </a>
+        <a class="s-link {% if request.resolver_match.url_name == 'Terms-condition' %}active-s{% endif %}" href="{% url 'Terms-condition' %}">
+            <i class="ti ti-file-text" aria-hidden="true"></i>Terms & Conditions
+        </a>
+        <a class="s-link {% if request.resolver_match.url_name == 'privacy-policy' %}active-s{% endif %}" href="{% url 'privacy-policy' %}">
+            <i class="ti ti-shield-check" aria-hidden="true"></i>Refund & Cancellation
+        </a>
+        <div class="s-label">Support</div>
+
+        <a class="s-link {% if request.resolver_match.url_name == 'help_support' %}active-s{% endif %}" href="{% url 'help_support' %}">
+            <i class="ti ti-headset" aria-hidden="true"></i>Help &amp; Support
+        </a>
+        <a class="s-link {% if request.resolver_match.url_name == 'how_to_book' %}active-s{% endif %}" href="{% url 'how_to_book' %}">
+            <i class="ti ti-book" aria-hidden="true"></i>How to Book
+        </a>
+
+    </nav>
+
+    <div class="sidebar-foot">
+        {% if request.resolver_match.url_name == 'registerv' %}
+            <a class="s-login-btn" href="{% url 'loginv' %}">Login</a>
+        {% elif request.resolver_match.url_name == 'loginv' %}
+            <a class="s-login-btn" href="{% url 'registerv' %}">Register</a>
+        {% else %}
+            <a class="s-login-btn" href="{% url 'loginv' %}">Login / Register</a>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+        <a class="s-logout" href="{% url 'logoutv' %}">
+            <i class="ti ti-logout" style="font-size:15px" aria-hidden="true"></i>Logout
+        </a>
+        {% endif %}
+    </div>
+
+</aside>
+
+<!-- ══════════════════════════════════════════
+     SITE HEADER
+══════════════════════════════════════════ -->
+<header class="site-header">
+
+    <!-- TOP NAVBAR -->
+    <div class="navbar">
+
+        <!-- Hamburger — always visible, opens sidebar -->
+        <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+            <span class="tl"></span>
+            <span class="tl"></span>
+            <span class="tl"></span>
+        </button>
+
+        <!-- Logo -->
+        <a class="logo-wrap" href="/">
+            <div class="logo-mark">U</div>
+            <span class="logo-text"> UrbnaTenants</span>
+        </a>
+
+        <!-- Desktop animated links (hidden on mobile) -->
+        <nav class="nav-links" aria-label="Main navigation">
+            <a class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}"
+               href="/" data-text="Home"><span>Home</span></a>
+
+            <a class="nav-item" href="{% url 'mybooking' %}" data-text="My Booking"><span>My Booking</span></a>
+
+            <a class="nav-item" href="/partner/register" data-text="Add Property"><span>Add Property</span></a>
+        </nav>
+
+        <!-- Login CTA -->
+        {% if request.resolver_match.url_name == 'registerv' %}
+            <a class="nav-cta" href="{% url 'loginv' %}">Login</a>
+        {% elif request.resolver_match.url_name == 'loginv' %}
+            <a class="nav-cta" href="{% url 'registerv' %}">Register</a>
+        {% else %}
+            <a class="nav-cta" href="{% url 'loginv' %}">Login</a>
+        {% endif %}
+
+    </div>
+
+    <!-- SECONDARY NAVBAR -->
+    <nav class="navbar2" aria-label="Property type filter">
+        <ul class="n2-list">
+            <li>
+                <a class="n2-item {% if request.path == '/2bhk/' or request.path == '/2bhk' %}active2{% endif %}"
+                   href="/2bhk">2 BHK</a>
+            </li>
+            <li>
+                <a class="n2-item {% if request.path == '/3bhk/' or request.path == '/3bhk' %}active2{% endif %}"
+                   href="/3bhk">3 BHK</a>
+            </li>
+            <li>
+                <a class="n2-item {% if request.path == '/pg/' or request.path == '/pg' %}active2{% endif %}"
+                   href="/pg">PG</a>
+            </li>
+            
+            {% if user.is_authenticated %}
+            <li><span class="n2-sep" aria-hidden="true"></span></li>
+            <li>
+                <a class="n2-item n2-logout" href="{% url 'logoutv' %}">Logout</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+</header>
+
+<!-- Pushes page content below fixed header -->
+<div class="header-spacer"></div>
+
+
+<script>
+(function () {
+    var toggle  = document.getElementById('menuToggle');
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    var close   = document.getElementById('sidebarClose');
+
+    function openNav() {
+        sidebar.classList.add('is-open');
+        overlay.classList.add('show');
+        toggle.classList.add('is-open');
+        toggle.setAttribute('aria-expanded', 'true');
+        sidebar.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeNav() {
+        sidebar.classList.remove('is-open');
+        overlay.classList.remove('show');
+        toggle.classList.remove('is-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        sidebar.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    toggle.addEventListener('click', function () {
+        sidebar.classList.contains('is-open') ? closeNav() : openNav();
+    });
+    overlay.addEventListener('click', closeNav);
+    close.addEventListener('click', closeNav);
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeNav();
+    });
+}());
+</script>
+
+</body>
+</html>

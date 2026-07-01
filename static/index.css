@@ -1,0 +1,250 @@
+/* * {
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    height: 1000px;
+} */
+
+/* sabse upar ka navbar h */
+/* .navbar {
+    background-color: #2E69A8;
+    height: 10vh;
+    width: 100%;
+    display: flex;
+    position: fixed;
+    top: 0px;
+
+
+    z-index: 4;
+
+} */
+
+/* nav1  ke items  */
+/* .navitems {
+    display: flex;
+    height: 10vh;
+    width: 80%;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-wrap: wrap;
+
+}
+
+
+
+
+.border {
+    height: 5vh;
+    width: 15vw;
+    font-size: 5vmin;
+    background-color: #2E69A8;
+
+    border: 1px solid #2E69A8;
+    padding-left: 5px;
+
+    padding-left: 5px;
+    color: aliceblue;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+
+}
+
+
+.border:hover {
+    border-color: azure;
+    background-color: #2E69A8;
+    transform: scale(1.05);
+    box-shadow: 4px 4px 4px #024183;
+}
+
+.navlogo {
+    width: 14vw;
+    background-color: #2E69A8;
+    padding-left: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgb(107, 193, 22);
+
+}
+
+.navbar2 {
+    padding-top: 10vh;
+}
+
+.navitems2 {
+    height: 5vh;
+    width: 100%;
+    background-color: #024183;
+
+    font-weight: bolder;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    color: aliceblue;
+
+}
+
+.bor {
+    width: 60px;
+    display: flex;
+    justify-content: center;
+}
+
+.bor:hover {
+    border-radius: 4px;
+    box-shadow: 2px 2px 2px rgb(163, 210, 228);
+    transform: scale(1.25);
+    /* padding-left: 5px;
+    padding-right: 5PX; */
+/* background: linear-gradient(to right, lightblue, darkblue);
+
+
+
+}
+
+.menu {
+    position: absolute;
+    right: 10px;
+}
+
+.hero {
+    height: 20vh;
+    width: 100%;
+    background-color: aqua;
+    background-image: url(/static/search3.jpg);
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: -5;
+    margin-bottom: 100px;
+}
+
+.searchbox {
+    height: 8vh;
+    width: 60%;
+    font-size: 5vmin;
+    border: 1px solid;
+    border-radius: 25px;
+    text-align: center;
+    margin-right: 20px;
+    opacity: .75;
+    background-color: rgb(79, 143, 14, .25);
+    color: black;
+
+}
+
+input::placeholder {
+    color: whitesmoke;
+    font-style: italic;
+}
+
+
+.searchbutton {
+    height: 8vh;
+    width: 20%;
+    border-radius: 25%;
+    position: relative;
+    bottom: 8px;
+    opacity: .75;
+    color: white;
+    background-color: rgb(79, 143, 14);
+} */
+
+
+/* dono block ko display grid kar diya  block height 300 dono ka same class h block
+ */
+/* .block {
+    width: 100%;
+    height: 1500px;
+    background-color: blueviolet;
+
+    margin-bottom: 50px;
+    display: grid;
+    grid-template-columns: 20% 20% 20% 20%;
+    grid-template-rows: 250px;
+    column-gap: 4%;
+    justify-content: center;
+
+} */
+
+
+
+/* ha rbox ki same class h  */
+/* .box {
+    background-color: aquamarine;
+    border: 2px solid dodgerblue;
+    border-radius: 12px;
+
+}
+
+/* box hover properties */
+/* .box:hover {
+    box-shadow: 5px 5px 5px rgb(3, 152, 202);
+    transform: scale(1.1);
+    transition-timing-function: ease-in;
+
+}
+
+.im {
+    height: 60%;
+    width: 100%;
+    background-color: aliceblue;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.tex {
+    height: 40%;
+    width: 100%;
+
+    background-color: burlywood;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+
+} */
+
+
+/* ye button ki class h */
+/* .bt {
+    height: 30px;
+    width: 150px;
+    margin-top: 20px;
+    background: radial-gradient(circle, lightgreen, rgb(18, 182, 78), rgb(0, 255, 0));
+    color: rgb(9, 99, 177);
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    border: none;
+    border-radius: 10px;
+
+
+} */
+
+/* button hover properties */
+/* .bt:hover {
+    box-shadow: 2px 2px 2px rgb(176, 232, 176);
+
+} */
+
+/* button area */
+/* .ba {
+    height: 30%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.fot {
+    height: 300px;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.896);
+    position: static;
+    bottom: 0px;
+
+
+} 
+*/

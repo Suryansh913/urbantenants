@@ -1,0 +1,1071 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register as Partner | UrbanTenants</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:      #F2F6FF;
+      --ink-2:    #E8EEFA;
+      --ink-3:    #FFFFFF;
+      --slate:    #D8E4F4;
+      --blue-900: #042C53;
+      --blue-700: #0E4A84;
+      --blue-600: #185FA5;
+      --blue-500: #2579D4;
+      --blue-400: #4F8EF7;
+      --blue-300: #5BA3E8;
+      --blue-100: #B5D4F4;
+      --blue-50:  #E6F1FB;
+      --amber:    #F59E0B;
+      --amber-d:  #B45309;
+      --amber-l:  #FDE68A;
+      --green:    #16A34A;
+      --green-d:  #15803D;
+      --red:      #DC2626;
+      --white:    #FFFFFF;
+      --text-main: #0E2D5A;
+      --text-sub:  #506180;
+      --text-muted: #8FA5C4;
+      --muted:    rgba(14,45,90,0.5);
+      --line:     rgba(24,95,165,0.1);
+      --r-sm: 8px; --r-md: 14px; --r-lg: 20px; --r-xl: 28px;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--ink);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ══════════════════════
+       LEFT PANEL
+    ══════════════════════ */
+    .left {
+      width: 420px;
+      min-width: 420px;
+      background: linear-gradient(160deg, var(--blue-900) 0%, var(--blue-700) 60%, var(--blue-500) 100%);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 48px 44px;
+      border-right: none;
+    }
+
+    /* grid overlay */
+    .left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+    /* radial glow */
+    .left::after {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 340px; height: 340px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(79,142,247,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* cityscape SVG */
+    .building {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      width: 100%;
+      height: 260px;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .left-content { position: relative; z-index: 1; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(245,158,11,0.12);
+      border: 1px solid rgba(245,158,11,0.28);
+      border-radius: 100px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--amber-l);
+      margin-bottom: 22px;
+      letter-spacing: 0.3px;
+    }
+    .badge-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--amber);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    .left-content h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(28px, 3.5vw, 40px);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -1.5px;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+    .left-content h1 em {
+      font-style: normal;
+      color: var(--amber);
+    }
+    .left-content > p {
+      font-size: 14px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.65);
+      line-height: 1.7;
+      margin-bottom: 32px;
+      max-width: 300px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 0;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      background: rgba(255,255,255,0.07);
+    }
+    .stats > div {
+      flex: 1;
+      padding: 16px 14px;
+      border-right: 1px solid rgba(255,255,255,0.12);
+      text-align: center;
+    }
+    .stats > div:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Sora', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+    .stat-lbl { font-size: 11px; color: rgba(255,255,255,0.55); font-weight: 300; }
+
+    /* features list */
+    .features { margin-top: 28px; display: flex; flex-direction: column; gap: 10px; }
+    .feature-item {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: rgba(255,255,255,0.7); font-weight: 300;
+    }
+    .feature-check {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.3);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 10px;
+      color: var(--green);
+    }
+
+    /* ══════════════════════
+       RIGHT PANEL
+    ══════════════════════ */
+    .right {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 32px;
+      background: var(--ink);
+    }
+    /* soft blue blobs on right */
+    .right::before {
+      content: '';
+      position: fixed;
+      top: -100px; right: -80px;
+      width: 360px; height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(79,142,247,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .form-card { position: relative; z-index: 1; }
+
+    .form-card {
+      width: 100%;
+      max-width: 540px;
+    }
+
+    /* brand */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .brand-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--r-sm);
+      background: var(--blue-600);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brand-icon svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .brand-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+    }
+    .brand-name span { color: var(--blue-600); }
+
+    .form-card h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.8px;
+      margin-bottom: 6px;
+    }
+    .sub {
+      font-size: 14px;
+      color: var(--text-sub);
+      font-weight: 300;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-lbl {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 22px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-lbl::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    /* ── FIELDS ── */
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--text-sub);
+      margin-bottom: 7px;
+      letter-spacing: 0.2px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 11px 14px;
+      background: #fff;
+      border: 1.5px solid #D8E4F4;
+      border-radius: var(--r-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    .field input::placeholder,
+    .field textarea::placeholder { color: var(--text-muted); }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--blue-400);
+      box-shadow: 0 0 0 3px rgba(79,142,247,0.12);
+    }
+    .field select {
+      appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238FA5C4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+    .field select option { background: #fff; color: var(--text-main); }
+    .field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+    /* UPI field wrapper */
+    .upi-wrap { position: relative; }
+    .upi-wrap input { padding-right: 44px; }
+    .upi-status {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      pointer-events: none;
+      transition: all 0.2s;
+      opacity: 0;
+    }
+    .upi-status.valid   { background: rgba(34,197,94,0.18); color: var(--green); opacity: 1; }
+    .upi-status.invalid { background: rgba(239,68,68,0.18); color: var(--red);   opacity: 1; }
+
+    /* UPI suggestions dropdown */
+    .upi-suggestions {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: #fff;
+      border: 1px solid #D8E4F4;
+      border-radius: var(--r-sm);
+      overflow: hidden;
+      z-index: 50;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .upi-suggestions.show { display: block; }
+    .upi-sug-item {
+      padding: 10px 14px;
+      font-size: 13.5px;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.12s;
+    }
+    .upi-sug-item:hover { background: var(--blue-50); color: var(--blue-700); }
+    .upi-sug-icon {
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      background: var(--blue-50);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .upi-sug-label { flex: 1; }
+    .upi-sug-name { font-size: 11px; color: var(--text-muted); }
+
+    /* UPI hint line */
+    .upi-hint {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .upi-hint.ok   { color: var(--green); }
+    .upi-hint.err  { color: var(--red); }
+    .upi-hint span { font-size: 13px; }
+
+    /* row2 — two cols */
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* ── TERMS & CONDITIONS ── */
+    .terms-box {
+      background: var(--blue-50);
+      border: 1px solid var(--blue-100);
+      border-radius: var(--r-md);
+      padding: 16px;
+      margin: 20px 0;
+    }
+    .terms-scroll {
+      max-height: 130px;
+      overflow-y: auto;
+      font-size: 12.5px;
+      color: var(--text-sub);
+      line-height: 1.7;
+      padding-right: 8px;
+      margin-bottom: 14px;
+    }
+    .terms-scroll::-webkit-scrollbar { width: 4px; }
+    .terms-scroll::-webkit-scrollbar-track { background: transparent; }
+    .terms-scroll::-webkit-scrollbar-thumb { background: var(--blue-200, #85B7EB); border-radius: 2px; }
+    .terms-scroll h4 {
+      font-family: 'Sora', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      margin-top: 12px;
+    }
+    .terms-scroll h4:first-child { margin-top: 0; }
+
+    .terms-check-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding-top: 12px;
+      border-top: 1px solid var(--blue-100);
+    }
+    .custom-check {
+      width: 18px; height: 18px;
+      border-radius: 4px;
+      border: 1.5px solid var(--blue-300);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      margin-top: 1px;
+    }
+    .custom-check.checked {
+      background: var(--blue-600);
+      border-color: var(--blue-600);
+    }
+    .custom-check svg { width: 10px; height: 10px; display: none; }
+    .custom-check.checked svg { display: block; }
+    #terms_agree { display: none; }
+
+    .terms-check-row label {
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.55;
+      cursor: pointer;
+      margin: 0;
+    }
+    .terms-check-row label a {
+      color: var(--blue-400);
+      text-decoration: none;
+    }
+    .terms-check-row label a:hover { text-decoration: underline; }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: var(--r-sm);
+      background: var(--blue-600);
+      color: var(--white);
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background 0.18s, transform 0.12s, box-shadow 0.18s, opacity 0.18s;
+      box-shadow: 0 4px 20px rgba(24,95,165,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn:hover:not(:disabled) { background: var(--blue-700); transform: translateY(-1px); box-shadow: 0 8px 28px rgba(24,95,165,0.38); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn svg { width: 17px; height: 17px; }
+
+    .btn.secondary-btn {
+      background: var(--blue-900);
+      border: 1.5px solid #0C447C;
+      color: rgba(255,255,255,0.88);
+      box-shadow: 0 4px 16px rgba(4,44,83,0.25);
+      margin-top: 0;
+    }
+    .btn.secondary-btn:hover:not(:disabled) {
+      background: var(--blue-700);
+      border-color: var(--blue-700);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(4,44,83,0.35);
+    }
+
+    /* terms-blocked state */
+    #submitBtn.blocked { position: relative; overflow: hidden; }
+
+    /* lock note */
+    .lock-note {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      font-size: 12px; color: var(--text-muted);
+      margin: 14px 0 0;
+    }
+    .lock-note svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* divider */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 24px 0 18px;
+    }
+    .divider hr { flex: 1; border: none; border-top: 1px solid var(--line); }
+    .divider span { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+
+    /* error list */
+    .errorlist { list-style: none; margin: 5px 0 0; }
+    .errorlist li { font-size: 12px; color: #DC2626; display: flex; align-items: center; gap: 5px; }
+    .errorlist li::before { content: '!'; }
+    .form-error {
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: var(--r-sm);
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #FCA5A5;
+      margin-bottom: 16px;
+    }
+
+    /* ── CREDENTIAL TOAST ── */
+    #credToast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      max-width: 360px;
+      background: #fff;
+      border: 1px solid var(--amber-l);
+      border-left: 4px solid var(--amber);
+      border-radius: var(--r-md);
+      box-shadow: 0 12px 32px rgba(180,83,9,0.2);
+      padding: 16px 16px 16px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(16px) scale(0.97);
+      transition: opacity 0.28s ease, transform 0.28s ease;
+    }
+    #credToast.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    #credToast .toast-icon {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: #FEF3E2;
+      color: var(--amber-d);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    #credToast .toast-icon svg { width: 17px; height: 17px; }
+    #credToast .toast-body { flex: 1; }
+    #credToast .toast-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--amber-d);
+      margin-bottom: 3px;
+    }
+    #credToast .toast-text {
+      font-size: 12.5px;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+    #credToast .toast-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      line-height: 1;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0 0 0 4px;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    #credToast .toast-close:hover { color: var(--amber-d); }
+
+    @media (max-width: 500px) {
+      #credToast {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+        max-width: none;
+      }
+    }
+
+    /* ── KEYFRAMES ── */
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+    .form-card { animation: fadeUp 0.4s ease both; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      .left {
+        width: 100%;
+        min-width: 0;
+        padding: 40px 28px 36px;
+        border-right: none;
+        border-bottom: 1px solid var(--line);
+        justify-content: flex-start;
+        max-height: 60vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+      }
+      .building { position: relative; height: 160px; margin-top: 24px; opacity: 0.5; }
+      .right { padding: 36px 20px 56px; }
+    }
+    @media (max-width: 500px) {
+      .row2 { grid-template-columns: 1fr; }
+      .stats { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ LEFT ═══════════ -->
+<div class="left">
+  <svg class="building" viewBox="0 0 420 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    <rect x="0"   y="100" width="52" height="160" fill="#162840"/>
+    <rect x="6"   y="112" width="11" height="13" fill="#f59e0b" opacity=".5"/>
+    <rect x="22"  y="112" width="11" height="13" fill="#1e3a52"/>
+    <rect x="38"  y="112" width="11" height="13" fill="#f59e0b" opacity=".3"/>
+    <rect x="6"   y="134" width="11" height="13" fill="#1e3a52"/>
+    <rect x="22"  y="134" width="11" height="13" fill="#f59e0b" opacity=".6"/>
+    <rect x="38"  y="134" width="11" height="13" fill="#1e3a52"/>
+    <rect x="6"   y="156" width="11" height="13" fill="#f59e0b" opacity=".4"/>
+    <rect x="22"  y="156" width="11" height="13" fill="#1e3a52"/>
+    <rect x="18"  y="205" width="20" height="55" fill="#1e3a52"/>
+
+    <rect x="58"  y="130" width="48" height="130" fill="#1e3a52"/>
+    <rect x="64"  y="140" width="10" height="14" fill="#f59e0b" opacity=".6"/>
+    <rect x="80"  y="140" width="10" height="14" fill="#162840"/>
+    <rect x="64"  y="162" width="10" height="14" fill="#162840"/>
+    <rect x="80"  y="162" width="10" height="14" fill="#f59e0b" opacity=".4"/>
+    <rect x="64"  y="184" width="10" height="14" fill="#f59e0b" opacity=".3"/>
+    <rect x="80"  y="184" width="10" height="14" fill="#162840"/>
+    <rect x="70"  y="207" width="18" height="53" fill="#162840"/>
+
+    <rect x="112" y="40"  width="80" height="220" fill="#162840"/>
+    <rect x="120" y="52"  width="16" height="20" fill="#f59e0b" opacity=".7"/>
+    <rect x="142" y="52"  width="16" height="20" fill="#1e3a52"/>
+    <rect x="164" y="52"  width="16" height="20" fill="#f59e0b" opacity=".4"/>
+    <rect x="120" y="82"  width="16" height="20" fill="#1e3a52"/>
+    <rect x="142" y="82"  width="16" height="20" fill="#f59e0b" opacity=".6"/>
+    <rect x="164" y="82"  width="16" height="20" fill="#1e3a52"/>
+    <rect x="120" y="112" width="16" height="20" fill="#f59e0b" opacity=".5"/>
+    <rect x="142" y="112" width="16" height="20" fill="#1e3a52"/>
+    <rect x="164" y="112" width="16" height="20" fill="#f59e0b" opacity=".3"/>
+    <rect x="120" y="142" width="16" height="20" fill="#1e3a52"/>
+    <rect x="142" y="142" width="16" height="20" fill="#f59e0b" opacity=".7"/>
+    <rect x="164" y="142" width="16" height="20" fill="#1e3a52"/>
+    <rect x="120" y="172" width="16" height="20" fill="#f59e0b" opacity=".4"/>
+    <rect x="142" y="172" width="16" height="20" fill="#1e3a52"/>
+    <rect x="142" y="202" width="22" height="58" fill="#1e3a52"/>
+
+    <rect x="200" y="80"  width="62" height="180" fill="#1e3a52"/>
+    <rect x="207" y="92"  width="12" height="15" fill="#f59e0b" opacity=".5"/>
+    <rect x="225" y="92"  width="12" height="15" fill="#162840"/>
+    <rect x="243" y="92"  width="12" height="15" fill="#f59e0b" opacity=".7"/>
+    <rect x="207" y="116" width="12" height="15" fill="#162840"/>
+    <rect x="225" y="116" width="12" height="15" fill="#f59e0b" opacity=".4"/>
+    <rect x="243" y="116" width="12" height="15" fill="#162840"/>
+    <rect x="207" y="140" width="12" height="15" fill="#f59e0b" opacity=".6"/>
+    <rect x="225" y="140" width="12" height="15" fill="#162840"/>
+    <rect x="222" y="200" width="20" height="60" fill="#162840"/>
+
+    <rect x="270" y="110" width="55" height="150" fill="#162840"/>
+    <rect x="277" y="122" width="11" height="14" fill="#f59e0b" opacity=".6"/>
+    <rect x="294" y="122" width="11" height="14" fill="#1e3a52"/>
+    <rect x="311" y="122" width="11" height="14" fill="#f59e0b" opacity=".3"/>
+    <rect x="277" y="145" width="11" height="14" fill="#1e3a52"/>
+    <rect x="294" y="145" width="11" height="14" fill="#f59e0b" opacity=".5"/>
+    <rect x="288" y="202" width="18" height="58" fill="#1e3a52"/>
+
+    <rect x="333" y="70"  width="90" height="190" fill="#1e3a52"/>
+    <rect x="341" y="82"  width="16" height="19" fill="#f59e0b" opacity=".6"/>
+    <rect x="363" y="82"  width="16" height="19" fill="#162840"/>
+    <rect x="385" y="82"  width="16" height="19" fill="#f59e0b" opacity=".8"/>
+    <rect x="341" y="110" width="16" height="19" fill="#162840"/>
+    <rect x="363" y="110" width="16" height="19" fill="#f59e0b" opacity=".5"/>
+    <rect x="385" y="110" width="16" height="19" fill="#162840"/>
+    <rect x="341" y="138" width="16" height="19" fill="#f59e0b" opacity=".7"/>
+    <rect x="363" y="138" width="16" height="19" fill="#162840"/>
+    <rect x="385" y="138" width="16" height="19" fill="#f59e0b" opacity=".4"/>
+    <rect x="341" y="166" width="16" height="19" fill="#162840"/>
+    <rect x="363" y="166" width="16" height="19" fill="#f59e0b" opacity=".6"/>
+    <rect x="368" y="200" width="22" height="60" fill="#162840"/>
+
+    <rect x="0" y="256" width="420" height="4" fill="#0D1E30"/>
+    <line x1="0" y1="255" x2="420" y2="255" stroke="rgba(245,158,11,0.15)" stroke-width="1"/>
+  </svg>
+
+  <div class="left-content">
+    <div class="badge">
+      <div class="badge-dot"></div>
+      <span>Trusted partner network</span>
+    </div>
+    <h1>List your rooms.<br>Reach <em>thousands</em><br>of tenants.</h1>
+    <p>Join UrbanTenants' partner programme and start earning from your property today. Simple onboarding, real results.</p>
+    <div class="stats">
+      <div><div class="stat-num">12k+</div><div class="stat-lbl">Active listings</div></div>
+      <div><div class="stat-num">98%</div><div class="stat-lbl">Partner satisfaction</div></div>
+      <div><div class="stat-num">4.8★</div><div class="stat-lbl">Avg. rating</div></div>
+    </div>
+    <div class="features">
+      <div class="feature-item"><span class="feature-check">✓</span>Zero brokerage platform</div>
+      <div class="feature-item"><span class="feature-check">✓</span>Verified tenant enquiries</div>
+      <div class="feature-item"><span class="feature-check">✓</span>Direct UPI payments</div>
+      <div class="feature-item"><span class="feature-check">✓</span>24h listing visibility</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ RIGHT ═══════════ -->
+<div class="right">
+  <div class="form-card">
+
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="brand-name">Urban<span>Tenants</span></div>
+    </div>
+
+    <h2>Create partner account</h2>
+    <p class="sub">Start listing your rooms and earn from your property today</p>
+
+    <!-- REGISTER FORM -->
+    <form method="POST" novalidate id="registerForm">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          <div class="form-error">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="section-lbl">Personal Details</div>
+
+      <div class="field">
+        <label for="id_full_name">Full name</label>
+        <input type="text" name="full_name" id="id_full_name" placeholder="e.g. Rahul Sharma" value="{{ form.full_name.value|default:'' }}" autocomplete="name">
+        {% if form.full_name.errors %}<ul class="errorlist">{% for e in form.full_name.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="id_email">Email address</label>
+          <input type="email" name="email" id="id_email" placeholder="you@example.com" value="{{ form.email.value|default:'' }}" autocomplete="email">
+          {% if form.email.errors %}<ul class="errorlist">{% for e in form.email.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="field">
+          <label for="id_phone">Phone number</label>
+          <input type="tel" name="phone" id="id_phone" placeholder="+91 98765 43210" value="{{ form.phone.value|default:'' }}" autocomplete="tel">
+          {% if form.phone.errors %}<ul class="errorlist">{% for e in form.phone.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="id_address">Property address / area</label>
+        <textarea name="address" id="id_address" rows="2" placeholder="e.g. Near Gate 2, Chandigarh University UP Campus">{{ form.address.value|default:'' }}</textarea>
+        {% if form.address.errors %}<ul class="errorlist">{% for e in form.address.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="field">
+        <label for="id_service_type">Service type</label>
+        <select name="service_type" id="id_service_type">
+          <option value="" disabled selected>Select a service type</option>
+          <option value="pg"     {% if form.service_type.value == 'pg'     %}selected{% endif %}>PG / Paying Guest</option>
+          <option value="flat"   {% if form.service_type.value == 'flat'   %}selected{% endif %}>Flat / Apartment</option>
+          <option value="room"   {% if form.service_type.value == 'room'   %}selected{% endif %}>Single Room</option>
+          <option value="hostel" {% if form.service_type.value == 'hostel' %}selected{% endif %}>Hostel</option>
+          <option value="villa"  {% if form.service_type.value == 'villa'  %}selected{% endif %}>Villa / Bungalow</option>
+        </select>
+        {% if form.service_type.errors %}<ul class="errorlist">{% for e in form.service_type.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="section-lbl">Payment Details</div>
+
+      <!-- UPI FIELD with validation + suggestions -->
+      <div class="field">
+        <label for="id_upi_id">UPI ID <span style="color:rgba(255,255,255,0.3);font-weight:300;font-size:11px;">— tenants will pay here</span></label>
+        <div class="upi-wrap" style="position:relative;">
+          <input type="text" name="upi_id" id="id_upi_id"
+            placeholder="yourname@upi"
+            value="{{ form.upi_id.value|default:'' }}"
+            autocomplete="off"
+            id="upiInput">
+          <div class="upi-status" id="upiStatus"></div>
+          <div class="upi-suggestions" id="upiSuggestions"></div>
+        </div>
+        <div class="upi-hint" id="upiHint">
+          <span>💡</span> Type your name or number then select a bank handle (e.g. @okicici, @ybl)
+        </div>
+        {% if form.upi_id.errors %}<ul class="errorlist">{% for e in form.upi_id.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+
+      <div class="section-lbl">Account Security</div>
+
+      <div class="row2">
+        <div class="field">
+          <label for="id_password">Password</label>
+          <input type="password" name="password" id="id_password" placeholder="Min. 8 characters" autocomplete="new-password">
+          {% if form.password.errors %}<ul class="errorlist">{% for e in form.password.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+        <div class="field">
+          <label for="id_confirm_password">Confirm password</label>
+          <input type="password" name="confirm_password" id="id_confirm_password" placeholder="Repeat password" autocomplete="new-password">
+          {% if form.confirm_password.errors %}<ul class="errorlist">{% for e in form.confirm_password.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+      </div>
+
+      <!-- TERMS & CONDITIONS -->
+      <div class="terms-box">
+        <div class="terms-scroll" id="termsScroll">
+          <h4>1. Partner Eligibility</h4>
+          You must be the legal owner or authorised representative of the property you list. Listing a property without authorisation is strictly prohibited and may result in account termination.
+
+          <h4>2. Listing Accuracy</h4>
+          All listing information — including rent, deposit, location, amenities and photographs — must be accurate and up to date. Misleading listings will be removed without notice.
+
+          <h4>3. No Brokerage Policy</h4>
+          UrbanTenants is a zero-brokerage platform. Partners must not charge tenants any brokerage or commission beyond the agreed rent and deposit. Violation will result in permanent account suspension.
+
+          <h4>4. Payment Responsibility</h4>
+          All financial transactions are between the partner and the tenant. UrbanTenants is not liable for any payment disputes. Ensure your UPI ID is accurate and active.
+
+          <h4>5. Conduct & Communication</h4>
+          Partners must communicate honestly, respectfully, and promptly with tenants. Harassment, discrimination, or fraudulent behaviour will lead to immediate account termination.
+
+          <h4>6. Content Ownership</h4>
+          By submitting photos and descriptions, you grant UrbanTenants a non-exclusive licence to display this content on the platform for promotional purposes.
+
+          <h4>7. Account Termination</h4>
+          UrbanTenants reserves the right to suspend or terminate partner accounts that violate these terms, without prior notice or refund.
+
+          <h4>8. Governing Law</h4>
+          These terms are governed by the laws of India. Disputes shall be subject to the jurisdiction of courts in Uttar Pradesh, India.
+        </div>
+
+        <div class="terms-check-row">
+          <input type="checkbox" name="terms_agree" id="terms_agree">
+          <div class="custom-check" id="customCheck">
+            <svg viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="1.5 6 4.5 9 10.5 3"/>
+            </svg>
+          </div>
+          <label for="terms_agree">
+            I have read and agree to the <a href="{% url 'Terms-condition' %}" target="_blank">Terms & Conditions</a> and <a href="{% url 'privacy-policy' %}" target="_blank">Privacy Policy</a> of UrbanTenants.
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" name="register_submit" class="btn" id="submitBtn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Create partner account
+      </button>
+
+      <div class="lock-note">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Your data is encrypted and secure</span>
+      </div>
+    </form>
+
+    <!-- LOGIN DIVIDER -->
+    <div class="divider"><hr><span>already a partner?</span><hr></div>
+
+    <form method="POST" class="mini-login-form">
+      {% csrf_token %}
+      {% if login_error %}<div class="form-error">{{ login_error }}</div>{% endif %}
+      <div class="field">
+        <label for="login_email">Email address</label>
+        <input type="email" name="login_email" id="login_email" placeholder="Enter your email" autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="login_password">Password</label>
+        <input type="password" name="login_password" id="login_password" placeholder="Enter your password" autocomplete="current-password">
+      </div>
+      <button type="submit" name="login_submit" class="btn secondary-btn">Login as Partner</button>
+    </form>
+
+  </div>
+</div>
+
+<script>
+/* ── UPI SUGGESTIONS ── */
+const UPI_HANDLES = [
+  { handle: '@okicici',   name: 'ICICI Bank',       icon: '🏦' },
+  { handle: '@okhdfcbank',name: 'HDFC Bank',         icon: '🏦' },
+  { handle: '@oksbi',     name: 'State Bank of India',icon: '🏦' },
+  { handle: '@okaxis',    name: 'Axis Bank',          icon: '🏦' },
+  { handle: '@ybl',       name: 'PhonePe / Yes Bank', icon: '📱' },
+  { handle: '@ibl',       name: 'IndusInd Bank',      icon: '🏦' },
+  { handle: '@axl',       name: 'Axis Bank (Lite)',   icon: '🏦' },
+  { handle: '@upi',       name: 'Generic UPI',        icon: '💳' },
+  { handle: '@paytm',     name: 'Paytm',              icon: '📲' },
+  { handle: '@apl',       name: 'Amazon Pay',         icon: '🛒' },
+  { handle: '@freecharge',name: 'Freecharge',         icon: '⚡' },
+  { handle: '@kotak',     name: 'Kotak Bank',         icon: '🏦' },
+  { handle: '@pnb',       name: 'Punjab National Bank',icon:'🏦' },
+  { handle: '@boi',       name: 'Bank of India',      icon: '🏦' },
+  { handle: '@unionbank', name: 'Union Bank',         icon: '🏦' },
+];
+
+const upiInput   = document.getElementById('id_upi_id');
+const upiSug     = document.getElementById('upiSuggestions');
+const upiStatus  = document.getElementById('upiStatus');
+const upiHint    = document.getElementById('upiHint');
+
+function validateUPI(val) {
+  return /^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z]{2,}$/.test(val.trim());
+}
+
+upiInput.addEventListener('input', function () {
+  const val = this.value;
+  const atIdx = val.indexOf('@');
+
+  // show/hide suggestions
+  if (atIdx > 0) {
+    const afterAt = val.slice(atIdx + 1).toLowerCase();
+    const filtered = UPI_HANDLES.filter(h =>
+      h.handle.slice(1).startsWith(afterAt)
+    );
+    if (filtered.length && afterAt.length < 12) {
+      renderSuggestions(val.slice(0, atIdx), filtered);
+    } else {
+      upiSug.classList.remove('show');
+    }
+  } else if (val.length > 1 && atIdx === -1) {
+    // show all when no @ yet
+    renderSuggestions(val, UPI_HANDLES.slice(0, 8));
+  } else {
+    upiSug.classList.remove('show');
+  }
+
+  // validate
+  if (val.length > 3) {
+    if (validateUPI(val)) {
+      upiStatus.className = 'upi-status valid';
+      upiStatus.textContent = '✓';
+      upiHint.className = 'upi-hint ok';
+      upiHint.innerHTML = '<span>✓</span> Valid UPI format';
+    } else {
+      upiStatus.className = 'upi-status invalid';
+      upiStatus.textContent = '✕';
+      upiHint.className = 'upi-hint err';
+      upiHint.innerHTML = '<span>!</span> Format: yourname@bankhandle (e.g. rahul@okicici)';
+    }
+  } else {
+    upiStatus.className = 'upi-status';
+    upiHint.className = 'upi-hint';
+    upiHint.innerHTML = '<span>💡</span> Type your name or number then select a bank handle';
+  }
+});
+
+function renderSuggestions(prefix, list) {
+  upiSug.innerHTML = list.map(h => `
+    <div class="upi-sug-item" data-handle="${h.handle}" data-prefix="${prefix}">
+      <span class="upi-sug-icon">${h.icon}</span>
+      <div class="upi-sug-label">
+        <div>${prefix}${h.handle}</div>
+        <div class="upi-sug-name">${h.name}</div>
+      </div>
+    </div>
+  `).join('');
+  upiSug.classList.add('show');
+}
+
+upiSug.addEventListener('click', function (e) {
+  const item = e.target.closest('.upi-sug-item');
+  if (!item) return;
+  upiInput.value = item.dataset.prefix + item.dataset.handle;
+  upiSug.classList.remove('show');
+  upiInput.dispatchEvent(new Event('input'));
+  upiInput.focus();
+});
+
+document.addEventListener('click', function (e) {
+  if (!upiInput.contains(e.target) && !upiSug.contains(e.target)) {
+    upiSug.classList.remove('show');
+  }
+});
+
+/* ── TERMS CHECKBOX ── */
+const checkbox   = document.getElementById('terms_agree');
+const customChk  = document.getElementById('customCheck');
+const submitBtn  = document.getElementById('submitBtn');
+
+function toggleTerms() {
+  checkbox.checked = !checkbox.checked;
+  customChk.classList.toggle('checked', checkbox.checked);
+  submitBtn.disabled = !checkbox.checked;
+}
+
+customChk.addEventListener('click', toggleTerms);
+document.getElementById('terms_agree').addEventListener('change', function () {
+  customChk.classList.toggle('checked', this.checked);
+  submitBtn.disabled = !this.checked;
+});
+
+/* ── SAVE CREDENTIALS TOAST ── */
+const emailInput = document.getElementById('id_email');
+let emailAlertShown = false;
+
+function isValidEmail(val) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+}
+
+function showCredentialToast() {
+  const existing = document.getElementById('credToast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'credToast';
+  toast.innerHTML = `
+    <div class="toast-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    </div>
+    <div class="toast-body">
+      <div class="toast-title">Save your login details</div>
+      <div class="toast-text">Keep this email and password handy — you'll need them to log in next time.</div>
+    </div>
+    <button class="toast-close" type="button" aria-label="Close">&times;</button>
+  `;
+  document.body.appendChild(toast);
+
+  requestAnimationFrame(() => toast.classList.add('show'));
+
+  const autoHide = setTimeout(() => hideToast(toast), 5000);
+
+  toast.querySelector('.toast-close').addEventListener('click', () => {
+    clearTimeout(autoHide);
+    hideToast(toast);
+  });
+}
+
+function hideToast(toast) {
+  toast.classList.remove('show');
+  setTimeout(() => toast.remove(), 300);
+}
+
+emailInput.addEventListener('blur', function () {
+  const val = this.value;
+  if (isValidEmail(val) && !emailAlertShown) {
+    emailAlertShown = true;
+    showCredentialToast();
+  }
+});
+
+// Reset so the toast can show again if the user edits the email
+emailInput.addEventListener('input', function () {
+  emailAlertShown = false;
+});
+</script>
+
+</body>
+</html>

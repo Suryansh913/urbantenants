@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice PDF</title>
+    <style>
+        body {
+            font-family: Helvetica, sans-serif;
+            font-size: 13px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .row {
+            margin-bottom: 6px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        .note {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #999;
+        }
+    </style>
+</head>
+<body>
+    <h2>Verified Booking Invoice</h2>
+
+    <div class="row"><strong>Invoice No:</strong> INV-{{ booking.id }}</div>
+    <div class="row"><strong>Booking Date:</strong> {{ booking.created_at }}</div>
+    <div class="row"><strong>Customer Name:</strong> {{ booking.name }}</div>
+    <div class="row"><strong>Email:</strong> {{ booking.email }}</div>
+    <div class="row"><strong>Phone:</strong> {{ booking.phone }}</div>
+    <div class="row"><strong>Property Name:</strong> {{ booking.room.Room_title }}</div>
+    <div class="row"><strong>Check In Date:</strong> {{ booking.check_in_date }}</div>
+    <div class="row"><strong>Payment Method:</strong> {{ booking.payment_method }}</div>
+    <div class="row"><strong>Transaction ID:</strong> {{ booking.transaction_id }}</div>
+    <div class="row"><strong>Booking Status:</strong> {{ booking.status }}</div>
+
+    <table>
+        <tr>
+            <th>Description</th>
+            <th>Amount</th>
+        </tr>
+        <tr>
+            <td>Room Booking Charge</td>
+            <td>₹ {{ subtotal }}</td>
+        </tr>
+        <tr>
+            <td>GST (18%)</td>
+            <td>₹ {{ gst }}</td>
+        </tr>
+        <tr>
+            <td><strong>Total Amount</strong></td>
+            <td><strong>₹ {{ total }}</strong></td>
+        </tr>
+    </table>
+
+    <div class="note">
+        <strong>Trust & Safety Note:</strong>
+        This is a system-generated invoice for your confirmed booking and can be used for verification and support purposes.
+        </div>
+            <div style="margin-top: 40px; padding: 15px; border-top: 2px solid #ccc; font-size: 14px;">
+    
+        <h3 style="color: #2c3e50;">Guarantee & Trust Assurance</h3>
+    
+        <p>
+            This is a system-generated invoice for your confirmed booking with 
+            <strong>Urban Tenants</strong>. The reservation has been securely recorded 
+            and verified on our platform. This document serves as an official proof 
+            of your booking and ensures that the transaction is authentic and protected 
+            against fraudulent activities.
+        </p>
+    
+        <p>
+            For your safety, rely only on the information provided through our official platform. 
+            In case of any discrepancy, please contact our support team immediately.
+        </p>
+
+        <p>Thank you for choosing <strong>Urban Tenants</strong>.</p>
+
+        <div style="margin-top: 30px; text-align: right;">
+            <strong>Authorized By</strong><br>
+            <strong>CEO, Urban Tenants</strong>
+        </div>
+    </div>
+</body>
+</html>

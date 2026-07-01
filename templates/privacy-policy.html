@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Refund & Cancellation Policy — UrbnaTenants</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-50:  #E6F1FB;
+      --blue-100: #B5D4F4;
+      --blue-200: #85B7EB;
+      --blue-300: #5BA3E8;
+      --blue-500: #2579D4;
+      --blue-600: #185FA5;
+      --blue-700: #0E4A84;
+      --blue-800: #0C447C;
+      --blue-900: #042C53;
+      --amber-50:  #FAEEDA;
+      --amber-100: #FAC775;
+      --amber-300: #EF9F27;
+      --amber-600: #854F0B;
+      --amber-700: #633806;
+      --green-50:  #EAF3DE;
+      --green-100: #C0DD97;
+      --green-300: #97C459;
+      --green-600: #3B6D11;
+      --green-700: #27500A;
+      --red-50:  #FCEBEB;
+      --red-100: #F7C1C1;
+      --red-300: #F09595;
+      --red-600: #A32D2D;
+      --red-700: #791F1F;
+      --neutral-50:  #F7F9FC;
+      --neutral-100: #EEF2F8;
+      --neutral-200: #D8E1EF;
+      --neutral-300: #B8C9E0;
+      --neutral-400: #8FA5C4;
+      --neutral-600: #506180;
+      --neutral-700: #374B65;
+      --neutral-900: #111827;
+      --white: #ffffff;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --radius-xl: 32px;
+      --shadow-sm: 0 2px 8px rgba(24,95,165,0.07);
+      --shadow-md: 0 6px 24px rgba(24,95,165,0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--neutral-50);
+      color: var(--neutral-900);
+      font-size: 16px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(145deg, var(--blue-900) 0%, var(--blue-700) 55%, var(--blue-500) 100%);
+      position: relative;
+      overflow: hidden;
+      padding: 88px 24px 72px;
+      text-align: center;
+    }
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+    .hero-glow {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 25%, rgba(91,163,232,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 70%, rgba(255,255,255,0.07) 0%, transparent 45%);
+      pointer-events: none;
+    }
+    .hero-inner { max-width: 760px; margin: 0 auto; position: relative; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.88);
+      margin-bottom: 28px;
+      letter-spacing: 0.3px;
+    }
+    .hero-badge svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.8; }
+    .hero h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(32px, 5.5vw, 56px);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+    }
+    .hero h1 em { font-style: normal; color: var(--blue-100); }
+    .hero-sub {
+      font-size: clamp(15px, 2vw, 18px);
+      color: rgba(255,255,255,0.68);
+      max-width: 580px;
+      margin: 0 auto 44px;
+      font-weight: 300;
+      line-height: 1.65;
+    }
+    .hero-meta { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 100px;
+      padding: 7px 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+    }
+    .hero-chip svg { width: 13px; height: 13px; opacity: 0.75; }
+
+    /* ── LAYOUT ── */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    /* ── SIDEBAR TOC ── */
+    .toc {
+      position: sticky;
+      top: 24px;
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .toc-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      color: var(--neutral-400);
+      margin-bottom: 16px;
+    }
+    .toc ul { list-style: none; }
+    .toc ul li { margin-bottom: 4px; }
+    .toc ul li a {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13.5px;
+      color: var(--neutral-600);
+      text-decoration: none;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s, color 0.15s;
+      line-height: 1.4;
+    }
+    .toc ul li a:hover { background: var(--blue-50); color: var(--blue-600); }
+    .toc ul li a .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: var(--neutral-100);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neutral-400);
+      flex-shrink: 0;
+    }
+    .toc-contact {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--neutral-200);
+    }
+    .toc-contact p { font-size: 12px; color: var(--neutral-400); margin-bottom: 10px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; }
+    .toc-contact a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--blue-600);
+      text-decoration: none;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+    .toc-contact a svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── CONTENT ── */
+    .content { min-width: 0; }
+
+    /* SUMMARY STRIP */
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+    .summary-card {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    .summary-card:hover { border-color: var(--blue-300); box-shadow: var(--shadow-sm); }
+    .summary-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .summary-card-icon.blue { background: var(--blue-50); }
+    .summary-card-icon.amber { background: var(--amber-50); }
+    .summary-card-icon.green { background: var(--green-50); }
+    .summary-card-icon svg { width: 20px; height: 20px; }
+    .summary-card-icon.blue svg { color: var(--blue-600); }
+    .summary-card-icon.amber svg { color: var(--amber-600); }
+    .summary-card-icon.green svg { color: var(--green-600); }
+    .summary-card strong {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--neutral-900);
+      line-height: 1.3;
+    }
+    .summary-card span { font-size: 12.5px; color: var(--neutral-600); line-height: 1.55; }
+
+    /* INTRO */
+    .intro-block {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      margin-bottom: 28px;
+      border-left: 4px solid var(--blue-600);
+    }
+    .intro-block p {
+      font-size: 16px;
+      color: var(--neutral-600);
+      font-weight: 300;
+      line-height: 1.8;
+    }
+    .intro-block p + p { margin-top: 14px; }
+
+    /* TIMELINE — REFUND WINDOW */
+    .timeline-block {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      margin-bottom: 20px;
+    }
+    .timeline-block h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--neutral-700);
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .tl-item {
+      display: flex;
+      gap: 16px;
+      position: relative;
+    }
+    .tl-item:not(:last-child) .tl-line { flex: 1; width: 2px; background: var(--neutral-200); margin: 4px auto 0; display: block; min-height: 32px; }
+    .tl-dot-col { display: flex; flex-direction: column; align-items: center; width: 32px; flex-shrink: 0; }
+    .tl-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Sora', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .tl-dot.green { background: var(--green-50); color: var(--green-600); }
+    .tl-dot.amber { background: var(--amber-50); color: var(--amber-600); }
+    .tl-dot.red   { background: var(--red-50);   color: var(--red-600); }
+    .tl-body { padding-bottom: 24px; flex: 1; }
+    .tl-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      border-radius: 4px;
+      padding: 2px 8px;
+      margin-bottom: 6px;
+    }
+    .tl-tag.green { background: var(--green-50); color: var(--green-600); }
+    .tl-tag.amber { background: var(--amber-50); color: var(--amber-600); }
+    .tl-tag.red   { background: var(--red-50);   color: var(--red-600); }
+    .tl-title { font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 600; color: var(--neutral-900); margin-bottom: 4px; }
+    .tl-desc  { font-size: 14px; color: var(--neutral-600); line-height: 1.6; }
+
+    /* SECTIONS */
+    .tc-section {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      margin-bottom: 20px;
+      scroll-margin-top: 32px;
+      transition: box-shadow 0.2s;
+    }
+    .tc-section:hover { box-shadow: var(--shadow-sm); }
+    .tc-section:target { border-color: var(--blue-300); box-shadow: 0 0 0 3px rgba(24,95,165,0.08); }
+
+    .tc-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .tc-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      height: 36px;
+      background: var(--blue-50);
+      border-radius: var(--radius-sm);
+      font-family: 'Sora', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--blue-700);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .tc-section h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--neutral-900);
+      letter-spacing: -0.3px;
+      line-height: 1.3;
+    }
+    .tc-section p {
+      font-size: 15px;
+      color: var(--neutral-600);
+      line-height: 1.8;
+      margin-bottom: 12px;
+    }
+    .tc-section p:last-child { margin-bottom: 0; }
+    .tc-section ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .tc-section ul li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 15px;
+      color: var(--neutral-600);
+      line-height: 1.65;
+    }
+    .tc-section ul li::before {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--blue-500);
+      flex-shrink: 0;
+      margin-top: 9px;
+    }
+    .tc-section .note {
+      background: var(--blue-50);
+      border-left: 3px solid var(--blue-300);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--blue-700);
+      margin-top: 14px;
+      font-style: italic;
+    }
+    .tc-section .warning-note {
+      background: var(--amber-50);
+      border-left: 3px solid var(--amber-300);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--amber-600);
+      margin-top: 14px;
+    }
+
+    /* HIGHLIGHTED / DARK SECTION */
+    .highlight-box {
+      background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-700) 100%);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      margin-bottom: 20px;
+      color: #fff;
+      scroll-margin-top: 32px;
+    }
+    .highlight-box .tc-num { background: rgba(255,255,255,0.12); color: var(--blue-100); }
+    .highlight-box h2 { color: #fff; }
+    .highlight-box p { color: rgba(255,255,255,0.72); margin-bottom: 12px; }
+    .highlight-box p:last-child { margin-bottom: 0; }
+    .highlight-box ul li { color: rgba(255,255,255,0.72); }
+    .highlight-box ul li::before { background: var(--blue-200); }
+
+    /* PROCESS STEPS */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .step-card {
+      background: var(--neutral-50);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      padding: 18px 16px;
+      text-align: center;
+    }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      background: var(--blue-600);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 auto 12px;
+    }
+    .step-card strong {
+      display: block;
+      font-family: 'Sora', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--neutral-900);
+      margin-bottom: 6px;
+    }
+    .step-card span { font-size: 12.5px; color: var(--neutral-600); line-height: 1.5; }
+
+    /* CONTACT */
+    .contact-section {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      scroll-margin-top: 32px;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .contact-card {
+      background: var(--neutral-50);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      padding: 20px 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      transition: border-color 0.18s, background 0.18s;
+    }
+    .contact-card:hover { border-color: var(--blue-300); background: var(--blue-50); }
+    .contact-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      background: var(--blue-600);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .contact-card-icon svg { width: 20px; height: 20px; color: #fff; }
+    .contact-card-label { font-size: 12px; color: var(--neutral-400); margin-bottom: 3px; font-weight: 500; }
+    .contact-card-value { font-size: 14px; font-weight: 500; color: var(--neutral-900); word-break: break-all; }
+
+    .last-updated {
+      text-align: center;
+      font-size: 13px;
+      color: var(--neutral-400);
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--neutral-200);
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-badge { animation: fadeUp 0.45s ease both; }
+    .hero h1    { animation: fadeUp 0.5s ease 0.07s both; }
+    .hero-sub   { animation: fadeUp 0.5s ease 0.13s both; }
+    .hero-meta  { animation: fadeUp 0.5s ease 0.19s both; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .page-wrap { grid-template-columns: 1fr; }
+      .toc { position: static; }
+      .summary-strip { grid-template-columns: 1fr 1fr; }
+      .steps-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .hero { padding: 64px 20px 56px; }
+      .page-wrap { padding: 36px 16px 56px; gap: 24px; }
+      .tc-section, .contact-section, .intro-block, .timeline-block { padding: 24px 20px; }
+      .highlight-box { padding: 24px 20px; }
+      .summary-strip { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+{% include 'header.html' %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      Legal Document
+    </div>
+    <h1>Refund &amp; <em>Cancellation</em></h1>
+    <p class="hero-sub">Understand our policies on cancellations, listing removals, and dispute handling. UrbnaTenants is a free platform — we facilitate connections, not financial transactions.</p>
+    <div class="hero-meta">
+      <span class="hero-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Effective: 04 June 2026
+      </span>
+      <span class="hero-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        ~4 min read
+      </span>
+      <span class="hero-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Governed by Indian Law
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE BODY -->
+<div class="page-wrap">
+
+  <!-- SIDEBAR TOC -->
+  <aside class="toc">
+    <p class="toc-label">Table of Contents</p>
+    <ul>
+      <li><a href="#s1"><span class="num">1</span> Overview</a></li>
+      <li><a href="#s2"><span class="num">2</span> No Platform Fee Refunds</a></li>
+      <li><a href="#s3"><span class="num">3</span> Cancellation by Tenants</a></li>
+      <li><a href="#s4"><span class="num">4</span> Cancellation by Landlords</a></li>
+      <li><a href="#s5"><span class="num">5</span> Listing Removal</a></li>
+      <li><a href="#s6"><span class="num">6</span> Deposit & Rent Disputes</a></li>
+      <li><a href="#s7"><span class="num">7</span> How to Raise a Dispute</a></li>
+      <li><a href="#s8"><span class="num">8</span> Account Cancellation</a></li>
+      <li><a href="#s9"><span class="num">9</span> Platform Responsibility</a></li>
+      <li><a href="#s10"><span class="num">10</span> Contact Us</a></li>
+    </ul>
+    <div class="toc-contact">
+      <p>Quick Contact</p>
+      <a href="mailto:suryanshshukla82@gmail.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        suryanshshukla82@gmail.com
+      </a>
+      <a href="tel:+918303970186">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        +91 83039 70186
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- SUMMARY STRIP -->
+    <div class="summary-strip">
+      <div class="summary-card">
+        <div class="summary-card-icon blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        </div>
+        <strong>Zero Platform Fees</strong>
+        <span>We charge nothing — so there is nothing to refund from us.</span>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-icon amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <strong>Disputes Are Bilateral</strong>
+        <span>Rent & deposit matters are resolved directly between landlord and tenant.</span>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <strong>Cancel Anytime</strong>
+        <span>Close your account or remove listings at any time with no penalty.</span>
+      </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="intro-block">
+      <p>Welcome to UrbnaTenants' Refund & Cancellation Policy. Because UrbnaTenants operates as a <strong>completely free, zero-brokerage platform</strong>, we do not collect any fees, deposits, or payments from users — which means there are no platform-side charges to refund.</p>
+      <p>This policy clarifies how cancellations of listings and accounts are handled, and what steps users should take when disputes arise over rent or security deposits paid directly to a landlord.</p>
+    </div>
+
+    <!-- SECTION 1 -->
+    <div class="tc-section" id="s1">
+      <div class="tc-header">
+        <span class="tc-num">01</span>
+        <h2>Overview</h2>
+      </div>
+      <p>UrbnaTenants is a listing and discovery platform. We connect students looking for accommodation with property owners in the Chandigarh University Uttar Pradesh region. We do not handle, hold, process, or intermediate any money between any parties.</p>
+      <p>As such, this policy covers two distinct areas:</p>
+      <ul>
+        <li><strong>Platform-level cancellations</strong> — cancelling listings, bookmarks, or accounts on UrbnaTenants</li>
+        <li><strong>Real-world rental disputes</strong> — guidance on how to handle deposit or rent-related issues with a landlord</li>
+      </ul>
+      <div class="note">UrbnaTenants is not a party to any rental agreement. Our role ends at the point of connection between tenant and landlord.</div>
+    </div>
+
+    <!-- SECTION 2 — HIGHLIGHTED -->
+    <div class="highlight-box" id="s2">
+      <div class="tc-header">
+        <span class="tc-num">02</span>
+        <h2>No Platform Fee — No Platform Refund</h2>
+      </div>
+      <p>UrbnaTenants does not charge any fee at any stage — not for registration, not for browsing, not for contacting landlords, and not for listing a property. This is the cornerstone of our model.</p>
+      <p>Because we collect zero rupees from any user, there is no platform-level amount to refund under any circumstances. This policy does not cover refunds of rent, security deposits, or advance payments — those are entirely between the landlord and tenant.</p>
+      <ul>
+        <li>No sign-up fee → no refund applicable</li>
+        <li>No listing fee → no refund applicable</li>
+        <li>No brokerage or commission → no refund applicable</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="tc-section" id="s3">
+      <div class="tc-header">
+        <span class="tc-num">03</span>
+        <h2>Cancellation by Tenants</h2>
+      </div>
+      <p>As a tenant, you may at any time:</p>
+      <ul>
+        <li>Remove saved or bookmarked listings from your profile</li>
+        <li>Stop communicating with a landlord through the platform</li>
+        <li>Close your UrbnaTenants account (see Section 8)</li>
+      </ul>
+      <p>If you have already entered into a rental agreement with a landlord outside of UrbnaTenants, any cancellation of that agreement — and any financial consequences such as forfeiture of a security deposit — is governed solely by the terms of that agreement and applicable Indian tenancy law.</p>
+      <div class="warning-note">
+        ⚠ <strong>Important:</strong> If you have paid a security deposit or advance rent directly to a landlord, your rights to a refund depend on the written rental agreement between you and that landlord — not on UrbnaTenants policy.
+      </div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="tc-section" id="s4">
+      <div class="tc-header">
+        <span class="tc-num">04</span>
+        <h2>Cancellation by Landlords</h2>
+      </div>
+      <p>As a landlord, you are free to:</p>
+      <ul>
+        <li>Remove or deactivate any of your property listings at any time</li>
+        <li>Mark a listing as "unavailable" once a tenant has been found</li>
+        <li>Close your UrbnaTenants account at any time</li>
+      </ul>
+      <p>If a landlord cancels an agreed-upon rental arrangement after receiving a deposit from a tenant, this is a civil matter governed by the terms of the rental agreement. UrbnaTenants expects landlords to act in good faith and honour arrangements they have committed to.</p>
+      <p>Landlords who repeatedly mislead or defraud tenants may have their accounts suspended or permanently removed from the platform following investigation.</p>
+    </div>
+
+    <!-- SECTION 5 -->
+    <div class="tc-section" id="s5">
+      <div class="tc-header">
+        <span class="tc-num">05</span>
+        <h2>Listing Removal Policy</h2>
+      </div>
+      <p>Listings on UrbnaTenants can be removed in the following ways:</p>
+      <ul>
+        <li><strong>By the landlord</strong> — voluntarily, at any time, once the property is occupied or taken off market</li>
+        <li><strong>By UrbnaTenants</strong> — if a listing is found to be fraudulent, inaccurate, duplicate, or in violation of our Terms & Conditions</li>
+        <li><strong>Following a reported complaint</strong> — if a verified complaint is raised and found to be valid after review</li>
+      </ul>
+      <p>There is no charge or penalty associated with listing removal, regardless of the reason. Landlords are encouraged to keep their listings up to date and remove properties promptly once they are no longer available.</p>
+      <div class="note">Listings that remain active but are no longer available cause frustration for tenants and damage trust on the platform. Please remove listings promptly.</div>
+    </div>
+
+    <!-- SECTION 6 — DEPOSIT & RENT DISPUTES -->
+    <div class="tc-section" id="s6">
+      <div class="tc-header">
+        <span class="tc-num">06</span>
+        <h2>Deposit & Rent Disputes</h2>
+      </div>
+      <p>Since all payments between tenants and landlords occur outside the UrbnaTenants platform, we do not have the authority or ability to compel a refund of any rent, deposit, or advance payment.</p>
+      <p>However, we understand that disputes can arise. If you are facing a deposit or rent dispute, we recommend the following steps:</p>
+
+      <!-- REFUND WINDOW TIMELINE -->
+      <div class="timeline-block" style="border:none;padding:0;margin-top:20px;background:transparent;">
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot-col">
+              <div class="tl-dot green">1</div>
+              <span class="tl-line"></span>
+            </div>
+            <div class="tl-body">
+              <span class="tl-tag green">Step 1</span>
+              <div class="tl-title">Communicate directly</div>
+              <div class="tl-desc">Contact the landlord in writing (WhatsApp, email) to formally request your deposit or raise the issue. Keep a record of all communication.</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot-col">
+              <div class="tl-dot amber">2</div>
+              <span class="tl-line"></span>
+            </div>
+            <div class="tl-body">
+              <span class="tl-tag amber">Step 2</span>
+              <div class="tl-title">Report to UrbnaTenants</div>
+              <div class="tl-desc">If the issue remains unresolved, report the landlord to us via email. We may restrict their account or remove their listings pending review.</div>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot-col">
+              <div class="tl-dot red">3</div>
+            </div>
+            <div class="tl-body">
+              <span class="tl-tag red">Step 3</span>
+              <div class="tl-title">Seek legal recourse</div>
+              <div class="tl-desc">For unresolved disputes involving significant sums, you may approach a Consumer Forum, Rent Tribunal, or District Court under applicable Indian law.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 7 -->
+    <div class="tc-section" id="s7">
+      <div class="tc-header">
+        <span class="tc-num">07</span>
+        <h2>How to Raise a Dispute with Us</h2>
+      </div>
+      <p>If you wish to report a fraudulent listing, a deceptive landlord, or any misconduct you have encountered through the platform, here is how the process works:</p>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <strong>Contact Us</strong>
+          <span>Email suryanshshukla82@gmail.com with your account details and a description of the issue.</span>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <strong>We Review</strong>
+          <span>Our team reviews the complaint within 48–72 hours and may reach out to both parties for clarification.</span>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <strong>Action Taken</strong>
+          <span>Depending on findings, we may remove a listing, restrict an account, or recommend escalation to authorities.</span>
+        </div>
+      </div>
+
+      <div class="note" style="margin-top:20px;">We aim to make UrbnaTenants a safe and trustworthy space. Your reports help us maintain the quality of our platform.</div>
+    </div>
+
+    <!-- SECTION 8 -->
+    <div class="tc-section" id="s8">
+      <div class="tc-header">
+        <span class="tc-num">08</span>
+        <h2>Account Cancellation</h2>
+      </div>
+      <p>You may cancel or delete your UrbnaTenants account at any time, for any reason, at no cost. To request account deletion:</p>
+      <ul>
+        <li>Email us at <strong>suryanshshukla82@gmail.com</strong> with your registered email address and a deletion request</li>
+        <li>Upon confirmation, your account, profile, and all associated listings will be permanently removed</li>
+        <li>This action is irreversible — your data will be deleted and cannot be recovered</li>
+      </ul>
+      <p>We will process account deletion requests within 7 business days of receiving a confirmed request.</p>
+      <div class="warning-note">
+        ⚠ Deleting your account does not cancel any active rental agreements you may have entered into with a landlord. Those remain unaffected and governed by the terms of that agreement.
+      </div>
+    </div>
+
+    <!-- SECTION 9 -->
+    <div class="tc-section" id="s9">
+      <div class="tc-header">
+        <span class="tc-num">09</span>
+        <h2>Platform Responsibility</h2>
+      </div>
+      <p>UrbnaTenants is a neutral discovery platform and is not responsible for:</p>
+      <ul>
+        <li>Any financial loss arising from rental transactions between users</li>
+        <li>A landlord's failure to return a security deposit</li>
+        <li>Misrepresentation of property details by a landlord</li>
+        <li>Any verbal or informal agreements made outside the platform</li>
+        <li>The outcome of any rental arrangement initiated through our platform</li>
+      </ul>
+      <p>We strongly encourage all users to obtain written agreements, use traceable payment methods (UPI, bank transfer), and verify properties before committing to any payment.</p>
+    </div>
+
+    <!-- SECTION 10 — CONTACT -->
+    <div class="contact-section" id="s10">
+      <div class="tc-header">
+        <span class="tc-num">10</span>
+        <h2>Contact Us</h2>
+      </div>
+      <p>For any questions about this policy, to report a dispute, or to request account deletion, please reach out to us. We aim to respond to all queries within 24–48 hours.</p>
+      <div class="contact-grid">
+        <a href="mailto:suryanshshukla82@gmail.com" class="contact-card">
+          <div class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="contact-card-label">Email</div>
+            <div class="contact-card-value">suryanshshukla82@gmail.com</div>
+          </div>
+        </a>
+        <a href="tel:+918303970186" class="contact-card">
+          <div class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          </div>
+          <div>
+            <div class="contact-card-label">Phone</div>
+            <div class="contact-card-value">+91 83039 70186</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <p class="last-updated">Last updated: 04 June 2026 · © 2026 UrbnaTenants. All rights reserved.</p>
+
+  </main>
+</div>
+{% include 'chat_widget.html' %}
+{% include 'footer.html' %}
+
+</body>
+</html>

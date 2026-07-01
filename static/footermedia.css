@@ -1,0 +1,17 @@
+@media (max-width:700px) {
+    .footer {
+        font-weight: lighter;
+    }
+
+    .cnt {
+        margin-left: 5px;
+    }
+
+    .th {
+        display: none;
+    }
+
+
+}
+
+@media (min-width:551px) and (max-width:900px) {}

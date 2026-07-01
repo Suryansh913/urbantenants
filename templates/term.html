@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms & Conditions — UrbnaTenants</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-50:  #E6F1FB;
+      --blue-100: #B5D4F4;
+      --blue-200: #85B7EB;
+      --blue-300: #5BA3E8;
+      --blue-500: #2579D4;
+      --blue-600: #185FA5;
+      --blue-700: #0E4A84;
+      --blue-800: #0C447C;
+      --blue-900: #042C53;
+      --neutral-50:  #F7F9FC;
+      --neutral-100: #EEF2F8;
+      --neutral-200: #D8E1EF;
+      --neutral-300: #B8C9E0;
+      --neutral-400: #8FA5C4;
+      --neutral-600: #506180;
+      --neutral-700: #374B65;
+      --neutral-900: #111827;
+      --white: #ffffff;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --radius-xl: 32px;
+      --shadow-sm: 0 2px 8px rgba(24,95,165,0.07);
+      --shadow-md: 0 6px 24px rgba(24,95,165,0.12);
+      --shadow-lg: 0 16px 48px rgba(24,95,165,0.16);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--neutral-50);
+      color: var(--neutral-900);
+      font-size: 16px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(145deg, var(--blue-900) 0%, var(--blue-700) 55%, var(--blue-500) 100%);
+      position: relative;
+      overflow: hidden;
+      padding: 88px 24px 72px;
+      text-align: center;
+    }
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+    .hero-glow {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 25%, rgba(91,163,232,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 70%, rgba(255,255,255,0.07) 0%, transparent 45%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 100px;
+      padding: 6px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.88);
+      margin-bottom: 28px;
+      letter-spacing: 0.3px;
+    }
+    .hero-badge svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.8; }
+    .hero h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(32px, 5.5vw, 56px);
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      margin-bottom: 20px;
+    }
+    .hero h1 em { font-style: normal; color: var(--blue-100); }
+    .hero-sub {
+      font-size: clamp(15px, 2vw, 18px);
+      color: rgba(255,255,255,0.68);
+      max-width: 560px;
+      margin: 0 auto 44px;
+      font-weight: 300;
+      line-height: 1.65;
+    }
+    .hero-meta {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .hero-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 100px;
+      padding: 7px 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+    }
+    .hero-chip svg { width: 13px; height: 13px; opacity: 0.75; }
+
+    /* ── LAYOUT ── */
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    /* ── SIDEBAR TOC ── */
+    .toc {
+      position: sticky;
+      top: 24px;
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .toc-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.6px;
+      text-transform: uppercase;
+      color: var(--neutral-400);
+      margin-bottom: 16px;
+    }
+    .toc ul { list-style: none; }
+    .toc ul li { margin-bottom: 4px; }
+    .toc ul li a {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13.5px;
+      color: var(--neutral-600);
+      text-decoration: none;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      transition: background 0.15s, color 0.15s;
+      line-height: 1.4;
+    }
+    .toc ul li a:hover { background: var(--blue-50); color: var(--blue-600); }
+    .toc ul li a .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: var(--neutral-100);
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neutral-400);
+      flex-shrink: 0;
+    }
+    .toc-contact {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--neutral-200);
+    }
+    .toc-contact p { font-size: 12px; color: var(--neutral-400); margin-bottom: 10px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; }
+    .toc-contact a {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--blue-600);
+      text-decoration: none;
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+    .toc-contact a svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── CONTENT ── */
+    .content { min-width: 0; }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+    .summary-card {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    .summary-card:hover { border-color: var(--blue-300); box-shadow: var(--shadow-sm); }
+    .summary-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: var(--blue-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .summary-card-icon svg { width: 20px; height: 20px; color: var(--blue-600); }
+    .summary-card strong {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--neutral-900);
+      line-height: 1.3;
+    }
+    .summary-card span { font-size: 12.5px; color: var(--neutral-600); line-height: 1.55; }
+
+    .intro-block {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      margin-bottom: 28px;
+      border-left: 4px solid var(--blue-600);
+    }
+    .intro-block p {
+      font-size: 16px;
+      color: var(--neutral-600);
+      font-weight: 300;
+      line-height: 1.8;
+    }
+    .intro-block p + p { margin-top: 14px; }
+
+    .tc-section {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      margin-bottom: 20px;
+      scroll-margin-top: 32px;
+      transition: box-shadow 0.2s;
+    }
+    .tc-section:hover { box-shadow: var(--shadow-sm); }
+    .tc-section:target { border-color: var(--blue-300); box-shadow: 0 0 0 3px rgba(24,95,165,0.08); }
+
+    .tc-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .tc-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      height: 36px;
+      background: var(--blue-50);
+      border-radius: var(--radius-sm);
+      font-family: 'Sora', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--blue-700);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .tc-section h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--neutral-900);
+      letter-spacing: -0.3px;
+      line-height: 1.3;
+    }
+    .tc-section p {
+      font-size: 15px;
+      color: var(--neutral-600);
+      line-height: 1.8;
+      margin-bottom: 12px;
+    }
+    .tc-section p:last-child { margin-bottom: 0; }
+    .tc-section ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .tc-section ul li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 15px;
+      color: var(--neutral-600);
+      line-height: 1.65;
+    }
+    .tc-section ul li::before {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--blue-400, var(--blue-500));
+      flex-shrink: 0;
+      margin-top: 9px;
+    }
+    .tc-section .note {
+      background: var(--blue-50);
+      border-left: 3px solid var(--blue-300);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: var(--blue-700);
+      margin-top: 14px;
+      font-style: italic;
+    }
+
+    .highlight-box {
+      background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-700) 100%);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .highlight-box .tc-num { background: rgba(255,255,255,0.12); color: var(--blue-100); }
+    .highlight-box h2 { color: #fff; }
+    .highlight-box p { color: rgba(255,255,255,0.72); margin-bottom: 12px; }
+    .highlight-box p:last-child { margin-bottom: 0; }
+    .highlight-box ul li { color: rgba(255,255,255,0.72); }
+    .highlight-box ul li::before { background: var(--blue-200); }
+
+    .contact-section {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 32px 36px;
+      scroll-margin-top: 32px;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .contact-card {
+      background: var(--neutral-50);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      padding: 20px 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      transition: border-color 0.18s, background 0.18s;
+    }
+    .contact-card:hover { border-color: var(--blue-300); background: var(--blue-50); }
+    .contact-card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      background: var(--blue-600);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .contact-card-icon svg { width: 20px; height: 20px; color: #fff; }
+    .contact-card-label { font-size: 12px; color: var(--neutral-400); margin-bottom: 3px; font-weight: 500; }
+    .contact-card-value { font-size: 14px; font-weight: 500; color: var(--neutral-900); word-break: break-all; }
+
+    .last-updated {
+      text-align: center;
+      font-size: 13px;
+      color: var(--neutral-400);
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--neutral-200);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-badge  { animation: fadeUp 0.45s ease both; }
+    .hero h1     { animation: fadeUp 0.5s ease 0.07s both; }
+    .hero-sub    { animation: fadeUp 0.5s ease 0.13s both; }
+    .hero-meta   { animation: fadeUp 0.5s ease 0.19s both; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .page-wrap { grid-template-columns: 1fr; }
+      .toc { position: static; }
+      .summary-strip { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .hero { padding: 64px 20px 56px; }
+      .page-wrap { padding: 36px 16px 56px; gap: 24px; }
+      .tc-section, .contact-section, .intro-block { padding: 24px 20px; }
+      .highlight-box { padding: 24px 20px; }
+      .summary-strip { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+{% include 'header.html' %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Legal Document
+    </div>
+    <h1>Terms &amp; <em>Conditions</em></h1>
+    <p class="hero-sub">Please read these terms carefully before using UrbnaTenants. By accessing our platform, you agree to be bound by these terms and our commitment to transparent, fee-free student accommodation.</p>
+    <div class="hero-meta">
+      <span class="hero-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Effective: 04 June 2026
+      </span>
+      <span class="hero-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        ~5 min read
+      </span>
+      <span class="hero-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Governed by Indian Law
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE BODY -->
+<div class="page-wrap">
+
+  <!-- SIDEBAR TOC -->
+  <aside class="toc">
+    <p class="toc-label">Table of Contents</p>
+    <ul>
+      <li><a href="#s1"><span class="num">1</span> Platform Overview</a></li>
+      <li><a href="#s2"><span class="num">2</span> Eligibility</a></li>
+      <li><a href="#s3"><span class="num">3</span> User Responsibilities</a></li>
+      <li><a href="#s4"><span class="num">4</span> Listings Policy</a></li>
+      <li><a href="#s5"><span class="num">5</span> No Brokerage Policy</a></li>
+      <li><a href="#s6"><span class="num">6</span> Payments</a></li>
+      <li><a href="#s7"><span class="num">7</span> Prohibited Activities</a></li>
+      <li><a href="#s8"><span class="num">8</span> Intellectual Property</a></li>
+      <li><a href="#s9"><span class="num">9</span> Limitation of Liability</a></li>
+      <li><a href="#s10"><span class="num">10</span> Privacy & Data</a></li>
+      <li><a href="#s11"><span class="num">11</span> Account Termination</a></li>
+      <li><a href="#s12"><span class="num">12</span> Changes to Terms</a></li>
+      <li><a href="#s13"><span class="num">13</span> Governing Law</a></li>
+      <li><a href="#s14"><span class="num">14</span> Contact Us</a></li>
+    </ul>
+    <div class="toc-contact">
+      <p>Quick Contact</p>
+      <a href="mailto:suryanshshukla82@gmail.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        suryanshshukla82@gmail.com
+      </a>
+      <a href="tel:+918303970186">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        +91 83039 70186
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- SUMMARY STRIP -->
+    <div class="summary-strip">
+      <div class="summary-card">
+        <div class="summary-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <strong>Zero Brokerage</strong>
+        <span>No fees, commissions or hidden platform charges — ever.</span>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <strong>User-First Platform</strong>
+        <span>We connect tenants and landlords directly without interference.</span>
+      </div>
+      <div class="summary-card">
+        <div class="summary-card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <strong>Your Data is Safe</strong>
+        <span>We never sell personal data. It's used solely to operate the platform.</span>
+      </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="intro-block">
+      <p>Welcome to <strong>UrbnaTenants</strong>. These Terms & Conditions govern your access to and use of our platform, services, and content. By creating an account or browsing listings, you acknowledge that you have read, understood, and agree to be bound by these terms.</p>
+      <p>If you do not agree with any part of these terms, you must discontinue use of our platform immediately. We encourage you to review these terms periodically, as they may be updated to reflect changes in our services or applicable law.</p>
+    </div>
+
+    <!-- SECTION 1 -->
+    <div class="tc-section" id="s1">
+      <div class="tc-header">
+        <span class="tc-num">01</span>
+        <h2>Platform Overview</h2>
+      </div>
+      <p>UrbnaTenants is an online rental listing platform designed to help students find affordable and convenient accommodation near their university campus. We provide the technology and infrastructure to connect property owners (landlords) with prospective tenants.</p>
+      <p>We do <strong>not</strong> act as a broker, real estate agent, or party in any rental agreement. UrbnaTenants is a neutral intermediary — the listing service only. Any rental agreement entered into is solely between the landlord and the tenant.</p>
+      <div class="note">UrbnaTenants currently operates primarily around the Chandigarh University Uttar Pradesh Campus region.</div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="tc-section" id="s2">
+      <div class="tc-header">
+        <span class="tc-num">02</span>
+        <h2>Eligibility</h2>
+      </div>
+      <p>To use UrbnaTenants, you must meet the following criteria at the time of registration and throughout your use of the platform:</p>
+      <ul>
+        <li>You must be at least 18 years of age or the age of majority in your jurisdiction</li>
+        <li>You must provide accurate, truthful, and complete information during registration</li>
+        <li>You must be legally eligible and competent to enter into binding contracts under applicable law</li>
+        <li>Your account must not have been previously suspended or terminated by UrbnaTenants</li>
+        <li>You must not be prohibited from using the platform under any applicable law or regulation</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="tc-section" id="s3">
+      <div class="tc-header">
+        <span class="tc-num">03</span>
+        <h2>User Responsibilities</h2>
+      </div>
+      <p>All users — whether landlords or tenants — are responsible for maintaining the integrity and trustworthiness of the platform. By using UrbnaTenants, you agree to:</p>
+      <ul>
+        <li>Provide true, accurate, and up-to-date information in your profile and listings</li>
+        <li>Not post fake, misleading, duplicate, or fraudulent listings</li>
+        <li>Communicate honestly and respectfully with other users</li>
+        <li>Not use the platform to conduct any illegal activity or facilitate unlawful transactions</li>
+        <li>Notify us promptly if you become aware of any breach or misuse of the platform</li>
+        <li>Keep your account credentials secure and not share access with third parties</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="tc-section" id="s4">
+      <div class="tc-header">
+        <span class="tc-num">04</span>
+        <h2>Listings Policy</h2>
+      </div>
+      <p>All property listings on UrbnaTenants are created and managed by registered users. We provide the platform for listings to be published; we do not independently verify the ownership, legal status, or accuracy of any listed property.</p>
+      <p>Landlords are solely responsible for the accuracy, legality, and completeness of their listings, including rent amounts, amenities, property descriptions, and photographs.</p>
+      <ul>
+        <li>Listings must represent a real, available property</li>
+        <li>Photos must be genuine and accurately represent the property</li>
+        <li>Rent and deposit amounts must be clearly and accurately stated</li>
+        <li>Landlords must remove or update listings once a property is no longer available</li>
+      </ul>
+      <div class="note">UrbnaTenants reserves the right to remove any listing that violates these policies without prior notice.</div>
+    </div>
+
+    <!-- SECTION 5 - HIGHLIGHTED -->
+    <div class="highlight-box tc-section" id="s5">
+      <div class="tc-header">
+        <span class="tc-num">05</span>
+        <h2>No Brokerage Policy</h2>
+      </div>
+      <p>This is the cornerstone of our platform. UrbnaTenants does not charge any brokerage fee, commission, finder's fee, or platform usage fee to either landlords or tenants — for any listing, search, or connection made through our service.</p>
+      <p>All financial transactions, including rent, deposits, or any other payments, are strictly and exclusively between the landlord and the tenant. UrbnaTenants is not a party to, and bears no responsibility for, any such financial arrangement.</p>
+      <ul>
+        <li>No sign-up fee for tenants or landlords</li>
+        <li>No charges for browsing or contacting listing owners</li>
+        <li>No hidden fees at any stage of the process</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 6 -->
+    <div class="tc-section" id="s6">
+      <div class="tc-header">
+        <span class="tc-num">06</span>
+        <h2>Payments</h2>
+      </div>
+      <p>UrbnaTenants does not collect, process, hold, or transfer any rent, security deposits, advance payments, or any other monetary amounts on behalf of any user.</p>
+      <p>Any payment made between a landlord and tenant is outside the scope of our platform. We strongly advise users to:</p>
+      <ul>
+        <li>Verify the property and landlord credentials before making any payment</li>
+        <li>Use documented, traceable payment methods (bank transfer, UPI) rather than cash where possible</li>
+        <li>Obtain a written receipt or agreement for all payments made</li>
+      </ul>
+      <p>UrbnaTenants is not liable for any payment disputes, fraud, or financial loss arising from transactions between users.</p>
+    </div>
+
+    <!-- SECTION 7 -->
+    <div class="tc-section" id="s7">
+      <div class="tc-header">
+        <span class="tc-num">07</span>
+        <h2>Prohibited Activities</h2>
+      </div>
+      <p>The following activities are strictly prohibited on UrbnaTenants. Violation of these rules may result in immediate account suspension and, where applicable, legal action:</p>
+      <ul>
+        <li>Posting illegal, discriminatory, or fraudulent property listings</li>
+        <li>Impersonating any person, business, or authority</li>
+        <li>Sending spam, unsolicited messages, or bulk communications</li>
+        <li>Creating duplicate or multiple accounts for deceptive purposes</li>
+        <li>Attempting to gain unauthorized access to accounts, servers, or data</li>
+        <li>Scraping, harvesting, or systematically extracting data from the platform</li>
+        <li>Using automated bots, scripts, or tools to interact with the platform</li>
+        <li>Posting content that is abusive, defamatory, obscene, or harmful</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 8 -->
+    <div class="tc-section" id="s8">
+      <div class="tc-header">
+        <span class="tc-num">08</span>
+        <h2>Intellectual Property</h2>
+      </div>
+      <p>All content on the UrbnaTenants platform — including but not limited to the logo, design, interface, text, graphics, and code — is the intellectual property of UrbnaTenants and is protected by applicable copyright and trademark laws.</p>
+      <p>Users retain ownership of the content they submit (such as photos and listing descriptions), but by posting content on our platform, you grant UrbnaTenants a non-exclusive, royalty-free license to use, display, and distribute that content for the purposes of operating and promoting the platform.</p>
+      <ul>
+        <li>You may not copy, reproduce, or distribute platform content without prior written permission</li>
+        <li>You may not use our brand name or logo without explicit authorization</li>
+      </ul>
+    </div>
+
+    <!-- SECTION 9 -->
+    <div class="tc-section" id="s9">
+      <div class="tc-header">
+        <span class="tc-num">09</span>
+        <h2>Limitation of Liability</h2>
+      </div>
+      <p>UrbnaTenants provides this platform on an "as is" and "as available" basis. We make no warranties, express or implied, regarding the accuracy, completeness, or reliability of any listing or user-provided information.</p>
+      <p>To the fullest extent permitted by applicable law, UrbnaTenants shall not be liable for:</p>
+      <ul>
+        <li>Any direct, indirect, incidental, or consequential loss arising from use of the platform</li>
+        <li>Disputes, fraud, or misconduct between landlords and tenants</li>
+        <li>Inaccurate property descriptions or misleading listing information provided by users</li>
+        <li>Any loss suffered as a result of reliance on platform content</li>
+        <li>Temporary unavailability or technical errors on the platform</li>
+      </ul>
+      <p>All interactions and transactions on the platform are undertaken at the user's own risk.</p>
+    </div>
+
+    <!-- SECTION 10 -->
+    <div class="tc-section" id="s10">
+      <div class="tc-header">
+        <span class="tc-num">10</span>
+        <h2>Privacy & Data</h2>
+      </div>
+      <p>We respect your privacy. UrbnaTenants collects only the personal information necessary to operate and improve the platform — such as your name, email address, and contact number provided during registration.</p>
+      <ul>
+        <li>We do not sell, rent, or trade your personal data to third parties</li>
+        <li>Data is used solely to facilitate connections between tenants and landlords</li>
+        <li>We implement reasonable technical and organisational measures to protect your data</li>
+        <li>You may request deletion of your account and associated data at any time</li>
+        <li>Cookies may be used to improve your experience on the platform</li>
+      </ul>
+      <div class="note">For detailed information on how we handle your data, refer to our Privacy Policy.</div>
+    </div>
+
+    <!-- SECTION 11 -->
+    <div class="tc-section" id="s11">
+      <div class="tc-header">
+        <span class="tc-num">11</span>
+        <h2>Account Termination</h2>
+      </div>
+      <p>UrbnaTenants reserves the right to suspend, restrict, or permanently terminate any user account at its sole discretion, including in cases where:</p>
+      <ul>
+        <li>The user has violated any of these Terms & Conditions</li>
+        <li>Fraudulent or deceptive behaviour is detected</li>
+        <li>A user engages in prohibited activities as defined in Section 7</li>
+        <li>We receive substantiated complaints from other users</li>
+        <li>Continued use poses a risk to the safety or integrity of the platform</li>
+      </ul>
+      <p>Users may also voluntarily delete their accounts at any time by contacting us. Upon termination, your listings and profile information will be removed from the platform.</p>
+    </div>
+
+    <!-- SECTION 12 -->
+    <div class="tc-section" id="s12">
+      <div class="tc-header">
+        <span class="tc-num">12</span>
+        <h2>Changes to Terms</h2>
+      </div>
+      <p>UrbnaTenants reserves the right to modify, update, or replace these Terms & Conditions at any time. When we make material changes, we will update the "Effective Date" at the top of this page.</p>
+      <p>Continued use of the platform after changes are posted constitutes your acceptance of the revised terms. We encourage you to review this page periodically to stay informed of any updates.</p>
+    </div>
+
+    <!-- SECTION 13 -->
+    <div class="tc-section" id="s13">
+      <div class="tc-header">
+        <span class="tc-num">13</span>
+        <h2>Governing Law</h2>
+      </div>
+      <p>These Terms & Conditions are governed by and construed in accordance with the laws of India. Any disputes arising out of or in connection with these terms or the use of the platform shall be subject to the exclusive jurisdiction of the courts located in Uttar Pradesh, India.</p>
+      <p>If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.</p>
+    </div>
+
+    <!-- SECTION 14 - CONTACT -->
+    <div class="contact-section" id="s14">
+      <div class="tc-header">
+        <span class="tc-num">14</span>
+        <h2>Contact Us</h2>
+      </div>
+      <p>If you have any questions, concerns, or feedback regarding these Terms & Conditions, please don't hesitate to reach out to us directly. We aim to respond to all queries within 24–48 hours.</p>
+      <div class="contact-grid">
+        <a href="mailto:suryanshshukla82@gmail.com" class="contact-card">
+          <div class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div>
+            <div class="contact-card-label">Email</div>
+            <div class="contact-card-value">suryanshshukla82@gmail.com</div>
+          </div>
+        </a>
+        <a href="tel:+918303970186" class="contact-card">
+          <div class="contact-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          </div>
+          <div>
+            <div class="contact-card-label">Phone</div>
+            <div class="contact-card-value">+91 83039 70186</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <p class="last-updated">Last updated: 04 June 2026 · © 2026 UrbnaTenants. All rights reserved.</p>
+
+  </main>
+</div>
+{% include 'chat_widget.html' %}
+{% include 'footer.html' %}
+
+</body>
+</html>

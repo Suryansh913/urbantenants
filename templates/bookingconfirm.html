@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking Submitted — UrbnaTenants</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-50:  #E6F1FB;
+      --blue-100: #B5D4F4;
+      --blue-300: #5BA3E8;
+      --blue-500: #2579D4;
+      --blue-600: #185FA5;
+      --blue-700: #0E4A84;
+      --blue-900: #042C53;
+      --neutral-50:  #F7F9FC;
+      --neutral-100: #EEF2F8;
+      --neutral-200: #D8E1EF;
+      --neutral-300: #B8C9E0;
+      --neutral-400: #8FA5C4;
+      --neutral-600: #506180;
+      --neutral-900: #111827;
+      --white: #ffffff;
+      --amber-50: #FFFBEB;
+      --amber-100: #FDE68A;
+      --amber-500: #F59E0B;
+      --amber-600: #D97706;
+      --amber-700: #92400E;
+      --green-50: #F0FDF4;
+      --green-500: #22C55E;
+      --green-600: #16A34A;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --shadow-sm: 0 2px 8px rgba(24,95,165,0.07);
+      --shadow-md: 0 6px 24px rgba(24,95,165,0.13);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--neutral-50);
+      color: var(--neutral-900);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ════ HERO ════ */
+    .hero {
+      background: linear-gradient(145deg, var(--blue-900) 0%, var(--blue-700) 55%, var(--blue-500) 100%);
+      position: relative;
+      overflow: hidden;
+      padding: 64px 24px 56px;
+      text-align: center;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+    .hero-glow {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 30%, rgba(91,163,232,0.2) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 70%, rgba(255,255,255,0.06) 0%, transparent 45%);
+      pointer-events: none;
+    }
+    .hero-inner { max-width: 700px; margin: 0 auto; position: relative; }
+
+    .status-icon {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      border: 2px solid rgba(255,255,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+      animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .status-icon svg { width: 36px; height: 36px; color: #fff; }
+
+    .hero h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(26px, 4.5vw, 42px);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 14px;
+      animation: fadeUp 0.5s ease 0.1s both;
+    }
+    .hero h1 em { font-style: normal; color: var(--blue-100); }
+    .hero-sub {
+      font-size: clamp(14px, 2vw, 17px);
+      color: rgba(255,255,255,0.7);
+      font-weight: 300;
+      line-height: 1.65;
+      max-width: 520px;
+      margin: 0 auto 36px;
+      animation: fadeUp 0.5s ease 0.17s both;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(245,158,11,0.18);
+      border: 1px solid rgba(245,158,11,0.4);
+      border-radius: 100px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--amber-100);
+      letter-spacing: 0.3px;
+      animation: fadeUp 0.5s ease 0.24s both;
+    }
+    .status-badge-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--amber-500);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    /* ════ STEPS ════ */
+    .steps-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 52px 24px 0;
+      animation: fadeUp 0.45s ease 0.05s both;
+    }
+    .steps-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--neutral-400);
+      margin-bottom: 32px;
+    }
+
+    .steps-track {
+      display: flex;
+      align-items: flex-start;
+      position: relative;
+    }
+
+    .step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* animated connector line */
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 21px;
+      left: calc(50% + 26px);
+      right: calc(-50% + 26px);
+      height: 2px;
+      background: var(--neutral-200);
+      z-index: 0;
+    }
+    .step.done:not(:last-child)::after {
+      background: var(--blue-300);
+      animation: lineGrow 0.6s cubic-bezier(0.4,0,0.2,1) both;
+    }
+    .step:nth-child(1)::after { animation-delay: 0.25s; }
+    .step:nth-child(2)::after { animation-delay: 0.40s; }
+    .step:nth-child(3)::after { animation-delay: 0.55s; }
+    .step:nth-child(4)::after { animation-delay: 0.70s; }
+
+    .step-circle {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px;
+      position: relative; z-index: 1;
+    }
+    .step-circle i { font-size: 19px; }
+
+    .step.done .step-circle {
+      background: var(--blue-600);
+      color: #fff;
+      animation: donePop 0.55s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .step:nth-child(1) .step-circle { animation-delay: 0.05s; }
+    .step:nth-child(2) .step-circle { animation-delay: 0.18s; }
+    .step:nth-child(3) .step-circle { animation-delay: 0.31s; }
+
+    .step.active .step-circle {
+      background: var(--amber-500);
+      color: #fff;
+      animation: donePop 0.55s cubic-bezier(0.34,1.56,0.64,1) 0.46s both,
+                 activeGlow 2.2s ease-in-out 1.2s infinite;
+    }
+    .step.pending .step-circle {
+      background: var(--neutral-100);
+      color: var(--neutral-400);
+      border: 1.5px solid var(--neutral-200);
+      animation: stepFadeIn 0.4s ease 0.65s both;
+    }
+
+    .step-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--neutral-900);
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .step.pending .step-title { color: var(--neutral-400); }
+
+    .step-desc {
+      font-size: 11px;
+      color: var(--neutral-400);
+      line-height: 1.5;
+      max-width: 90px;
+    }
+    .step.active .step-desc { color: var(--amber-700); }
+
+    /* "In progress" badge under active step */
+    .active-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 8px;
+      background: var(--amber-50);
+      border: 1px solid rgba(245,158,11,0.4);
+      border-radius: 100px;
+      padding: 3px 10px;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--amber-700);
+      animation: badgeFade 0.5s ease 1.1s both;
+      opacity: 0;
+    }
+    .active-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--amber-500);
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    /* step slide-up entry */
+    .step:nth-child(1) { animation: stepSlideUp 0.42s ease 0.0s both; }
+    .step:nth-child(2) { animation: stepSlideUp 0.42s ease 0.1s both; }
+    .step:nth-child(3) { animation: stepSlideUp 0.42s ease 0.2s both; }
+    .step:nth-child(4) { animation: stepSlideUp 0.42s ease 0.32s both; }
+    .step:nth-child(5) { animation: stepSlideUp 0.42s ease 0.44s both; }
+
+    /* progress bar */
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 28px auto 0;
+      max-width: 520px;
+      padding: 0 8px;
+    }
+    .progress-bg {
+      flex: 1;
+      height: 5px;
+      border-radius: 100px;
+      background: var(--neutral-200);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 60%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--blue-700), var(--blue-400));
+      animation: fillBar 1s cubic-bezier(0.4,0,0.2,1) 0.9s both;
+    }
+    .progress-lbl { font-size: 12px; color: var(--neutral-400); }
+    .progress-pct { font-size: 12px; font-weight: 600; color: var(--blue-700); min-width: 28px; text-align: right; }
+
+    /* ════ PAGE WRAP ════ */
+    .page-wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 24px 72px;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ── BOOKING CARD ── */
+    .booking-card {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      animation: fadeUp 0.45s ease 0.1s both;
+    }
+    .booking-card-header {
+      background: linear-gradient(135deg, var(--blue-900), var(--blue-700));
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .booking-card-header-icon {
+      width: 48px; height: 48px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .booking-card-header-icon svg { width: 24px; height: 24px; color: #fff; }
+    .booking-card-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 3px;
+    }
+    .booking-card-subtitle { font-size: 13px; color: rgba(255,255,255,0.6); }
+    .booking-card-body { padding: 28px; }
+
+    .room-preview {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--neutral-100);
+    }
+    .room-preview-img {
+      width: 88px; height: 72px;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid var(--neutral-200);
+    }
+    .room-preview-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--neutral-900);
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .room-preview-rent {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--blue-600);
+    }
+    .room-preview-rent span { font-size: 12px; font-weight: 400; color: var(--neutral-400); }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .detail-item {
+      background: var(--neutral-50);
+      border: 1px solid var(--neutral-100);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+    .detail-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--neutral-400);
+      margin-bottom: 5px;
+    }
+    .detail-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--neutral-900);
+      line-height: 1.4;
+    }
+    .detail-item.full { grid-column: 1 / -1; }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--amber-50);
+      border: 1px solid var(--amber-100);
+      border-radius: 100px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--amber-700);
+    }
+    .status-chip-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--amber-500);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      animation: fadeUp 0.45s ease 0.2s both;
+    }
+
+    .info-card {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .info-card-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--neutral-900);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .info-card-title svg { width: 16px; height: 16px; color: var(--blue-600); }
+
+    .next-steps { display: flex; flex-direction: column; gap: 14px; }
+    .next-step { display: flex; gap: 12px; align-items: flex-start; }
+    .next-step-num {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--blue-50);
+      border: 1px solid var(--blue-100);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Sora', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue-700);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .next-step-text strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--neutral-900);
+      margin-bottom: 2px;
+    }
+    .next-step-text p { font-size: 12px; color: var(--neutral-600); line-height: 1.55; }
+
+    .action-btns { display: flex; flex-direction: column; gap: 10px; }
+    .btn-primary {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 20px;
+      border-radius: var(--radius-sm);
+      background: var(--blue-600);
+      color: #fff;
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.18s, transform 0.12s;
+      border: none; cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--blue-700); transform: translateY(-1px); }
+    .btn-secondary {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 20px;
+      border-radius: var(--radius-sm);
+      background: var(--white);
+      color: var(--neutral-600);
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid var(--neutral-200);
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .btn-secondary:hover { background: var(--neutral-50); border-color: var(--blue-300); color: var(--blue-600); }
+    .btn-primary svg, .btn-secondary svg { width: 16px; height: 16px; }
+
+    /* ════ KEYFRAMES ════ */
+    @keyframes fadeUp      { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes popIn       { from{opacity:0;transform:scale(0.5)} to{opacity:1;transform:scale(1)} }
+    @keyframes pulse       { 0%,100%{opacity:1} 50%{opacity:0.35} }
+    @keyframes stepSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes stepFadeIn  { from{opacity:0} to{opacity:1} }
+    @keyframes donePop     { 0%{transform:scale(0.4);opacity:0} 70%{transform:scale(1.18)} 100%{transform:scale(1);opacity:1} }
+    @keyframes activeGlow  { 0%,100%{box-shadow:0 0 0 4px rgba(245,158,11,0.14)} 50%{box-shadow:0 0 0 11px rgba(245,158,11,0.26)} }
+    @keyframes lineGrow    { from{transform:scaleX(0);transform-origin:left} to{transform:scaleX(1);transform-origin:left} }
+    @keyframes fillBar     { from{width:0} to{width:60%} }
+    @keyframes badgeFade   { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ════ RESPONSIVE ════ */
+    @media (max-width: 760px) {
+      .page-wrap { grid-template-columns: 1fr; padding: 28px 16px 56px; }
+      .right-col { order: -1; }
+      .booking-card-body { padding: 20px; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .detail-item.full { grid-column: 1; }
+    }
+    @media (max-width: 600px) {
+      .hero { padding: 48px 20px 44px; }
+      .steps-section { padding: 36px 16px 0; }
+      .step-title { font-size: 10px; }
+      .step-desc  { font-size: 10px; max-width: 72px; }
+      .step-circle { width: 36px; height: 36px; }
+      .step-circle i { font-size: 15px; }
+      .step:not(:last-child)::after { top: 18px; left: calc(50% + 20px); right: calc(-50% + 20px); }
+      .room-preview { flex-direction: column; }
+      .room-preview-img { width: 100%; height: 160px; }
+    }
+    .rating-stars {
+        font-size: 35px;
+        cursor: pointer;
+    }
+
+    .rating-stars .star {
+        color: #ccc;
+    }
+
+    .rating-stars .star.active {
+        color: #ffc107;
+    }
+
+  </style>
+</head>
+<body>
+
+{% include "header.html" %}
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="status-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    <h1>Booking Submitted <em>Successfully!</em></h1>
+    <p class="hero-sub">Your booking request has been received and is now awaiting verification by the property owner. Track it anytime from My Bookings.</p>
+    <div class="status-badge">
+      <span class="status-badge-dot"></span>
+      Pending Partner Verification
+    </div>
+  </div>
+</section>
+
+<!-- ANIMATED STEPS -->
+<section class="steps-section">
+  <p class="steps-label">Your Booking Journey</p>
+
+  <div class="steps-track">
+
+    <div class="step done">
+      <div class="step-circle">
+        <i class="ti ti-check" aria-hidden="true"></i>
+      </div>
+      <div class="step-title">Browse</div>
+      <div class="step-desc">Explored listings</div>
+    </div>
+
+    <div class="step done">
+      <div class="step-circle">
+        <i class="ti ti-eye" aria-hidden="true"></i>
+      </div>
+      <div class="step-title">View Room</div>
+      <div class="step-desc">Checked details & location</div>
+    </div>
+
+    <div class="step done">
+      <div class="step-circle">
+        <i class="ti ti-file-text" aria-hidden="true"></i>
+      </div>
+      <div class="step-title">Book</div>
+      <div class="step-desc">Form submitted</div>
+    </div>
+
+    <div class="step active">
+      <div class="step-circle">
+        <i class="ti ti-clock" aria-hidden="true"></i>
+      </div>
+      <div class="step-title">Verification</div>
+      <div class="step-desc">Owner reviewing</div>
+      <div class="active-badge">
+        <span class="active-dot"></span>In progress
+      </div>
+    </div>
+
+    <div class="step pending">
+      <div class="step-circle">
+        <i class="ti ti-circle-check" aria-hidden="true"></i>
+      </div>
+      <div class="step-title">Confirmed</div>
+      <div class="step-desc">Track in My Bookings</div>
+    </div>
+
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-wrap">
+    <span class="progress-lbl">Progress</span>
+    <div class="progress-bg">
+      <div class="progress-fill"></div>
+    </div>
+    <span class="progress-pct">60%</span>
+  </div>
+</section>
+
+<!-- MAIN CONTENT -->
+<div class="page-wrap">
+
+  <!-- LEFT — BOOKING DETAILS -->
+  <div class="booking-card">
+    <div class="booking-card-header">
+      <div class="booking-card-header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div>
+        <div class="booking-card-title">Booking Details</div>
+        <div class="booking-card-subtitle">Reference #{{ bookingd.id }}</div>
+      </div>
+    </div>
+
+    <div class="booking-card-body">
+      <div class="room-preview">
+        <img src="{{ room.Room_images1.url }}" alt="{{ room.Room_title }}" class="room-preview-img" />
+        <div class="room-preview-info">
+          <div class="room-preview-title">{{ room.Room_title }}</div>
+          <div class="room-preview-rent">&#8377;{{ room.Room_rent }}<span> / month</span></div>
+        </div>
+      </div>
+
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="detail-label">Guest Name</div>
+          <div class="detail-value">{{ bookingd.name }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Check-in Date</div>
+          <div class="detail-value">{{ bookingd.check_in_date }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Booking Date</div>
+          <div class="detail-value">{{ bookingd.created_at|date:"d M Y" }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Monthly Rent</div>
+          <div class="detail-value">&#8377;{{ room.Room_rent }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Security Deposit</div>
+          <div class="detail-value">&#8377;{{ room.Room_security }}</div>
+        </div>
+        <div class="detail-item">
+          <div class="detail-label">Room Type</div>
+          <div class="detail-value">{{ room.Room_type }}</div>
+        </div>
+        <div class="detail-item full">
+          <div class="detail-label">Location</div>
+          <div class="detail-value">{{ room.Room_location }}</div>
+        </div>
+        <div class="detail-item full">
+          <div class="detail-label">Booking Status</div>
+          <div class="detail-value">
+            <span class="status-chip">
+              <span class="status-chip-dot"></span>
+              Pending Verification
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COL -->
+  <div class="right-col">
+
+    <!-- What happens next -->
+    <div class="info-card">
+      <div class="info-card-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        What Happens Next?
+      </div>
+      <div class="next-steps">
+        <div class="next-step">
+          <div class="next-step-num">1</div>
+          <div class="next-step-text">
+            <strong>Owner Reviews Your Request</strong>
+            <p>The property owner will verify your booking details and confirm availability within 24–48 hours.</p>
+          </div>
+        </div>
+        <div class="next-step">
+          <div class="next-step-num">2</div>
+          <div class="next-step-text">
+            <strong>You Get Notified</strong>
+            <p>Once the owner approves, your booking status updates to Confirmed on the platform.</p>
+          </div>
+        </div>
+        <div class="next-step">
+          <div class="next-step-num">3</div>
+          <div class="next-step-text">
+            <strong>Track in My Bookings</strong>
+            <p>Visit your My Bookings page anytime to check the latest status of this booking.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <form method="POST" action="{% url 'submit_review' room.id %}">
+      {% csrf_token %}
+
+        <div class="rating-stars">
+            <span class="star" data-value="1">★</span>
+            <span class="star" data-value="2">★</span>
+            <span class="star" data-value="3">★</span>
+            <span class="star" data-value="4">★</span>
+            <span class="star" data-value="5">★</span>
+        </div>
+
+        <input type="hidden" name="rating" id="rating-value">
+
+       
+
+        <textarea
+            name="review"
+            placeholder="Write your review..."
+        ></textarea>
+
+        <button type="submit">
+            Submit Rating
+        </button>
+    </form>
+   
+    <!-- Action buttons -->
+    <div class="action-btns">
+      <a href="/mybooking/" class="btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        View My Bookings
+      </a>
+      <a href="{% url 'base' %}" class="btn-secondary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Back to Home
+      </a>
+    </div>
+
+  </div>
+</div>
+{% include 'chat_widget.html' %}
+{% include "footer.html" %}
+<script>
+  const stars = document.querySelectorAll('.star');
+  const ratingInput = document.getElementById('rating-value');
+
+  stars.forEach(star => {
+      star.addEventListener('click', () => {
+          const value = star.dataset.value;
+
+          ratingInput.value = value;
+
+          stars.forEach(s => {
+              s.classList.remove('active');
+          });
+
+          for(let i = 0; i < value; i++) {
+              stars[i].classList.add('active');
+          }
+      });
+  });
+</script>
+</body>
+</html>

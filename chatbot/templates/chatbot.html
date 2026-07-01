@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UrbanTenants — Chat with us</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0B1626;
+    --navy-deep:#070D18;
+    --navy-card:#101F35;
+    --paper:#E9EEF6;
+    --white:#FFFFFF;
+    --amber:#F5A623;
+    --amber-dark:#D98C0F;
+    --green:#1FA866;
+    --green-dark:#16864F;
+    --red:#E04F4F;
+    --red-dark:#C23B3B;
+    --ink:#101826;
+    --muted:#6B7686;
+    --line:#D7DEE9;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
+
+  /* FIX: this page is always rendered inside the widget's iframe.
+     Removed the old centering/padding (display:flex + 32px padding)
+     which left visible "paper" background around a smaller card —
+     that gap was the source of the nested/double-box look. Now the
+     chat-shell fills the iframe completely. */
+  body{
+    font-family:'Inter', -apple-system, sans-serif;
+    background:var(--white);
+    color:var(--ink);
+    padding:0;
+  }
+
+  /* Default (inside the widget iframe): fill the iframe exactly —
+     the outer widget controls the actual fixed box size. */
+  .chat-shell{
+    width:100%;
+    height:100%;
+    max-width:100%;
+    display:flex;
+    flex-direction:column;
+    background:var(--white);
+    border-radius:0;
+    overflow:hidden;
+    box-shadow:none;
+    position:relative;
+    animation:shell-in 0.5s cubic-bezier(.16,1,.3,1) both;
+  }
+
+  /* Only when opened directly in a browser tab (NOT inside the widget
+     iframe) — show a fixed-size centered card instead of stretching
+     full-bleed across the whole screen. */
+  body.standalone-view{
+    background:var(--paper);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    height:100vh;
+  }
+  body.standalone-view .chat-shell{
+    width:400px;
+    height:620px;
+    max-width:100%;
+    max-height:90vh;
+    border-radius:18px;
+    box-shadow:0 20px 48px -14px rgba(11,22,38,0.32);
+  }
+  @media (max-width:480px){
+    body.standalone-view{ padding:0; }
+    body.standalone-view .chat-shell{
+      width:100%;
+      height:100vh;
+      max-height:100vh;
+      border-radius:0;
+    }
+  }
+
+  @keyframes shell-in{
+    from{ opacity:0; transform:translateY(14px) scale(0.985); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  .chat-header{
+    position:relative;
+    background:linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);
+    color:var(--white);
+    padding:18px 18px 16px;
+    flex-shrink:0;
+    overflow:hidden;
+  }
+
+  .skyline{
+    position:absolute;
+    bottom:0; left:0; right:0;
+    height:34px;
+    opacity:0.9;
+    pointer-events:none;
+  }
+
+  .skyline rect.window{
+    fill:var(--amber);
+    animation:flicker 3.4s ease-in-out infinite;
+  }
+  .skyline rect.window:nth-child(3n){ animation-delay:0.4s; }
+  .skyline rect.window:nth-child(4n){ animation-delay:1.1s; }
+  .skyline rect.window:nth-child(5n){ animation-delay:1.8s; }
+
+  @keyframes flicker{
+    0%, 100%{ opacity:0.95; }
+    50%{ opacity:0.45; }
+  }
+
+  .scan-line{
+    position:absolute;
+    top:0; left:0;
+    width:140px;
+    height:100%;
+    background:linear-gradient(90deg, transparent, rgba(245,166,35,0.10), transparent);
+    pointer-events:none;
+    animation:scan-sweep 5s ease-in-out infinite;
+  }
+
+  @keyframes scan-sweep{
+    0%{ transform:translateX(-160px); }
+    45%{ transform:translateX(480px); }
+    100%{ transform:translateX(480px); }
+  }
+
+  .header-top{
+    position:relative;
+    z-index:1;
+    display:flex;
+    align-items:center;
+    gap:11px;
+  }
+
+  .brand-mark{
+    width:36px;
+    height:36px;
+    border-radius:9px;
+    background:var(--green);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    position:relative;
+  }
+
+  .brand-mark .antenna{
+    position:absolute;
+    top:-4px;
+    width:2px;
+    height:5px;
+    background:var(--amber);
+    border-radius:1px;
+  }
+  .brand-mark .antenna::after{
+    content:'';
+    position:absolute;
+    top:-3px;
+    left:-1px;
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background:var(--amber);
+    box-shadow:0 0 4px rgba(245,166,35,0.8);
+  }
+
+  .brand-mark svg{ width:20px; height:20px; }
+
+  .robot-eye{
+    fill:var(--white);
+    animation:eye-blink 4.2s ease-in-out infinite;
+  }
+  .robot-eye.right{ animation-delay:0.08s; }
+
+  @keyframes eye-blink{
+    0%, 92%, 100%{ transform:scaleY(1); }
+    96%{ transform:scaleY(0.12); }
+  }
+
+  .header-text{ flex:1; min-width:0; }
+
+  .header-text h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:17px;
+    letter-spacing:-0.01em;
+    margin:0;
+    line-height:1.2;
+  }
+
+  .header-status{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-top:4px;
+    font-size:11px;
+    color:#9FB0C9;
+  }
+
+  .status-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--green);
+    box-shadow:0 0 0 0 rgba(31,168,102,0.5);
+    flex-shrink:0;
+    animation:pulse-dot 2.2s ease-out infinite;
+  }
+
+  @keyframes pulse-dot{
+    0%{ box-shadow:0 0 0 0 rgba(31,168,102,0.5); }
+    70%{ box-shadow:0 0 0 6px rgba(31,168,102,0); }
+    100%{ box-shadow:0 0 0 0 rgba(31,168,102,0); }
+  }
+
+  .status-tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size:9.5px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    color:var(--navy);
+    background:var(--amber);
+    padding:1.5px 6px 2px;
+    border-radius:4px;
+    margin-left:4px;
+  }
+
+  .voice-toggle{
+    position:relative;
+    z-index:1;
+    width:32px;
+    height:32px;
+    border-radius:9px;
+    border:1px solid rgba(255,255,255,0.16);
+    background:rgba(255,255,255,0.06);
+    color:#CBD6E8;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .voice-toggle svg{ width:16px; height:16px; }
+  .voice-toggle:hover{ background:rgba(255,255,255,0.12); }
+  .voice-toggle.active{
+    background:var(--amber);
+    color:var(--navy-deep);
+    border-color:var(--amber);
+  }
+
+  .chat-box{
+    flex:1;
+    overflow-y:auto;
+    padding:20px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    background:var(--paper);
+  }
+
+  .chat-box::-webkit-scrollbar{ width:6px; }
+  .chat-box::-webkit-scrollbar-thumb{ background:#C5D0E0; border-radius:3px; }
+  .chat-box::-webkit-scrollbar-track{ background:transparent; }
+
+  .row{
+    display:flex;
+    gap:8px;
+    max-width:88%;
+    animation:rise 0.3s cubic-bezier(.2,.8,.2,1) both;
+  }
+
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(8px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .row.user{ align-self:flex-end; flex-direction:row-reverse; }
+  .row.bot{ align-self:flex-start; }
+
+  .avatar{
+    width:26px;
+    height:26px;
+    border-radius:7px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:11.5px;
+    margin-top:2px;
+  }
+
+  .row.bot .avatar{ background:var(--green); color:var(--white); }
+  .row.user .avatar{ background:var(--navy); color:var(--white); }
+
+  .mini-robot{ width:14px; height:14px; }
+  .mini-robot .robot-eye{ animation:none; }
+
+  .bubble{
+    padding:10px 14px;
+    font-size:14.5px;
+    line-height:1.5;
+    white-space:pre-wrap;
+    word-wrap:break-word;
+  }
+
+  .row.bot .bubble{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:4px 14px 14px 14px;
+    color:var(--ink);
+  }
+
+  .row.user .bubble{
+    background:var(--navy);
+    color:var(--white);
+    border-radius:14px 4px 14px 14px;
+  }
+
+  .label{
+    font-size:10.5px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    margin-bottom:3px;
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+
+  .row.bot .label{ color:var(--green-dark); }
+  .row.user .label{ color:var(--muted); text-align:right; justify-content:flex-end; }
+
+  .speak-again-btn{
+    width:16px;
+    height:16px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    border:none;
+    background:transparent;
+    color:var(--green-dark);
+    cursor:pointer;
+    padding:0;
+    opacity:0.75;
+  }
+  .speak-again-btn:hover{ opacity:1; }
+  .speak-again-btn svg{ width:12px; height:12px; }
+  .speak-again-btn.speaking{ color:var(--amber-dark); opacity:1; }
+
+  .typing{ display:flex; gap:4px; padding:12px 14px; }
+  .typing span{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--green);
+    opacity:0.5;
+    animation:bounce 1.1s infinite ease-in-out;
+  }
+  .typing span:nth-child(2){ animation-delay:0.15s; }
+  .typing span:nth-child(3){ animation-delay:0.3s; }
+  @keyframes bounce{
+    0%,60%,100%{ transform:translateY(0); opacity:0.4; }
+    30%{ transform:translateY(-4px); opacity:1; }
+  }
+
+  .listening-row{
+    align-self:flex-end;
+    max-width:88%;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    animation:rise 0.25s ease both;
+  }
+  .listening-bubble{
+    background:#FFF3DD;
+    border:1px solid var(--amber);
+    color:var(--navy);
+    padding:10px 14px;
+    border-radius:14px 4px 14px 14px;
+    font-size:14px;
+    font-style:italic;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .mic-wave{ display:flex; align-items:center; gap:2px; }
+  .mic-wave span{
+    width:3px;
+    height:8px;
+    background:var(--amber-dark);
+    border-radius:2px;
+    animation:wave 0.9s ease-in-out infinite;
+  }
+  .mic-wave span:nth-child(2){ animation-delay:0.15s; }
+  .mic-wave span:nth-child(3){ animation-delay:0.3s; }
+  .mic-wave span:nth-child(4){ animation-delay:0.45s; }
+  @keyframes wave{
+    0%,100%{ height:6px; }
+    50%{ height:14px; }
+  }
+
+  /* Navigate toast overlay */
+  .nav-toast{
+    position:absolute;
+    bottom:90px;
+    left:50%;
+    transform:translateX(-50%) translateY(10px);
+    background:var(--navy);
+    color:var(--white);
+    padding:10px 18px;
+    border-radius:12px;
+    font-size:13.5px;
+    font-weight:500;
+    white-space:nowrap;
+    box-shadow:0 8px 24px rgba(11,22,38,0.28);
+    display:flex;
+    align-items:center;
+    gap:9px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.25s ease, transform 0.25s ease;
+    z-index:10;
+  }
+  .nav-toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+  .nav-toast .nav-spinner{
+    width:14px;
+    height:14px;
+    border:2px solid rgba(255,255,255,0.3);
+    border-top-color:var(--amber);
+    border-radius:50%;
+    animation:spin 0.7s linear infinite;
+    flex-shrink:0;
+  }
+  @keyframes spin{
+    to{ transform:rotate(360deg); }
+  }
+
+  .empty-state{
+    margin:auto;
+    text-align:center;
+    color:var(--muted);
+    padding:24px;
+  }
+  .empty-state .key-icon{
+    width:42px; height:42px;
+    margin:0 auto 12px;
+    color:var(--amber-dark);
+  }
+  .empty-state p{ font-size:13.5px; line-height:1.6; margin:0; }
+  .empty-state .eyebrow{
+    font-family:'Fraunces', serif;
+    font-size:16px;
+    color:var(--ink);
+    margin:0 0 6px;
+    font-weight:600;
+  }
+
+  .quick-chip{
+    display:inline-flex;
+    margin:3px 4px;
+    padding:6px 12px;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:20px;
+    font-size:12.5px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:border-color 0.15s ease, transform 0.12s ease, background 0.15s ease;
+  }
+  .quick-chip:hover{
+    border-color:var(--amber);
+    background:#FFF8EC;
+    transform:translateY(-1px);
+  }
+
+  .faq-rotator{ margin-top:16px; }
+
+  .faq-rotator .faq-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:0.08em;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-bottom:8px;
+  }
+
+  .faq-stage{
+    position:relative;
+    height:38px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .faq-chip{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%, -50%);
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:8px 16px;
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:20px;
+    font-size:13px;
+    color:var(--ink);
+    cursor:pointer;
+    white-space:nowrap;
+    max-width:calc(100% - 12px);
+    overflow:hidden;
+    text-overflow:ellipsis;
+    opacity:0;
+    transition:border-color 0.15s ease, background 0.15s ease;
+    animation:chip-cycle 2.6s ease-in-out infinite;
+  }
+
+  .faq-chip:hover{
+    border-color:var(--amber);
+    background:#FFF8EC;
+  }
+
+  .faq-chip .faq-dot{
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:var(--green);
+    flex-shrink:0;
+  }
+
+  @keyframes chip-cycle{
+    0%{ opacity:0; transform:translate(-50%, -42%); }
+    8%{ opacity:1; transform:translate(-50%, -50%); }
+    80%{ opacity:1; transform:translate(-50%, -50%); }
+    92%{ opacity:0; transform:translate(-50%, -58%); }
+    100%{ opacity:0; transform:translate(-50%, -58%); }
+  }
+
+  .faq-dots{
+    display:flex;
+    gap:5px;
+    justify-content:center;
+    margin-top:10px;
+  }
+
+  .faq-dots span{
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background:var(--line);
+    transition:background 0.2s ease, transform 0.2s ease;
+  }
+
+  .faq-dots span.active{
+    background:var(--amber);
+    transform:scale(1.3);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .faq-chip{ animation:none; opacity:1; position:static; transform:none; margin:0 auto; }
+    .faq-stage{ height:auto; }
+  }
+
+  .room-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:4px 14px 14px 14px;
+    padding:10px;
+    width:240px;
+    flex-shrink:0;
+  }
+
+  .room-card .room-image{
+    width:100%;
+    height:130px;
+    object-fit:cover;
+    border-radius:9px;
+    margin-bottom:9px;
+    background:var(--paper);
+  }
+
+  .room-card .room-image-placeholder{
+    width:100%;
+    height:130px;
+    border-radius:9px;
+    margin-bottom:9px;
+    background:var(--paper);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--muted);
+    font-size:11px;
+  }
+
+  .room-card h3{
+    margin:0 0 4px;
+    font-family:'Fraunces', serif;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--ink);
+    line-height:1.3;
+  }
+
+  .room-card .room-meta{
+    font-size:13px;
+    color:var(--ink);
+    margin:3px 0;
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+
+  .room-card .room-meta.muted{ color:var(--muted); }
+
+  .room-card .amenity-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:4px;
+    margin-top:6px;
+  }
+
+  .room-card .amenity-chip{
+    font-size:10.5px;
+    font-weight:600;
+    color:var(--green-dark);
+    background:#EAF7EF;
+    padding:2px 7px;
+    border-radius:8px;
+  }
+
+  .room-card .view-details-btn{
+    display:inline-block;
+    background:var(--green);
+    color:var(--white);
+    font-size:12.5px;
+    font-weight:600;
+    padding:7px 13px;
+    border-radius:8px;
+    text-decoration:none;
+    margin-top:9px;
+    transition:background 0.15s ease;
+  }
+
+  .room-card .view-details-btn:hover{ background:var(--green-dark); }
+
+  .listing-scroll{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    padding-bottom:4px;
+    max-width:100%;
+  }
+
+  .listing-scroll::-webkit-scrollbar{ height:6px; }
+  .listing-scroll::-webkit-scrollbar-thumb{ background:var(--line); border-radius:3px; }
+
+  .composer{
+    flex-shrink:0;
+    padding:14px 14px 16px;
+    background:var(--white);
+    border-top:1px solid var(--line);
+  }
+
+  .composer-row{
+    display:flex;
+    align-items:flex-end;
+    gap:8px;
+    background:var(--paper);
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    padding:6px 6px 6px 14px;
+    transition:border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .composer-row:focus-within{
+    border-color:var(--amber);
+    box-shadow:0 0 0 3px rgba(245,166,35,0.16);
+  }
+
+  #message{
+    flex:1;
+    border:none;
+    background:transparent;
+    outline:none;
+    font-family:'Inter', sans-serif;
+    font-size:14.5px;
+    color:var(--ink);
+    padding:9px 0;
+    min-width:0;
+  }
+
+  #message::placeholder{ color:var(--muted); }
+
+  .mic-btn, .send-btn{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    border:none;
+    color:var(--white);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition:background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+  }
+
+  .mic-btn{ background:var(--navy); }
+  .mic-btn:hover{ background:var(--navy-deep); box-shadow:0 0 0 5px rgba(11,22,38,0.10); }
+  .mic-btn:active{ transform:scale(0.92); }
+  .mic-btn svg{ width:16px; height:16px; }
+
+  .mic-btn.listening{
+    background:var(--red);
+    animation:mic-pulse 1.1s ease-in-out infinite;
+  }
+  .mic-btn.listening:hover{ background:var(--red-dark); }
+  @keyframes mic-pulse{
+    0%{ box-shadow:0 0 0 0 rgba(224,79,79,0.45); }
+    70%{ box-shadow:0 0 0 7px rgba(224,79,79,0); }
+    100%{ box-shadow:0 0 0 0 rgba(224,79,79,0); }
+  }
+
+  .mic-btn.unsupported{ opacity:0.35; cursor:not-allowed; }
+
+  .send-btn{ background:var(--green); }
+  .send-btn:hover{ background:var(--green-dark); box-shadow:0 0 0 5px rgba(31,168,102,0.14); }
+  .send-btn:active{ transform:scale(0.92); }
+  .send-btn svg{ width:16px; height:16px; transform:translateX(-1px); }
+
+  .send-btn.sending svg{ animation:fly 0.45s ease forwards; }
+  @keyframes fly{
+    0%{ transform:translate(-1px,0) scale(1); opacity:1; }
+    60%{ transform:translate(10px,-10px) scale(0.7); opacity:0; }
+    61%{ transform:translate(-12px,10px) scale(0.7); opacity:0; }
+    100%{ transform:translate(-1px,0) scale(1); opacity:1; }
+  }
+
+  .composer-hint{
+    font-size:11px;
+    color:var(--muted);
+    text-align:center;
+    margin:8px 0 0;
+  }
+
+  .lang-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:0.04em;
+    color:var(--navy);
+    background:var(--paper);
+    border:1px solid var(--line);
+    padding:3px 8px;
+    border-radius:10px;
+    cursor:pointer;
+    margin-left:6px;
+  }
+  .lang-pill:hover{ border-color:var(--amber); }
+
+  @media (prefers-reduced-motion: reduce){
+    .row, .chat-shell{ animation:none; }
+    .typing span, .status-dot, .skyline rect.window, .send-btn.sending svg, .mic-btn.listening, .mic-wave span{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+{% csrf_token %}
+
+<div class="chat-shell">
+
+  <!-- Navigate toast (shown just before redirect) -->
+  <div class="nav-toast" id="nav-toast">
+    <span class="nav-spinner"></span>
+    <span id="nav-toast-text">Redirecting…</span>
+  </div>
+
+  <div class="chat-header">
+    <svg class="skyline" viewBox="0 0 430 34" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="14" width="18" height="20" fill="#16243C"/>
+      <rect x="22" y="6" width="22" height="28" fill="#16243C"/>
+      <rect x="48" y="18" width="16" height="16" fill="#16243C"/>
+      <rect x="68" y="2" width="24" height="32" fill="#16243C"/>
+      <rect x="96" y="12" width="18" height="22" fill="#16243C"/>
+      <rect x="118" y="20" width="14" height="14" fill="#16243C"/>
+      <rect x="136" y="8" width="22" height="26" fill="#16243C"/>
+      <rect x="162" y="16" width="16" height="18" fill="#16243C"/>
+      <rect x="182" y="4" width="20" height="30" fill="#16243C"/>
+      <rect x="206" y="14" width="18" height="20" fill="#16243C"/>
+      <rect x="228" y="22" width="14" height="12" fill="#16243C"/>
+      <rect x="246" y="6" width="22" height="28" fill="#16243C"/>
+      <rect x="272" y="16" width="16" height="18" fill="#16243C"/>
+      <rect x="292" y="2" width="24" height="32" fill="#16243C"/>
+      <rect x="320" y="14" width="18" height="20" fill="#16243C"/>
+      <rect x="342" y="20" width="14" height="14" fill="#16243C"/>
+      <rect x="360" y="8" width="22" height="26" fill="#16243C"/>
+      <rect x="386" y="16" width="16" height="18" fill="#16243C"/>
+      <rect x="406" y="4" width="24" height="30" fill="#16243C"/>
+
+      <rect class="window" x="3" y="18" width="3" height="3"/>
+      <rect class="window" x="9" y="24" width="3" height="3"/>
+      <rect class="window" x="27" y="11" width="3" height="3"/>
+      <rect class="window" x="34" y="18" width="3" height="3"/>
+      <rect class="window" x="27" y="25" width="3" height="3"/>
+      <rect class="window" x="52" y="22" width="3" height="3"/>
+      <rect class="window" x="73" y="8" width="3" height="3"/>
+      <rect class="window" x="81" y="15" width="3" height="3"/>
+      <rect class="window" x="73" y="22" width="3" height="3"/>
+      <rect class="window" x="101" y="17" width="3" height="3"/>
+      <rect class="window" x="122" y="24" width="3" height="3"/>
+      <rect class="window" x="141" y="13" width="3" height="3"/>
+      <rect class="window" x="148" y="20" width="3" height="3"/>
+      <rect class="window" x="167" y="21" width="3" height="3"/>
+      <rect class="window" x="187" y="9" width="3" height="3"/>
+      <rect class="window" x="194" y="16" width="3" height="3"/>
+      <rect class="window" x="187" y="23" width="3" height="3"/>
+      <rect class="window" x="211" y="19" width="3" height="3"/>
+      <rect class="window" x="232" y="26" width="3" height="3"/>
+      <rect class="window" x="251" y="11" width="3" height="3"/>
+      <rect class="window" x="258" y="18" width="3" height="3"/>
+      <rect class="window" x="277" y="21" width="3" height="3"/>
+      <rect class="window" x="297" y="8" width="3" height="3"/>
+      <rect class="window" x="304" y="15" width="3" height="3"/>
+      <rect class="window" x="297" y="22" width="3" height="3"/>
+      <rect class="window" x="325" y="18" width="3" height="3"/>
+      <rect class="window" x="346" y="24" width="3" height="3"/>
+      <rect class="window" x="365" y="13" width="3" height="3"/>
+      <rect class="window" x="372" y="20" width="3" height="3"/>
+      <rect class="window" x="391" y="21" width="3" height="3"/>
+      <rect class="window" x="411" y="9" width="3" height="3"/>
+      <rect class="window" x="418" y="16" width="3" height="3"/>
+    </svg>
+
+    <div class="scan-line"></div>
+
+    <div class="header-top">
+      <div class="brand-mark">
+        <div class="antenna" style="left:50%; transform:translateX(-50%);"></div>
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="6" width="16" height="14" rx="5" fill="var(--navy-deep)"/>
+          <rect class="robot-eye left" x="8" y="11" width="2.6" height="4" rx="1.3"/>
+          <rect class="robot-eye right" x="13.4" y="11" width="2.6" height="4" rx="1.3"/>
+        </svg>
+      </div>
+      <div class="header-text">
+        <h1>Cribmate Bot <span class="status-tag">AI</span></h1>
+        <div class="header-status">
+          <span class="status-dot"></span>
+          <span>by UrbanTenants · ONLINE</span>
+        </div>
+      </div>
+      <button class="voice-toggle" id="voice-toggle" type="button" title="Bot replies ko bolkar sunaye (voice on/off)" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" id="voice-toggle-icon">
+          <path d="M11 5L6 9H3V15H6L11 19V5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+          <path d="M15.5 8.5C16.5 9.5 17 10.7 17 12C17 13.3 16.5 14.5 15.5 15.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="chat-box" class="chat-box">
+    <div class="empty-state" id="empty-state">
+      <svg class="key-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="8" cy="15" r="4" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M11.5 11.5L20 3M20 3H16M20 3V7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <p class="eyebrow">Looking for a room?</p>
+      <p>Ask about booking, rent, documents, or properties near you — type, or tap the mic and just speak.</p>
+      <div class="faq-rotator">
+        <div class="faq-label">Try asking</div>
+        <div class="faq-stage" id="faq-stage"></div>
+        <div class="faq-dots" id="faq-dots"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="composer">
+    <div class="composer-row">
+      <button class="mic-btn" id="mic-btn" type="button" aria-label="Speak your message" title="Bolkar message bheje">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" id="mic-icon">
+          <rect x="9" y="3" width="6" height="11" rx="3" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M5 11C5 14.866 8.134 18 12 18C15.866 18 19 14.866 19 11" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          <path d="M12 18V21" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <input type="text" id="message" placeholder="Type your message… or tap 🎤" autocomplete="off">
+      <button class="send-btn" id="send-btn" onclick="sendMessage()" aria-label="Send message">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 12L21 3L14 21L11 13L3 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <p class="composer-hint" id="composer-hint">
+      Voice input: English (Hindi/Hinglish bhi samajh aata hai)
+    </p>
+  </div>
+</div>
+
+<script>
+  const chatBox       = document.getElementById("chat-box");
+  const input         = document.getElementById("message");
+  const sendBtn       = document.getElementById("send-btn");
+  const micBtn        = document.getElementById("mic-btn");
+  const voiceToggle   = document.getElementById("voice-toggle");
+  const composerHint  = document.getElementById("composer-hint");
+  const navToast      = document.getElementById("nav-toast");
+  const navToastText  = document.getElementById("nav-toast-text");
+  let   emptyState    = document.getElementById("empty-state");
+
+  const ROBOT_FACE_SVG = `<svg class="mini-robot" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="6" width="16" height="14" rx="5" fill="#FFFFFF" fill-opacity="0.16"/>
+    <rect x="8" y="11" width="2.6" height="4" rx="1.3" fill="#FFFFFF"/>
+    <rect x="13.4" y="11" width="2.6" height="4" rx="1.3" fill="#FFFFFF"/>
+  </svg>`;
+
+  const SPEAK_ICON_SVG = `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M9 5L5 8H3V13H5L9 16V5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M12.5 7.5C13.3 8.3 13.7 9.2 13.7 10.2C13.7 11.2 13.3 12.1 12.5 12.9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+  </svg>`;
+
+  /* =========================================================
+     NAVIGATE TOAST + REDIRECT
+     ========================================================= */
+  function showNavToastAndRedirect(url, message){
+    appendBotMessage(message, currentReplyLang);
+    navToastText.textContent = message || "Redirecting…";
+    navToast.classList.add("show");
+    setTimeout(() => {
+      window.location.href = url;
+    }, 1400);
+  }
+
+  /* =========================================================
+     TEXT-TO-SPEECH
+     ========================================================= */
+  let voiceEnabled = true;
+  let currentReplyLang = "en";
+  let ttsUnlocked = false;
+  let voicesCache = [];
+  const blacklistedVoiceNames = new Set();
+
+  voiceToggle.classList.add("active");
+  voiceToggle.setAttribute("aria-pressed", "true");
+
+  function refreshVoices(){
+    if (!window.speechSynthesis) return;
+    const v = window.speechSynthesis.getVoices();
+    if (v && v.length) voicesCache = v;
+  }
+
+  if (window.speechSynthesis){
+    refreshVoices();
+    window.speechSynthesis.onvoiceschanged = refreshVoices;
+  }
+
+  function pickVoiceFor(text, forceLang){
+    if (!voicesCache.length) refreshVoices();
+    if (!voicesCache.length) return null;
+
+    let useHindi;
+    if (forceLang === "hi" || forceLang === "hinglish") useHindi = true;
+    else if (forceLang === "en") useHindi = false;
+    else useHindi = /[\u0900-\u097F]/.test(text);
+
+    const preferredLang = useHindi ? "hi-IN" : "en-IN";
+    const langPrefix    = useHindi ? "hi"    : "en";
+
+    const isOnlineVoice = v => /online|natural/i.test(v.name) || v.localService === false;
+    const usable = voicesCache.filter(v => !blacklistedVoiceNames.has(v.name));
+    const pool   = usable.length ? usable : voicesCache;
+
+    const candidates         = pool.filter(v => v.lang === preferredLang);
+    const fallbackCandidates = pool.filter(v => v.lang && v.lang.startsWith(langPrefix));
+
+    return candidates.find(v => !isOnlineVoice(v))
+        || fallbackCandidates.find(v => !isOnlineVoice(v))
+        || pool.find(v => !isOnlineVoice(v))
+        || candidates[0]
+        || fallbackCandidates[0]
+        || pool[0];
+  }
+
+  function unlockSpeechSynthesis(){
+    if (ttsUnlocked || !window.speechSynthesis) return;
+    try{
+      const warmup = new SpeechSynthesisUtterance("");
+      warmup.volume = 0;
+      window.speechSynthesis.speak(warmup);
+      window.speechSynthesis.cancel();
+      ttsUnlocked = true;
+    } catch(e){}
+  }
+
+  ["click","touchstart","keydown"].forEach(evt =>
+    document.addEventListener(evt, unlockSpeechSynthesis, { once:true, passive:true })
+  );
+
+  function speakText(text, btnEl, lang){
+    if (!window.speechSynthesis || !text) return;
+
+    function buildUtterance(){
+      const u = new SpeechSynthesisUtterance(text);
+      const voice = pickVoiceFor(text, lang);
+      if (voice) u.voice = voice;
+      u.rate = 1; u.pitch = 1;
+      if (btnEl){
+        u.onend  = () => btnEl.classList.remove("speaking");
+        u.onerror = e => { console.warn("[TTS] error:", e.error); btnEl.classList.remove("speaking"); };
+      } else {
+        u.onerror = e => console.warn("[TTS] error:", e.error);
+      }
+      return u;
+    }
+
+    window.speechSynthesis.cancel();
+    if (btnEl) btnEl.classList.add("speaking");
+
+    setTimeout(() => {
+      const utter = buildUtterance();
+      let started = false;
+      utter.onstart = () => { started = true; };
+      const prevEnd = utter.onend;
+      utter.onend = () => { started = true; if (prevEnd) prevEnd(); };
+
+      window.speechSynthesis.speak(utter);
+
+      const keepAlive = setInterval(() => {
+        if (!window.speechSynthesis.speaking){ clearInterval(keepAlive); return; }
+        window.speechSynthesis.pause();
+        window.speechSynthesis.resume();
+      }, 10000);
+
+      const prevEnd2  = utter.onend;
+      const prevErr2  = utter.onerror;
+      utter.onend   = e => { clearInterval(keepAlive); if (prevEnd2)  prevEnd2(e);  };
+      utter.onerror = e => { clearInterval(keepAlive); if (prevErr2)  prevErr2(e);  };
+
+      setTimeout(() => {
+        if (!started && window.speechSynthesis && !window.speechSynthesis.speaking){
+          try{
+            const retry = buildUtterance();
+            window.speechSynthesis.speak(retry);
+          } catch(e){ console.warn("[TTS] retry failed:", e); }
+        }
+      }, 300);
+
+      const voiceIsOnline = utter.voice && (/online|natural/i.test(utter.voice.name) || utter.voice.localService === false);
+      if (voiceIsOnline){
+        const expectedMs = Math.max(6000, text.length * 140);
+        setTimeout(() => {
+          const stillGoing = window.speechSynthesis && window.speechSynthesis.speaking && !window.speechSynthesis.paused;
+          if (started && stillGoing && utter.voice){
+            blacklistedVoiceNames.add(utter.voice.name);
+            window.speechSynthesis.cancel();
+            const fallback = buildUtterance();
+            if (fallback.voice && fallback.voice.name !== utter.voice.name)
+              window.speechSynthesis.speak(fallback);
+          }
+        }, expectedMs);
+      }
+    }, 0);
+  }
+
+  voiceToggle.addEventListener("click", () => {
+    voiceEnabled = !voiceEnabled;
+    voiceToggle.classList.toggle("active", voiceEnabled);
+    voiceToggle.setAttribute("aria-pressed", String(voiceEnabled));
+    if (!voiceEnabled && window.speechSynthesis) window.speechSynthesis.cancel();
+    else if (voiceEnabled) unlockSpeechSynthesis();
+    composerHint.textContent = voiceEnabled
+      ? "Voice input: English (Hindi/Hinglish bhi samajh aata hai) · 🔊 replies bolkar bhi milenge"
+      : "Voice input: English (Hindi/Hinglish bhi samajh aata hai) · 🔇 voice replies off";
+  });
+
+  /* =========================================================
+     FAQ ROTATOR
+     ========================================================= */
+  const FAQ_QUESTIONS = [
+    "Room kaise book kare?",
+    "Rent kitna hai?",
+    "Documents chahiye?",
+    "Security deposit kitna hota hai?",
+    "Boys/Girls PG available hai?",
+    "Site visit kaise schedule kare?"
+  ];
+
+  const FAQ_CYCLE_MS = 2600;
+  let faqIndex = 0;
+  let faqTimer = null;
+
+  function renderFaqDots(){
+    const dotsEl = document.getElementById("faq-dots");
+    if (!dotsEl) return;
+    dotsEl.innerHTML = FAQ_QUESTIONS
+      .map((_,i) => `<span class="${i===faqIndex?'active':''}"></span>`)
+      .join("");
+  }
+
+  function renderFaqChip(){
+    const stage = document.getElementById("faq-stage");
+    if (!stage) return;
+    const question = FAQ_QUESTIONS[faqIndex];
+    stage.innerHTML = `
+      <div class="faq-chip" onclick="quickSend(${JSON.stringify(question)})">
+        <span class="faq-dot"></span>
+        <span>${escapeHtml(question)}</span>
+      </div>`;
+    renderFaqDots();
+  }
+
+  function startFaqRotator(){
+    renderFaqChip();
+    faqTimer = setInterval(() => {
+      faqIndex = (faqIndex + 1) % FAQ_QUESTIONS.length;
+      renderFaqChip();
+    }, FAQ_CYCLE_MS);
+  }
+
+  function stopFaqRotator(){
+    if (faqTimer){ clearInterval(faqTimer); faqTimer = null; }
+  }
+
+  /* =========================================================
+     UTILITIES
+     ========================================================= */
+  function scrollToBottom(){ chatBox.scrollTop = chatBox.scrollHeight; }
+
+  function escapeHtml(str){
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function clearEmptyState(){
+    if (emptyState){ stopFaqRotator(); emptyState.remove(); emptyState = null; }
+  }
+
+  function quickSend(text){
+    unlockSpeechSynthesis();
+    input.value = text;
+    sendMessage();
+  }
+
+  /* =========================================================
+     MESSAGE RENDERERS
+     ========================================================= */
+  function appendUserMessage(text){
+    clearEmptyState();
+    const row = document.createElement("div");
+    row.className = "row user";
+    row.innerHTML = `
+      <div class="avatar">You</div>
+      <div>
+        <span class="label">You</span>
+        <div class="bubble">${escapeHtml(text)}</div>
+      </div>`;
+    chatBox.appendChild(row);
+    scrollToBottom();
+  }
+
+  function appendTypingIndicator(){
+    const row = document.createElement("div");
+    row.className = "row bot";
+    row.id = "typing-row";
+    row.innerHTML = `
+      <div class="avatar">${ROBOT_FACE_SVG}</div>
+      <div class="bubble typing"><span></span><span></span><span></span></div>`;
+    chatBox.appendChild(row);
+    scrollToBottom();
+  }
+
+  function removeTypingIndicator(){
+    const row = document.getElementById("typing-row");
+    if (row) row.remove();
+  }
+
+  function appendBotMessage(text, lang){
+    lang = lang || currentReplyLang;
+    currentReplyLang = lang;
+
+    const row       = document.createElement("div");
+    row.className   = "row bot";
+
+    const avatarDiv = document.createElement("div");
+    avatarDiv.className = "avatar";
+    avatarDiv.innerHTML = ROBOT_FACE_SVG;
+
+    const content = document.createElement("div");
+
+    const label = document.createElement("span");
+    label.className = "label";
+    label.append(document.createTextNode("Cribmate Bot"));
+
+    const speakBtn = document.createElement("button");
+    speakBtn.className = "speak-again-btn";
+    speakBtn.title     = "Sunaye";
+    speakBtn.innerHTML = SPEAK_ICON_SVG;
+    speakBtn.addEventListener("click", () => speakText(text, speakBtn, lang));
+    label.appendChild(speakBtn);
+
+    const bubble      = document.createElement("div");
+    bubble.className  = "bubble";
+    bubble.textContent = text;
+
+    content.appendChild(label);
+    content.appendChild(bubble);
+    row.appendChild(avatarDiv);
+    row.appendChild(content);
+    chatBox.appendChild(row);
+    scrollToBottom();
+
+    if (voiceEnabled) speakText(text, speakBtn, lang);
+  }
+
+  function appendRoomListing(rooms, lang){
+    lang = lang || currentReplyLang;
+    currentReplyLang = lang;
+    clearEmptyState();
+
+    const row = document.createElement("div");
+    row.className = "row bot";
+    row.style.maxWidth = "100%";
+
+    const scroll = document.createElement("div");
+    scroll.className = "listing-scroll";
+
+    rooms.forEach(room => {
+      const card = document.createElement("div");
+      card.className = "room-card";
+
+      const amenities   = Array.isArray(room.amenities) ? room.amenities : [];
+      const amenityHtml = amenities.length
+        ? `<div class="amenity-chips">${amenities.map(a=>`<span class="amenity-chip">${escapeHtml(a)}</span>`).join("")}</div>`
+        : "";
+
+      const imageHtml = room.image
+        ? `<img class="room-image" src="${escapeHtml(room.image)}" alt="${escapeHtml(room.title||'Room photo')}" onerror="this.outerHTML='<div class=&quot;room-image-placeholder&quot;>No photo available</div>'">`
+        : `<div class="room-image-placeholder">No photo available</div>`;
+
+      const rent     = (room.rent !== undefined && room.rent !== null) ? room.rent : "—";
+      const location = room.location ? escapeHtml(room.location) : "Location not specified";
+      const roomId   = room.id !== undefined ? room.id : "";
+
+      card.innerHTML = `
+        ${imageHtml}
+        <h3>${escapeHtml(room.title||"Untitled listing")}</h3>
+        <div class="room-meta">💰 ₹${escapeHtml(String(rent))}/mo</div>
+        <div class="room-meta muted">📍 ${location}</div>
+        ${amenityHtml}
+        <a class="view-details-btn" href="/room/${encodeURIComponent(roomId)}/">View Details</a>`;
+
+      scroll.appendChild(card);
+    });
+
+    row.innerHTML = `<div class="avatar">${ROBOT_FACE_SVG}</div>`;
+    const wrapper = document.createElement("div");
+    wrapper.style.minWidth = "0";
+    wrapper.appendChild(scroll);
+    row.appendChild(wrapper);
+    chatBox.appendChild(row);
+    scrollToBottom();
+
+    if (voiceEnabled){
+      const summary = buildListingSpeechSummary(rooms, lang);
+      speakText(summary, null, lang);
+    }
+  }
+
+  function buildListingSpeechSummary(rooms, lang){
+    const count  = rooms.length;
+    const intros = {
+      en:       count===1 ? "I found 1 room."           : `I found ${count} rooms.`,
+      hi:       count===1 ? "मुझे 1 कमरा मिला।"          : `मुझे ${count} कमरे मिले।`,
+      hinglish: count===1 ? "Maine 1 room dhundha hai." : `Maine ${count} rooms dhunde hain.`,
+    };
+    const intro = intros[lang] || intros.hinglish;
+    const lines = rooms.map((room, i) => {
+      const title    = room.title || "Untitled listing";
+      const rent     = (room.rent !== undefined && room.rent !== null) ? room.rent : "not specified";
+      const location = room.location || "location not specified";
+      if (lang==="hi")
+        return `संख्या ${i+1}: ${title}, किराया ${rent} रुपये प्रति माह, ${location} में।`;
+      return `Number ${i+1}: ${title}, rent ${rent} rupees per month, in ${location}.`;
+    });
+    return [intro, ...lines].join(" ");
+  }
+
+  /* =========================================================
+     SEND MESSAGE (main fetch logic)
+     ========================================================= */
+  async function sendMessage(){
+    const message = input.value.trim();
+    if (!message) return;
+
+    unlockSpeechSynthesis();
+
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    sendBtn.classList.add("sending");
+    setTimeout(() => sendBtn.classList.remove("sending"), 460);
+
+    appendUserMessage(message);
+    input.value = "";
+    input.focus();
+    appendTypingIndicator();
+
+    try{
+      const response = await fetch("/chatbot/chat-api/", {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await response.json();
+      removeTypingIndicator();
+
+      const replyLang = data.lang || "en";
+      currentReplyLang = replyLang;
+      updateMicRecognitionLang(replyLang);
+
+      if (data.type === "navigate"){
+        showNavToastAndRedirect(data.url, data.message || "Taking you there…");
+
+      } else if (data.type === "listing" && Array.isArray(data.rooms) && data.rooms.length > 0){
+        appendRoomListing(data.rooms, replyLang);
+
+      } else if (data.type === "listing"){
+        const noResults = {
+          en:       "No rooms found for this criteria. Try adjusting the budget or location.",
+          hi:       "इस मापदंड के लिए अभी कोई कमरा नहीं मिला। बजट या लोकेशन बदलकर देखें।",
+          hinglish: "Is criteria ke liye abhi koi room nahi mila. Thoda budget ya location adjust karke try kare.",
+        };
+        appendBotMessage(noResults[replyLang] || noResults.hinglish, replyLang);
+
+      } else {
+        appendBotMessage(data.reply, replyLang);
+      }
+
+    } catch(err){
+      removeTypingIndicator();
+      const errorText = {
+        en:       "There's a connection issue. Please try again.",
+        hi:       "कनेक्शन में समस्या हो रही है। कृपया फिर से प्रयास करें।",
+        hinglish: "Connection mein dikkat aa rahi hai. Please try again.",
+      };
+      appendBotMessage(errorText[currentReplyLang] || errorText.hinglish, currentReplyLang);
+    }
+  }
+
+  input.addEventListener("keypress", e => {
+    if (e.key === "Enter"){ e.preventDefault(); sendMessage(); }
+  });
+
+  /* =========================================================
+     SPEECH-TO-TEXT (mic button)
+     ========================================================= */
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition       = null;
+  let isListening       = false;
+  let micRetryCount     = 0;
+  const MIC_MAX_RETRIES = 2;
+  let micRecognitionLang = "en-IN";
+
+  function updateMicRecognitionLang(replyLang){
+    const newLang = (replyLang==="hi" || replyLang==="hinglish") ? "hi-IN" : "en-IN";
+    if (newLang !== micRecognitionLang){
+      micRecognitionLang = newLang;
+    }
+  }
+
+  function setupRecognition(){
+    if (!SpeechRecognitionAPI) return null;
+    const rec = new SpeechRecognitionAPI();
+    rec.continuous       = false;
+    rec.interimResults   = true;
+    rec.maxAlternatives  = 1;
+    rec.lang             = micRecognitionLang;
+
+    let gotResult = false;
+
+    rec.onstart = () => {
+      isListening = true;
+      micBtn.classList.add("listening");
+      showListeningIndicator();
+    };
+
+    rec.onresult = event => {
+      gotResult = true;
+      let transcript = "";
+      for (let i = 0; i < event.results.length; i++)
+        transcript += event.results[i][0].transcript;
+      updateListeningIndicator(transcript);
+      input.value = transcript;
+    };
+
+    rec.onerror = event => {
+      console.warn("Speech recognition error:", event.error);
+
+      if (event.error === "network" && micRetryCount < MIC_MAX_RETRIES){
+        micRetryCount++;
+        stopListeningUI();
+        updateComposerHintTemporarily(`Reconnecting mic… (${micRetryCount}/${MIC_MAX_RETRIES})`);
+        setTimeout(() => {
+          recognition = setupRecognition();
+          if (recognition){ try{ recognition.start(); } catch(e){ console.warn(e); } }
+        }, 500 * micRetryCount);
+        return;
+      }
+
+      stopListeningUI();
+
+      if (event.error === "not-allowed" || event.error === "service-not-allowed")
+        appendBotMessage("Mic access allow nahi hua. Browser settings mein microphone permission on kare.");
+      else if (event.error === "network")
+        appendBotMessage("Voice service abhi connect nahi ho pa raha. Thodi der baad try kare, ya type karke message bheje.");
+      else if (event.error === "audio-capture")
+        appendBotMessage("Mic nahi mila. Check kare ki koi microphone connected hai.");
+
+      micRetryCount = 0;
+    };
+
+    rec.onend = () => {
+      stopListeningUI();
+      if (gotResult && input.value.trim()){ micRetryCount = 0; sendMessage(); }
+    };
+
+    return rec;
+  }
+
+  function updateComposerHintTemporarily(text){
+    const original = composerHint.textContent;
+    composerHint.textContent = text;
+    setTimeout(() => {
+      if (composerHint.textContent === text) composerHint.textContent = original;
+    }, 1800);
+  }
+
+  function showListeningIndicator(){
+    clearEmptyState();
+    removeListeningIndicator();
+    const row = document.createElement("div");
+    row.className = "listening-row";
+    row.id = "listening-row";
+    row.innerHTML = `
+      <div class="listening-bubble">
+        <span class="mic-wave"><span></span><span></span><span></span><span></span></span>
+        <span id="listening-text">Sun raha hoon…</span>
+      </div>`;
+    chatBox.appendChild(row);
+    scrollToBottom();
+  }
+
+  function updateListeningIndicator(text){
+    const el = document.getElementById("listening-text");
+    if (el) el.textContent = text || "Sun raha hoon…";
+    scrollToBottom();
+  }
+
+  function removeListeningIndicator(){
+    const row = document.getElementById("listening-row");
+    if (row) row.remove();
+  }
+
+  function stopListeningUI(){
+    isListening = false;
+    micBtn.classList.remove("listening");
+    removeListeningIndicator();
+  }
+
+  function toggleMic(){
+    unlockSpeechSynthesis();
+    if (!SpeechRecognitionAPI){
+      appendBotMessage("Aapka browser voice input support nahi karta. Chrome ya Edge try kare.");
+      return;
+    }
+    if (isListening){ recognition && recognition.stop(); return; }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    micRetryCount = 0;
+    recognition = setupRecognition();
+    if (recognition){ try{ recognition.start(); } catch(e){ console.warn(e); } }
+  }
+
+  micBtn.addEventListener("click", toggleMic);
+
+  if (!SpeechRecognitionAPI){
+    micBtn.classList.add("unsupported");
+    micBtn.title = "Voice input is not supported in this browser";
+  }
+
+  input.focus();
+  startFaqRotator();
+
+  // If this page is opened directly (not inside the widget's iframe),
+  // switch to the fixed-size centered card layout instead of full-bleed.
+  if (window.self === window.top){
+    document.body.classList.add("standalone-view");
+  }
+</script>
+
+</body>
+</html>

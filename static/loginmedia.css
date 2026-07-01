@@ -1,0 +1,46 @@
+@media (max-width :550px) {
+    .box1 {
+        display: none;
+        width: 0%;
+    }
+
+    .box1 {
+        width: 100%;
+    }
+
+    .box2 {
+        background-image: url("bg.jpg");
+        width: 100%;
+        background-repeat: none;
+    }
+
+    .boxi2 {
+
+        background-color: rgb(231, 255, 207, 0.45);
+        background-size: cover;
+    }
+
+}
+
+@media (min-width :550px) and (max-width: 880px) {
+    .box1 {
+        display: none;
+        width: 0%;
+    }
+
+    .box1 {
+        width: 100%;
+    }
+
+    .box2 {
+        background-image: url("bg.jpg");
+        width: 100%;
+        background-repeat: none;
+    }
+
+    .boxi2 {
+
+        background-color: rgb(231, 255, 207, 0.45);
+        background-size: cover;
+    }
+}

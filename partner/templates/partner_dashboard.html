@@ -1,0 +1,309 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Dashboard | UrbanTenants</title>
+    <link rel="stylesheet" href="{% static 'partner_dashboard.css' %}">
+</head>
+<body>
+    <div style="background:#fef2f2;border-left:4px solid #ef4444;border-radius:6px;
+            padding:10px 14px;margin-bottom:16px;font-size:13px;color:#7f1d1d;line-height:1.5;">
+    🔴 <strong>Reminder:</strong> For each verified booking below, make sure you've gone to
+    <strong>My Listings → Edit → uncheck Available</strong> to prevent double bookings.
+</div>
+<div class="dashboard">
+    {% comment %} <button id="enableNotifications">Enable Notifications</button> {% endcomment %}
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <span class="brand-name">Urban<em>Tenants</em></span>
+        </div>
+
+        <div class="sidebar-profile">
+            <div class="profile-avatar">{{ partner_data.full_name|first|upper }}</div>
+            <h3>{{ partner_data.full_name }}</h3>
+            <p>{{ partner_data.email }}</p>
+            <span class="service-badge">{{ partner_data.service_type }}</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <p class="nav-label">Navigation</p>
+            <a href="{% url 'partner_dashboard' %}" class="menu-item active">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                My Listings
+            </a>
+            <a href="{% url 'add_listing' %}" class="menu-item add-btn">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                Add Listing
+            </a>
+            
+             <a  href="{% url 'partner_logout' %}" class="menu-item logout">
+                <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Logout
+            </a>
+        </nav>
+    </aside>
+
+    <!-- ═══ MAIN ═══ -->
+    <main class="main-content">
+            
+
+        <div class="top-bar">
+            <div>
+                <p class="top-bar-sub">Welcome back,</p>
+                <h1>Partner Dashboard</h1>
+            </div>
+            <a href="{% url 'add_listing' %}" class="top-add-btn">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add New Listing
+            </a>
+        </div>
+
+        <!-- Profile Card -->
+        <div class="profile-box">
+            <div class="profile-box-header">
+                <div class="profile-box-avatar">{{ partner_data.full_name|first|upper }}</div>
+                <div>
+                    <h2>{{ partner_data.full_name }}</h2>
+                    <span class="profile-type-badge">{{ partner_data.service_type }}</span>
+                </div>
+            </div>
+            {% if partner_data %}
+            <div class="profile-grid">
+                <div class="profile-item">
+                    <span class="profile-label">Email</span>
+                    <span class="profile-value">{{ partner_data.email }}</span>
+                </div>
+                <div class="profile-item">
+                    <span class="profile-label">Phone</span>
+                    <span class="profile-value">{{ partner_data.phone }}</span>
+                </div>
+                <div class="profile-item">
+                    <span class="profile-label">Address</span>
+                    <span class="profile-value">{{ partner_data.address }}</span>
+                </div>
+                <div class="profile-item">
+                    <span class="profile-label">Service Type</span>
+                    <span class="profile-value">{{ partner_data.service_type }}</span>
+                </div>
+                <div class="profile-item">
+                    <h4>UPI ID</h4>
+                    <p>{{ partner_data.upi_id }}</p>
+                </div>
+            </div>
+            {% else %}
+                <p class="no-data">Profile data not available.</p>
+            {% endif %}
+        </div>
+
+        <!-- Listings -->
+        <div class="listing-header">
+            <h2 class="listing-heading">My Listings</h2>
+            <span class="listing-count">{{ listings_data|length }} properties</span>
+        </div>
+
+        <div class="listing-container">
+            {% for item in listings_data %}
+            <div class="listing-card">
+                <div class="listing-img-wrap">
+                    {% if item.Room_images1 %}
+                        <img src="{{ item.Room_images1.url }}" alt="Room image">
+                    {% else %}
+                        <div class="img-placeholder">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <span>No image</span>
+                        </div>
+                    {% endif %}
+                    <span class="availability-badge {% if item.Room_available %}avail{% else %}unavail{% endif %}">
+                        {% if item.Room_available %}Available{% else %}Unavailable{% endif %}
+                    </span>
+                </div>
+                <div class="listing-info">
+                    <h3>{{ item.Room_title }}</h3>
+                    <p class="listing-type">{{ item.Room_type }}</p>
+
+                    <div class="listing-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Monthly Rent</span>
+                            <span class="meta-value rent">₹{{ item.Room_rent }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Security</span>
+                            <span class="meta-value">₹{{ item.Room_security }}</span>
+                        </div>
+                    </div>
+
+                    <p class="listing-desc">{{ item.Room_details|truncatewords:20 }}</p>
+
+                    <div class="features">
+                        {% if item.wifi %}<span class="feature-tag">WiFi</span>{% endif %}
+                        {% if item.bed %}<span class="feature-tag">Bed</span>{% endif %}
+                        {% if item.mattres %}<span class="feature-tag">Mattress</span>{% endif %}
+                        {% if item.table %}<span class="feature-tag">Table</span>{% endif %}
+                        {% if item.chair %}<span class="feature-tag">Chair</span>{% endif %}
+                        {% if item.fan %}<span class="feature-tag">Fan</span>{% endif %}
+                        {% if item.Ac %}<span class="feature-tag">AC</span>{% endif %}
+                        {% if item.ro %}<span class="feature-tag">RO</span>{% endif %}
+                    </div>
+
+                    <div class="card-actions">
+                        <a href="{% url 'delete_listing' item.id %}" 
+                            class="edit-btn"
+                            style="background:red;color:white;padding:10px 16px;border-radius:8px;text-decoration:none;">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M3 6h18"/>
+                                <path d="M8 6V4h8v2"/>
+                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                            </svg>
+                            Delete
+                        </a>
+                    </div>
+                    <a href="{% url 'edit_listing' item.id %}" 
+                        style="background:#2579D4;color:white;padding:10px 14px;border-radius:8px;text-decoration:none;display:flex;align-items:center;gap:6px;">
+                        <svg viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                        </svg>
+                        Edit
+                    </a>
+                </div>
+            </div>
+            
+            {% empty %}
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <h3>No listings yet</h3>
+                <p>Add your first property to get started</p>
+                <a href="{% url 'add_listing' %}" class="top-add-btn" style="display:inline-flex;margin-top:1rem;">+ Add Listing</a>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="listing-header" style="margin-top: 40px;">
+            <h2 class="listing-heading">Pending Booking Requests</h2>
+            <span class="listing-count">{{ pending_bookings|length }} requests</span>
+        </div>
+
+        <div class="listing-container">
+            {% for booking in pending_bookings %}
+            <div class="listing-card">
+                <div class="listing-info">
+                 <h3>{{ booking.name }}</h3>
+                 <p class="listing-type">{{ booking.room.Room_title }}</p>
+
+                <div class="listing-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Email</span>
+                    <span class="meta-value">{{ booking.email }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Phone</span>
+                    <span class="meta-value">{{ booking.phone }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Check In</span>
+                    <span class="meta-value">{{ booking.check_in_date }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Payment Method</span>
+                    <span class="meta-value">{{ booking.payment_method }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Transaction ID</span>
+                    <span class="meta-value">{{ booking.transaction_id }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Payment Done</span>
+                    <span class="meta-value">
+                        {% if booking.payment_done %}Yes{% else %}No{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            {% if booking.feedback %}
+            <p class="listing-desc"><strong>Feedback:</strong> {{ booking.feedback }}</p>
+            {% endif %}
+
+            {% if booking.payment_screenshot %}
+                <div style="margin: 15px 0;">
+                     <p><strong>Payment Screenshot:</strong></p>
+                    <img src="{{ booking.payment_screenshot.url }}" alt="Payment Screenshot" style="max-width: 250px; border-radius: 10px;">
+                </div>
+            {% endif %}
+
+
+
+
+            
+            <div class="card-actions">
+                <a href="{% url 'verify_booking' booking.id %}" class="edit-btn" style="background: green; color: white; padding: 10px 16px; border-radius: 8px; text-decoration: none;">
+                    Verify Payment
+                </a>
+
+                 <a href="{% url 'reject_booking' booking.id %}" class="edit-btn" style="background: red; color: white; padding: 10px 16px; border-radius: 8px; text-decoration:   none; margin-left: 10px;">
+                     Reject
+                    </a>
+             </div>
+            </div>
+        </div>
+        {% empty %}
+            <div class="empty-state">
+                <h3>No pending booking requests</h3>
+                <p>Jab koi user payment proof submit karega to yahan dikhega.</p>
+            </div>
+        {% endfor %}
+        </div>  
+        {% if messages %}
+            {% for message in messages %}
+                <div style="padding: 12px; margin-bottom: 15px; border-radius: 8px;
+                         background-color: #f1f1f1; color: #333; font-weight: 500;">
+                 {{ message }}
+                </div>
+         {% endfor %}
+        {% endif %}
+    </main>
+</div>
+
+
+
+{% include 'footer.html' %}
+
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+<script>
+
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+OneSignalDeferred.push(async function(OneSignal) {
+
+    await OneSignal.init({
+        appId: 6893175d-f04f-4c67-acaf-7a604bb3fa0e,
+    });
+
+    const permission = await OneSignal.Notifications.requestPermission();
+
+    const token = await OneSignal.User.PushSubscription.getToken();
+
+    console.log(token);
+
+    fetch("/save-token/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            token: token
+        })
+    });
+
+});
+
+</script>
+
+</body>
+</html>

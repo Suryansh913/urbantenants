@@ -1,0 +1,63 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-image: url("/static/image/aboutus.jpg");
+    background-size: cover;
+    color: aliceblue;
+    height: 1500px;
+}
+
+.about {
+    height: 400px;
+    width: 80%;
+    margin-left: 10%;
+    background-color: rgb(60, 59, 59, 0.25);
+    display: flex;
+    margin-top: 100px;
+    font-size: small;
+}
+
+#about-heading {
+
+    margin-top: 50px;
+    color: yellow;
+
+}
+
+.why {
+    background-color: rgb(218, 218, 72);
+}
+
+.abou {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+
+}
+
+.abi {
+    flex: 0 0 40%;
+    height: 100%;
+
+    background-color: aquamarine;
+    background-image: url("/static/image/roomkey.jpg");
+    background-size: cover;
+    mask-image: linear-gradient(to right, transparent black 20%, black 80%);
+
+
+}
+
+.abi2 {
+    background-image: url("/static/image/pg.jpg");
+
+}
+
+.abt {
+    flex: 0 0 60%;
+    height: 100%;
+}

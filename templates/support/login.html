@@ -1,0 +1,180 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Team Login | UrbanTenants</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+<style>
+:root{
+    --navy:#0b1f3a;
+    --navy-deep:#071427;
+    --blue:#2563eb;
+    --blue-light:#5b9bff;
+    --muted:#5c6b7c;
+    --line:#e3e9f5;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(160deg,#071427 0%,#0b1f3a 55%,#123a73 100%);
+    position:relative;
+    overflow:hidden;
+    padding:20px;
+}
+
+body::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size:46px 46px;
+    mask-image:radial-gradient(circle at 50% 30%, black, transparent 70%);
+}
+
+.login-card{
+    position:relative;
+    z-index:2;
+    width:100%;
+    max-width:400px;
+    background:#fff;
+    border-radius:18px;
+    padding:42px 36px;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.45);
+}
+
+.login-badge{
+    width:50px;
+    height:50px;
+    border-radius:12px;
+    background:linear-gradient(135deg,var(--blue),var(--blue-light));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:20px;
+    margin-bottom:20px;
+}
+
+.login-card h1{
+    font-family:'Fraunces',serif;
+    font-size:24px;
+    font-weight:600;
+    color:var(--navy);
+    margin-bottom:6px;
+}
+
+.login-card p.sub{
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:28px;
+}
+
+label{
+    font-size:13px;
+    font-weight:600;
+    color:var(--navy);
+    margin-bottom:6px;
+    display:block;
+}
+
+.field{
+    margin-bottom:18px;
+}
+
+input[type="text"], input[type="password"]{
+    width:100%;
+    padding:13px 15px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    outline:none;
+    font-size:14.5px;
+    background:#fafbfe;
+    transition:border-color .2s ease, box-shadow .2s ease;
+}
+
+input:focus{
+    border-color:var(--blue);
+    box-shadow:0 0 0 3px rgba(37,99,235,0.12);
+    background:#fff;
+}
+
+button{
+    width:100%;
+    background:var(--blue);
+    color:#fff;
+    border:none;
+    padding:14px;
+    border-radius:9px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:600;
+    margin-top:8px;
+    transition:background .2s ease;
+}
+
+button:hover{ background:#1e40af; }
+
+.error-box{
+    background:#fef2f2;
+    color:#b91c1c;
+    border:1px solid #fecaca;
+    padding:12px 14px;
+    border-radius:9px;
+    font-size:13.5px;
+    margin-bottom:18px;
+}
+
+.foot-note{
+    text-align:center;
+    margin-top:22px;
+    font-size:13px;
+    color:var(--muted);
+}
+
+.foot-note i{ color:var(--blue); margin-right:5px; }
+</style>
+</head>
+<body>
+
+<div class="login-card">
+    <div class="login-badge"><i class="fas fa-headset"></i></div>
+    <h1>Support team login</h1>
+    <p class="sub">Sign in to view and manage customer queries.</p>
+
+    {% if form.errors %}
+        <div class="error-box">Invalid username or password. Please try again.</div>
+    {% endif %}
+
+    <form method="post" action="{% url 'support_login' %}">
+        {% csrf_token %}
+        <div class="field">
+            <label for="id_username">Username</label>
+            <input type="text" name="username" id="id_username" required autofocus>
+        </div>
+        <div class="field">
+            <label for="id_password">Password</label>
+            <input type="password" name="password" id="id_password" required>
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit">Sign in</button>
+    </form>
+
+    <p class="foot-note"><i class="fas fa-lock"></i>Access restricted to authorized support staff</p>
+</div>
+
+</body>
+</html>

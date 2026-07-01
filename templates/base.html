@@ -1,0 +1,556 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Tenants — Find Your Perfect Room</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'basemedia.css' %}">
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.init({ appId: "6893175d-f04f-4c67-acaf-7a604bb3fa0e" });
+        });
+    </script>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --brand:      #1a56db;
+            --brand-dark: #1240a8;
+            --brand-mid:  #2d6ef0;
+            --blue-light: #93c5fd;
+            --ink:        #0f172a;
+            --ink2:       #334155;
+            --ink3:       #64748b;
+            --cream2:     #f1f5f9;
+            --cream3:     #e2e8f0;
+            --white:      #ffffff;
+            --radius-sm:  6px;
+            --radius-md:  10px;
+            --radius-lg:  14px;
+            --shadow-sm:  0 2px 8px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.05);
+            --shadow-lg:  0 18px 50px rgba(15,23,42,0.14), 0 4px 14px rgba(15,23,42,0.08);
+            --tr:         0.22s cubic-bezier(0.4,0,0.2,1);
+            --font-serif: 'Playfair Display', Georgia, serif;
+            --font-sans:  'Outfit', system-ui, sans-serif;
+        }
+
+        html, body {
+            font-family: var(--font-sans);
+            background: #fff;
+            color: var(--ink);
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes twinkle  { 0%,100%{opacity:0.9} 50%{opacity:0.15} }
+        @keyframes twinkle2 { 0%,100%{opacity:0.4} 50%{opacity:1}    }
+        @keyframes twinkle3 { 0%,100%{opacity:0.7} 50%{opacity:0.1}  }
+        @keyframes moveClouds { from{transform:translateX(-150px)} to{transform:translateX(110vw)} }
+        @keyframes floatA { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+        @keyframes floatB { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-18px)} }
+        @keyframes floatC { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)}  }
+        @keyframes floatD { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+
+        .hero {
+            background: #0a1628;
+            position: relative;
+            overflow: hidden;
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 3.2rem 2.5rem 0;
+        }
+
+        .stars { position: absolute; inset: 0; pointer-events: none; }
+        .star  { position: absolute; border-radius: 50%; background: #fff; }
+        .s1 { width:2px; height:2px; top:8%;  left:15%; animation: twinkle  2.1s ease-in-out infinite; }
+        .s2 { width:1px; height:1px; top:12%; left:40%; animation: twinkle2 1.7s ease-in-out infinite; }
+        .s3 { width:2px; height:2px; top:6%;  left:62%; animation: twinkle3 2.4s ease-in-out infinite; }
+        .s4 { width:1px; height:1px; top:18%; left:75%; animation: twinkle  1.9s ease-in-out infinite; }
+        .s5 { width:2px; height:2px; top:9%;  left:88%; animation: twinkle2 2.6s ease-in-out infinite; }
+        .s6 { width:1px; height:1px; top:22%; left:55%; animation: twinkle3 1.5s ease-in-out infinite; }
+        .s7 { width:2px; height:2px; top:5%;  left:30%; animation: twinkle  3.0s ease-in-out infinite; }
+        .s8 { width:1px; height:1px; top:15%; left:92%; animation: twinkle2 2.0s ease-in-out infinite; }
+
+        .moon {
+            position: absolute; top: 22px; right: 180px;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: #f5d77a;
+            box-shadow: 0 0 18px 4px rgba(245,215,122,0.25);
+            pointer-events: none;
+        }
+        .moon::after {
+            content: ''; position: absolute; top:3px; left:7px;
+            width:28px; height:28px; border-radius:50%; background:#0a1628;
+        }
+
+        .cloud { position:absolute; top:36px; pointer-events:none; opacity:0.1; }
+        .cloud-1 { left:-120px; animation: moveClouds 28s linear infinite; }
+        .cloud-2 { left:30%; top:55px; animation: moveClouds 38s 12s linear infinite; }
+
+        .hero-content { position:relative; z-index:2; max-width:480px; }
+
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255,255,255,0.07);
+            border: 0.5px solid rgba(255,255,255,0.15);
+            border-radius: 20px; padding: 5px 14px;
+            font-size: 12px; color: rgba(255,255,255,0.7);
+            margin-bottom: 1.2rem; animation: rise 0.5s ease both;
+        }
+        .badge-dot {
+            width:7px; height:7px; border-radius:50%;
+            background:#e8a020; display:inline-block;
+        }
+
+        .hero h1 {
+            font-size: 33px; font-weight: 500; color:#fff;
+            line-height:1.3; margin-bottom:0.5rem;
+            animation: rise 0.6s 0.1s ease both;
+            opacity:0; animation-fill-mode:forwards;
+        }
+        .hero h1 em { color:#e8a020; font-style:normal; }
+
+        .hero p {
+            font-size:14px; color:rgba(255,255,255,0.48);
+            line-height:1.75; margin-bottom:1.8rem;
+            animation: rise 0.6s 0.2s ease both;
+            opacity:0; animation-fill-mode:forwards;
+        }
+
+        .hero-search {
+            display:flex; width:100%; max-width:480px;
+            animation: rise 0.6s 0.3s ease both;
+            opacity:0; animation-fill-mode:forwards;
+        }
+        .search-input {
+            flex:1; height:48px;
+            background:rgba(255,255,255,0.09);
+            border:0.5px solid rgba(255,255,255,0.18);
+            border-right:none; border-radius:10px 0 0 10px;
+            color:#fff; font-size:14px; padding:0 18px;
+            outline:none; transition:background 0.2s;
+        }
+        .search-input::placeholder { color:rgba(255,255,255,0.32); }
+        .search-input:focus { background:rgba(255,255,255,0.13); }
+        .search-btn {
+            height:48px; padding:0 22px; background:#e8a020;
+            color:#0a1628; border:none; border-radius:0 10px 10px 0;
+            font-size:14px; font-weight:500; cursor:pointer;
+            transition:background 0.2s; white-space:nowrap;
+        }
+        .search-btn:hover { background:#f5b830; }
+
+        .skyline {
+            position:absolute; bottom:0; left:0; right:0;
+            display:flex; align-items:flex-end; gap:4px;
+            padding:0 1rem; pointer-events:none; z-index:1;
+        }
+        .building { display:block; }
+        .b-floatA { animation: floatA 4.5s ease-in-out infinite; }
+        .b-floatB { animation: floatB 5.5s ease-in-out infinite; }
+        .b-floatC { animation: floatC 3.8s ease-in-out infinite; }
+        .b-floatD { animation: floatD 6.0s ease-in-out infinite; }
+
+        .stats-bar {
+            display:flex; background:#0d1f36;
+            border-top:0.5px solid rgba(255,255,255,0.06);
+        }
+        .stat {
+            flex:1; padding:1.2rem 1.5rem;
+            border-right:0.5px solid rgba(255,255,255,0.06);
+        }
+        .stat:last-child { border-right:none; }
+        .stat strong { display:block; color:#fff; font-size:22px; font-weight:500; }
+        .stat strong em { color:#e8a020; font-style:normal; }
+        .stat span { font-size:11px; color:rgba(255,255,255,0.38); text-transform:uppercase; letter-spacing:0.5px; }
+
+        .listings-header {
+            display:flex; align-items:center; justify-content:space-between;
+            max-width:1300px; margin:0 auto; padding:1.6rem 1.5rem 1rem;
+        }
+        .listings-header h2 { font-size:18px; font-weight:500; color:#1a1a2e; }
+        .listings-header span { font-size:13px; color:#888; }
+
+        .listings-grid {
+            max-width:1300px; margin:0 auto;
+            padding:0 1.5rem 2rem;
+            display:grid;
+            grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+            gap:20px;
+        }
+
+        .no-results {
+            grid-column:1/-1; text-align:center;
+            color:#888; padding:3rem; font-size:15px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--cream3);
+            box-shadow: var(--shadow-sm);
+            transition: transform var(--tr), box-shadow var(--tr);
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+        .card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
+        .card:hover .card-img { transform: scale(1.06); }
+
+        .card-img-wrap {
+            height: 200px; overflow: hidden;
+            position: relative; background: var(--cream2); flex-shrink: 0;
+        }
+        .card-img {
+            width:100%; height:100%; object-fit:cover; display:block;
+            transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        .badge-row {
+            position:absolute; top:12px; left:12px; right:12px;
+            display:flex; align-items:center; gap:6px;
+        }
+        .badge-avail {
+            font-size:9px; font-weight:600;
+            letter-spacing:0.1em; text-transform:uppercase;
+            background:rgba(10,8,6,0.65); color:#fff;
+            border-radius:var(--radius-sm); padding:4px 10px;
+        }
+        .badge-offer {
+            font-size:9px; font-weight:700;
+            letter-spacing:0.05em; text-transform:uppercase;
+            background:rgba(232,160,32,0.92); color:#1a1a2e;
+            border-radius:var(--radius-sm); padding:4px 10px;
+            margin-left:auto;
+        }
+
+        .card-body {
+            padding:18px 20px 20px;
+            flex:1; display:flex; flex-direction:column;
+        }
+        .card-loc {
+            display:flex; align-items:center; gap:5px;
+            font-size:10px; font-weight:500;
+            letter-spacing:0.1em; text-transform:uppercase;
+            color:var(--ink3); margin-bottom:6px;
+        }
+        .card-name {
+            font-family: var(--font-serif);
+            font-size:18px; font-weight:400;
+            color:var(--ink); line-height:1.3;
+            margin-bottom:16px; flex:1;
+        }
+        .card-bottom {
+            display:flex; align-items:center;
+            justify-content:space-between; gap:12px;
+            padding-top:14px; border-top:1px solid var(--cream2);
+        }
+        .card-price { display:flex; flex-direction:column; }
+        .price-val {
+            font-family: var(--font-serif);
+            font-size:21px; font-weight:600;
+            color:var(--ink); line-height:1;
+        }
+        .price-old {
+            text-decoration:line-through; color:var(--ink3);
+            font-size:12px; font-weight:400; margin-left:6px;
+            font-family: var(--font-sans);
+        }
+        .price-unit { font-size:10px; color:var(--ink3); margin-top:2px; }
+
+        .card-cta {
+            display:inline-flex; align-items:center; gap:6px;
+            padding:9px 18px; border-radius:var(--radius-sm);
+            font-family:var(--font-sans); font-size:12px; font-weight:600;
+            color:#fff; background:var(--brand); border:1px solid var(--brand);
+            text-decoration:none; white-space:nowrap; flex-shrink:0;
+            transition: background var(--tr), border-color var(--tr);
+        }
+        .card-cta:hover { background:var(--brand-dark); border-color:var(--brand-dark); }
+        .card-cta svg { transition: transform var(--tr); }
+        .card-cta:hover svg { transform: translateX(3px); }
+
+        @media (max-width: 1024px) {
+            .listings-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .listings-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero { padding: 2.5rem 1.5rem 0; }
+            .hero h1 { font-size: 26px; }
+            .search-input { font-size: 13px; }
+            .search-btn { padding: 0 16px; font-size: 13px; }
+            .moon { right: 80px; }
+            .stats-bar { flex-wrap: wrap; }
+            .stat { min-width: 50%; border-bottom: 0.5px solid rgba(255,255,255,0.06); }
+        }
+        @media (max-width: 480px) {
+            .listings-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 22px; }
+            .hero { min-height: 360px; }
+            .hero-search { flex-direction: column; }
+            .search-input {
+                border-right: 0.5px solid rgba(255,255,255,0.18);
+                border-radius: 10px; margin-bottom: 8px;
+            }
+            .search-btn { border-radius: 10px; width: 100%; }
+            .listings-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .moon { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+{% include "header.html" %}
+
+<section class="hero">
+    <div class="stars" aria-hidden="true">
+        <span class="star s1"></span><span class="star s2"></span>
+        <span class="star s3"></span><span class="star s4"></span>
+        <span class="star s5"></span><span class="star s6"></span>
+        <span class="star s7"></span><span class="star s8"></span>
+    </div>
+
+    <div class="moon" aria-hidden="true"></div>
+
+    <svg class="cloud cloud-1" aria-hidden="true" width="120" height="40" viewBox="0 0 120 40">
+        <ellipse cx="60" cy="28" rx="55" ry="14" fill="#fff"/>
+        <ellipse cx="40" cy="22" rx="28" ry="18" fill="#fff"/>
+        <ellipse cx="78" cy="20" rx="22" ry="16" fill="#fff"/>
+    </svg>
+    <svg class="cloud cloud-2" aria-hidden="true" width="80" height="28" viewBox="0 0 80 28">
+        <ellipse cx="40" cy="20" rx="36" ry="10" fill="#fff"/>
+        <ellipse cx="26" cy="15" rx="18" ry="12" fill="#fff"/>
+        <ellipse cx="54" cy="14" rx="15" ry="11" fill="#fff"/>
+    </svg>
+
+    <div class="hero-content">
+        <div class="hero-badge">
+            <span class="badge-dot"></span>
+            1,200+ verified rooms available
+        </div>
+        <h1>Find a room you'll<br>love calling <em>home.</em></h1>
+        <p>Browse furnished &amp; unfurnished rooms, PGs, and flats across Lucknow.<br>No brokerage. No hassle.</p>
+
+        <form method="get" action="{% url 'base' %}" class="hero-search">
+            <input type="search" name="search" placeholder="Try 'Gomti Nagar' or '2BHK under ₹10,000'…" class="search-input">
+            <button type="submit" class="search-btn">Search rooms</button>
+        </form>
+    </div>
+
+    <div class="skyline" aria-hidden="true">
+        <svg class="building b-floatC" width="38" height="70" viewBox="0 0 38 70" fill="none">
+            <rect x="4" y="15" width="30" height="55" rx="2" fill="#112240"/>
+            <rect x="10" y="4" width="12" height="14" rx="1" fill="#0e1d38"/>
+            <rect x="7" y="22" width="7" height="6" rx="1" fill="#e8a020" opacity="0.5"/>
+            <rect x="22" y="22" width="7" height="6" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="7" y="35" width="7" height="6" rx="1" fill="#e8a020" opacity="0.8"/>
+            <rect x="22" y="35" width="7" height="6" rx="1" fill="#e8a020" opacity="0.3"/>
+            <rect x="7" y="48" width="7" height="6" rx="1" fill="#e8a020" opacity="0.6"/>
+            <rect x="22" y="48" width="7" height="6" rx="1" fill="#e8a020" opacity="0.9"/>
+        </svg>
+        <svg class="building b-floatA" width="52" height="105" viewBox="0 0 52 105" fill="none">
+            <rect x="4" y="25" width="44" height="80" rx="2" fill="#162d4f"/>
+            <rect x="14" y="6" width="14" height="22" rx="1" fill="#112240"/>
+            <rect x="8" y="34" width="9" height="7" rx="1" fill="#e8a020" opacity="0.7"/>
+            <rect x="24" y="34" width="9" height="7" rx="1" fill="#e8a020" opacity="0.3"/>
+            <rect x="38" y="34" width="7" height="7" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="8" y="50" width="9" height="7" rx="1" fill="#e8a020" opacity="0.4"/>
+            <rect x="24" y="50" width="9" height="7" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="38" y="50" width="7" height="7" rx="1" fill="#e8a020" opacity="0.6"/>
+            <rect x="8" y="66" width="9" height="7" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="24" y="66" width="9" height="7" rx="1" fill="#e8a020" opacity="0.5"/>
+            <rect x="38" y="66" width="7" height="7" rx="1" fill="#e8a020" opacity="0.3"/>
+            <rect x="8" y="82" width="9" height="7" rx="1" fill="#e8a020" opacity="0.6"/>
+            <rect x="24" y="82" width="9" height="7" rx="1" fill="#e8a020" opacity="0.8"/>
+            <rect x="38" y="82" width="7" height="7" rx="1" fill="#e8a020" opacity="0.9"/>
+        </svg>
+        <svg class="building b-floatB" width="70" height="145" viewBox="0 0 70 145" fill="none">
+            <rect x="4" y="30" width="62" height="115" rx="2" fill="#1e3a5e"/>
+            <rect x="16" y="8" width="16" height="26" rx="1" fill="#162d4f"/>
+            <rect x="40" y="14" width="14" height="20" rx="1" fill="#162d4f"/>
+            <rect x="8" y="40" width="11" height="8" rx="1" fill="#e8a020" opacity="0.8"/>
+            <rect x="27" y="40" width="11" height="8" rx="1" fill="#e8a020" opacity="0.4"/>
+            <rect x="50" y="40" width="11" height="8" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="8" y="57" width="11" height="8" rx="1" fill="#e8a020" opacity="0.3"/>
+            <rect x="27" y="57" width="11" height="8" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="50" y="57" width="11" height="8" rx="1" fill="#e8a020" opacity="0.5"/>
+            <rect x="8" y="74" width="11" height="8" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="27" y="74" width="11" height="8" rx="1" fill="#e8a020" opacity="0.6"/>
+            <rect x="50" y="74" width="11" height="8" rx="1" fill="#e8a020" opacity="0.7"/>
+            <rect x="8" y="91" width="11" height="8" rx="1" fill="#e8a020" opacity="0.4"/>
+            <rect x="27" y="91" width="11" height="8" rx="1" fill="#e8a020" opacity="0.8"/>
+            <rect x="50" y="91" width="11" height="8" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="8" y="108" width="11" height="8" rx="1" fill="#e8a020" opacity="0.7"/>
+            <rect x="27" y="108" width="11" height="8" rx="1" fill="#e8a020" opacity="0.3"/>
+            <rect x="50" y="108" width="11" height="8" rx="1" fill="#e8a020" opacity="0.6"/>
+        </svg>
+        <svg class="building b-floatD" width="46" height="88" viewBox="0 0 46 88" fill="none">
+            <rect x="3" y="18" width="40" height="70" rx="2" fill="#14243e"/>
+            <rect x="8" y="27" width="9" height="7" rx="1" fill="#e8a020" opacity="0.6"/>
+            <rect x="25" y="27" width="9" height="7" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="8" y="42" width="9" height="7" rx="1" fill="#e8a020" opacity="0.3"/>
+            <rect x="25" y="42" width="9" height="7" rx="1" fill="#e8a020" opacity="0.7"/>
+            <rect x="8" y="57" width="9" height="7" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="25" y="57" width="9" height="7" rx="1" fill="#e8a020" opacity="0.4"/>
+            <rect x="8" y="72" width="9" height="7" rx="1" fill="#e8a020" opacity="0.6"/>
+            <rect x="25" y="72" width="9" height="7" rx="1" fill="#e8a020" opacity="0.8"/>
+        </svg>
+        <svg class="building b-floatA" width="58" height="118" viewBox="0 0 58 118" fill="none">
+            <rect x="4" y="22" width="50" height="96" rx="2" fill="#192f50"/>
+            <rect x="18" y="5" width="13" height="20" rx="1" fill="#112240"/>
+            <rect x="36" y="10" width="10" height="14" rx="1" fill="#112240"/>
+            <rect x="8" y="32" width="10" height="8" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="26" y="32" width="10" height="8" rx="1" fill="#e8a020" opacity="0.4"/>
+            <rect x="42" y="32" width="8" height="8" rx="1" fill="#e8a020" opacity="0.7"/>
+            <rect x="8" y="49" width="10" height="8" rx="1" fill="#e8a020" opacity="0.5"/>
+            <rect x="26" y="49" width="10" height="8" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="42" y="49" width="8" height="8" rx="1" fill="#e8a020" opacity="0.3"/>
+            <rect x="8" y="66" width="10" height="8" rx="1" fill="#e8a020" opacity="0.8"/>
+            <rect x="26" y="66" width="10" height="8" rx="1" fill="#e8a020" opacity="0.6"/>
+            <rect x="42" y="66" width="8" height="8" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="8" y="83" width="10" height="8" rx="1" fill="#e8a020" opacity="0.3"/>
+            <rect x="26" y="83" width="10" height="8" rx="1" fill="#e8a020" opacity="0.7"/>
+            <rect x="42" y="83" width="8" height="8" rx="1" fill="#e8a020" opacity="0.5"/>
+            <rect x="8" y="100" width="10" height="8" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="26" y="100" width="10" height="8" rx="1" fill="#e8a020" opacity="0.4"/>
+            <rect x="42" y="100" width="8" height="8" rx="1" fill="#e8a020" opacity="0.8"/>
+        </svg>
+        <svg class="building b-floatB" width="42" height="78" viewBox="0 0 42 78" fill="none">
+            <rect x="3" y="14" width="36" height="64" rx="2" fill="#0e1d38"/>
+            <rect x="7" y="22" width="8" height="6" rx="1" fill="#e8a020" opacity="0.7"/>
+            <rect x="22" y="22" width="8" height="6" rx="1" fill="#e8a020" opacity="0.3"/>
+            <rect x="7" y="36" width="8" height="6" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="22" y="36" width="8" height="6" rx="1" fill="#e8a020" opacity="0.6"/>
+            <rect x="7" y="50" width="8" height="6" rx="1" fill="#e8a020" opacity="0.4"/>
+            <rect x="22" y="50" width="8" height="6" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="7" y="64" width="8" height="6" rx="1" fill="#e8a020" opacity="0.8"/>
+            <rect x="22" y="64" width="8" height="6" rx="1" fill="#e8a020" opacity="0.5"/>
+        </svg>
+        <svg class="building b-floatC" width="34" height="60" viewBox="0 0 34 60" fill="none">
+            <rect x="3" y="12" width="28" height="48" rx="2" fill="#162d4f"/>
+            <rect x="7" y="20" width="7" height="5" rx="1" fill="#e8a020" opacity="0.5"/>
+            <rect x="20" y="20" width="7" height="5" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="7" y="33" width="7" height="5" rx="1" fill="#e8a020" opacity="0.8"/>
+            <rect x="20" y="33" width="7" height="5" rx="1" fill="#e8a020" opacity="0.3"/>
+            <rect x="7" y="46" width="7" height="5" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="20" y="46" width="7" height="5" rx="1" fill="#e8a020" opacity="0.6"/>
+        </svg>
+        <svg class="building b-floatD" width="50" height="95" viewBox="0 0 50 95" fill="none">
+            <rect x="4" y="20" width="42" height="75" rx="2" fill="#1a3254"/>
+            <rect x="12" y="5" width="12" height="18" rx="1" fill="#112240"/>
+            <rect x="8" y="30" width="9" height="7" rx="1" fill="#e8a020" opacity="0.6"/>
+            <rect x="24" y="30" width="9" height="7" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="38" y="30" width="6" height="7" rx="1" fill="#e8a020" opacity="0.4"/>
+            <rect x="8" y="46" width="9" height="7" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="24" y="46" width="9" height="7" rx="1" fill="#e8a020" opacity="0.3"/>
+            <rect x="38" y="46" width="6" height="7" rx="1" fill="#e8a020" opacity="0.8"/>
+            <rect x="8" y="62" width="9" height="7" rx="1" fill="#e8a020" opacity="0.4"/>
+            <rect x="24" y="62" width="9" height="7" rx="1" fill="#e8a020" opacity="0.7"/>
+            <rect x="38" y="62" width="6" height="7" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="8" y="78" width="9" height="7" rx="1" fill="#e8a020" opacity="0.9"/>
+            <rect x="24" y="78" width="9" height="7" rx="1" fill="#e8a020" opacity="0.5"/>
+            <rect x="38" y="78" width="6" height="7" rx="1" fill="#e8a020" opacity="0.6"/>
+        </svg>
+    </div>
+</section>
+
+<div class="stats-bar">
+    <div class="stat"><strong>1.2k<em>+</em></strong><span>Rooms listed</span></div>
+    <div class="stat"><strong>Zero<em> ₹</em></strong><span>Brokerage</span></div>
+    <div class="stat"><strong>4.8<em>★</em></strong><span>Avg. rating</span></div>
+</div>
+
+<div class="listings-header">
+    <h2>Available rooms</h2>
+    <span>Showing {{ listingdata|length }} listings</span>
+</div>
+
+<div class="listings-grid">
+    {% for n in listingdata %}
+    <article class="card">
+        <div class="card-img-wrap">
+            <img src="{{ n.Room_images1.url }}" alt="{{ n.Room_title }}" class="card-img" loading="lazy">
+            <div class="badge-row">
+                {% if forloop.first %}
+                    <span class="badge-avail">Popular</span>
+                {% else %}
+                    {% if n.Room_available %}
+                        <span class="badge-avail" style="background:rgba(34,197,94,0.75);">Available</span>
+                    {% else %}
+                        <span class="badge-avail" style="background:rgba(239,68,68,0.75);">Not Available</span>
+                    {% endif %}
+                {% endif %}
+                {% if n.offer.discount_percent %}
+                    <span class="badge-offer">{{ n.offer.discount_percent }}% OFF</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="card-loc">Location
+                <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {{ n.location_name }}
+            </div>
+            <h3 class="card-name">{{ n.Room_title }}</h3>
+            <div class="card-bottom">
+                <div class="card-price">
+                    {% if n.offer.discount_percent %}
+                        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                            <span class="price-val" style="color:#16a34a;">₹{{ n.final_price }}</span>
+                            <span class="price-old">₹{{ n.Room_rent }}</span>
+                            <span style="background:#dcfce7;color:#16a34a;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;border:1px solid #bbf7d0;">{{ n.offer.discount_percent }}% OFF</span>
+                        </div>
+                    {% else %}
+                        <span class="price-val">₹{{ n.Room_rent }}</span>
+                    {% endif %}
+                    <span class="price-unit">per month</span>
+                </div>
+                <a href="{% url 'room' n.id %}" class="card-cta">
+                    View Details
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+            </div>
+        </div>
+    </article>
+    {% empty %}
+    <p class="no-results">No rooms found. Try a different search.</p>
+    {% endfor %}
+</div>
+
+<div class="pagination" style="margin:30px 0;display:flex;gap:10px;justify-content:center;">
+    {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}"
+           style="padding:8px 12px;background:#2579D4;color:#fff;border-radius:6px;text-decoration:none;">
+            Previous
+        </a>
+    {% endif %}
+    <span style="padding:8px 12px;">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}"
+           style="padding:8px 12px;background:#2579D4;color:#fff;border-radius:6px;text-decoration:none;">
+            Next
+        </a>
+    {% endif %}
+</div>
+{% include 'chat_widget.html' %}
+
+{% include "footer.html" %}
+</body>
+</html>

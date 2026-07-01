@@ -1,0 +1,130 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+/* Main Box */
+.box {
+    width: 90%;
+    max-width: 600px;
+    margin: 100px auto;
+    border: 1px solid black;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+    padding-bottom: 20px;
+}
+
+/* Booking Confirm Section */
+.booking-confirm-box {
+    padding: 20px 0;
+}
+
+.d2 {
+    color: rgb(105, 201, 9);
+}
+
+.booking-confirm {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Main Content */
+.main-box {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Left Side */
+.booking-details {
+    flex: 1;
+}
+
+.bd {
+    margin-top: 10px;
+}
+
+h4 {
+    margin-top: 8px;
+}
+
+/* Right Side Image */
+.booking-image {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.room-image {
+    width: 100%;
+    max-width: 200px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+/* Bottom Buttons */
+.bottom {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 10px;
+    padding: 15px;
+    flex-wrap: wrap;
+}
+
+.goto {
+    flex: 1;
+    min-width: 120px;
+    height: 40px;
+    background-color: rgb(94, 181, 6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.goto a {
+    text-decoration: none;
+    color: white;
+    width: 100%;
+    text-align: center;
+}
+
+.goto:hover {
+    transform: scale(1.05);
+    box-shadow: 2px 2px 6px black;
+}
+
+hr {
+    height: 2px;
+    background-color: black;
+    width: 80%;
+    margin: 20px auto;
+}
+
+/* 📱 Mobile Responsive */
+@media (max-width: 768px) {
+
+    .main-box {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .booking-image {
+        margin-top: 15px;
+    }
+
+    .room-image {
+        max-width: 250px;
+    }
+
+    .goto {
+        width: 100%;
+    }
+}

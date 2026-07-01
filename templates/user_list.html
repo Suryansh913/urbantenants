@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registered Users | UrbanTenants</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --navy-900: #042C53;
+            --blue-50: #E6F1FB;
+            --ink: #F2F6FF;
+            --text-main: #0E2D5A;
+            --text-sub: #506180;
+            --text-muted: #8FA5C4;
+            --line: rgba(24, 95, 165, 0.12);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--ink);
+            color: var(--text-main);
+            padding: 40px 24px;
+        }
+
+        .wrap {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-family: 'Sora', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 24px;
+        }
+
+        .table-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 6px 24px rgba(4, 44, 83, 0.06);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background: var(--navy-900);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            text-align: left;
+            padding: 14px 18px;
+        }
+
+        tbody td {
+            padding: 14px 18px;
+            font-size: 13.5px;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--blue-50);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--blue-50);
+        }
+
+        td.muted {
+            color: var(--text-muted);
+            font-size: 12.5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>Registered Users</h1>
+
+        <div class="table-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Joined Date</th>
+                        <th>Last Login</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.first_name|default:"—" }}</td>
+                        <td>{{ user.email }}</td>
+                        <td class="muted">{{ user.date_joined|date:"d M Y, h:i A" }}</td>
+                        <td class="muted">{{ user.last_login|date:"d M Y, h:i A"|default:"Never" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not users %}
+            <div class="empty-state">No registered users yet.</div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>

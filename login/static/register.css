@@ -1,0 +1,112 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+/* dono welcome and login isi me h  */
+main {
+    display: flex;
+    justify-content: space-evenly;
+    height: 100vh;
+    width: 100vw;
+    align-items: center;
+    background-image: url("bg.jpg");
+    background-size: cover;
+    color: aliceblue;
+}
+
+/* welcome section  */
+.box1 {
+    height: 30vh;
+    width: 30vw;
+    background: rgb(184, 216, 136, 0.45);
+    border: 1px solid whitesmoke;
+    border-radius: 20px;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    margin-right: 360px;
+    color: whitesmoke;
+    margin-bottom: 50px;
+
+
+
+
+
+
+
+}
+
+
+
+.c {
+    display: inline-block;
+    border-radius: 50%;
+    background-color: rgb(205, 237, 173, 0.75);
+    height: 100px;
+    width: 100px;
+    margin-right: 35px;
+    margin-top: 20px;
+}
+
+.c:hover {
+    box-shadow: 5px 5px 5px rgb(4, 102, 4);
+    transform: scale(1.2);
+    background: linear-gradient(to bottom, green, lightgreen, rgb(183, 222, 183));
+}
+
+/* side login page name adhar mob  */
+.box2 {
+
+    height: 100vh;
+    width: 30vw;
+    background-color: rgb(234, 240, 238);
+    position: absolute;
+    right: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    border-bottom-left-radius: 20px;
+    border-top-left-radius: 20px;
+    font-size: 26px;
+}
+
+/* login or register ko border diya h ek hi div me h  */
+
+/* log ko alag or register ko alag kiya with  */
+.log {
+    padding-right: 5px;
+    background-color: darkblue;
+    color: aliceblue;
+
+}
+
+a {
+    color: azure;
+    text-decoration: none;
+}
+
+
+
+
+
+/* login or register box ko boder diya h  */
+.boxi2 {
+    border: 2px solid blue;
+    padding: 25px;
+    border-top-right-radius: 15%;
+    border-bottom-left-radius: 15%;
+    height: 300px;
+    width: 200px;
+}
+
+#but {
+    height: 30px;
+    width: 50px;
+    background-color: rgb(22, 147, 0);
+}
+
+label {
+    font-size: medium;
+}

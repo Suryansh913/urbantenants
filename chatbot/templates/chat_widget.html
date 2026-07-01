@@ -1,0 +1,468 @@
+<!-- UrbanTenants Floating Chat Widget -->
+<style>
+    :root {
+        --ut-navy: #0B1626;
+        --ut-navy-deep: #070D18;
+        --ut-amber: #F5A623;
+        --ut-green: #1FA866;
+        --ut-green-dark: #16864F;
+        --ut-line: #D7DEE9;
+    }
+
+    #urbanmoxx-toggle {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        height: 60px;
+        padding: 0 20px 0 0;
+        border-radius: 30px;
+        background: linear-gradient(155deg, var(--ut-green), var(--ut-green-dark));
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: grab;
+        z-index: 999999;
+        box-shadow: 0 6px 22px rgba(11, 22, 38, 0.30);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        user-select: none;
+        touch-action: none;
+    }
+
+    #urbanmoxx-toggle:hover {
+        transform: scale(1.04);
+        box-shadow: 0 8px 28px rgba(11, 22, 38, 0.36);
+    }
+
+    #urbanmoxx-toggle.dragging {
+        cursor: grabbing;
+        transition: none;
+    }
+
+    #urbanmoxx-toggle .icon-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.14);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    #urbanmoxx-toggle svg {
+        width: 26px;
+        height: 26px;
+        pointer-events: none;
+    }
+
+    #urbanmoxx-toggle .toggle-label {
+        font-family: 'Fraunces', Georgia, serif;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+
+    /* Small notification-style dot to draw attention */
+    #urbanmoxx-toggle .ping-dot {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: var(--ut-amber);
+        border: 2px solid var(--ut-green-dark);
+        pointer-events: none;
+    }
+
+    #urbanmoxx-window {
+        position: fixed;
+        right: 20px;
+        bottom: 92px;
+        width: 380px;
+        height: 580px;
+        max-height: 75vh;
+        background: #fff;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 16px 48px rgba(11, 22, 38, 0.32);
+        display: none;
+        flex-direction: column;
+        z-index: 999999;
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+        transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+
+    #urbanmoxx-window.open {
+        display: flex;
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+
+    /* Drag handle bar at the top of the window (mobile + desktop) */
+    #urbanmoxx-handle {
+        flex-shrink: 0;
+        height: 38px;
+        background: var(--ut-navy);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: grab;
+        touch-action: none;
+        position: relative;
+        gap: 7px;
+    }
+
+    #urbanmoxx-handle.dragging {
+        cursor: grabbing;
+    }
+
+    #urbanmoxx-handle .grip {
+        width: 30px;
+        height: 3.5px;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.22);
+        position: absolute;
+        top: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    #urbanmoxx-handle .handle-title {
+        font-family: 'Fraunces', Georgia, serif;
+        font-size: 13px;
+        font-weight: 600;
+        color: #fff;
+        letter-spacing: -0.01em;
+        margin-top: 4px;
+        display: flex;
+        align-items: baseline;
+        gap: 5px;
+    }
+
+    #urbanmoxx-handle .handle-title .by-line {
+        font-family: 'Inter', -apple-system, sans-serif;
+        font-size: 9.5px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.45);
+        letter-spacing: 0;
+    }
+
+    #urbanmoxx-close {
+        position: absolute;
+        top: 4px;
+        right: 6px;
+        background: rgba(255, 255, 255, 0.10);
+        border: none;
+        color: #fff;
+        font-size: 15px;
+        line-height: 1;
+        cursor: pointer;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s ease;
+    }
+
+    #urbanmoxx-close:hover {
+        background: rgba(255, 255, 255, 0.20);
+    }
+
+    #urbanmoxx-window iframe {
+        width: 100%;
+        flex: 1;
+        border: none;
+        display: block;
+    }
+
+    @media (max-width:1024px) and (min-width:769px) {
+        #urbanmoxx-window {
+            width: 300px;
+            height: 420px;
+            max-height: 55vh;
+            bottom: 84px;
+        }
+    }
+
+    @media (max-width:768px) {
+        #urbanmoxx-window {
+            width: 360px !important;
+            height: 540px !important;
+            max-height: 80vh !important;
+            right: 12px !important;
+            bottom: 80px !important;
+            left: auto !important;
+            top: auto !important;
+            border-radius: 14px;
+        }
+
+        #urbanmoxx-toggle {
+            height: 50px;
+            padding: 0 14px 0 0;
+            gap: 7px;
+            right: 14px;
+            bottom: 14px;
+        }
+
+        #urbanmoxx-toggle .icon-circle {
+            width: 50px;
+            height: 50px;
+        }
+
+        #urbanmoxx-toggle .toggle-label {
+            font-size: 13px;
+        }
+
+        #urbanmoxx-toggle svg {
+            width: 21px;
+            height: 21px;
+        }
+
+        #urbanmoxx-toggle .ping-dot {
+            width: 9px;
+            height: 9px;
+        }
+    }
+
+    /* Only on genuinely narrow phones does the box need to shrink further
+       (so it doesn't overflow the screen width), but it still stays a
+       fixed compact card rather than going full-bleed. */
+    @media (max-width:400px) {
+        #urbanmoxx-window {
+            width: calc(100vw - 24px) !important;
+            right: 12px !important;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        #urbanmoxx-window {
+            transition: none;
+        }
+
+        #urbanmoxx-toggle {
+            transition: none;
+        }
+    }
+</style>
+
+<!-- Floating Button -->
+<div id="urbanmoxx-toggle" aria-label="Open Cribmate Bot chat" role="button">
+    <div class="icon-circle">
+        <span class="ping-dot"></span>
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="6" width="18" height="14" rx="5" fill="rgba(255,255,255,0.16)" />
+            <rect x="8" y="11" width="2.8" height="4.4" rx="1.4" fill="#fff" />
+            <rect x="13.2" y="11" width="2.8" height="4.4" rx="1.4" fill="#fff" />
+            <path d="M12 2.5V6" stroke="#fff" stroke-width="1.6" stroke-linecap="round" />
+            <circle cx="12" cy="2" r="1.4" fill="#F5A623" />
+        </svg>
+    </div>
+    <span class="toggle-label">Cribmate</span>
+</div>
+
+<!-- Chat Popup -->
+<div id="urbanmoxx-window">
+    <div id="urbanmoxx-handle">
+        <span class="grip"></span>
+        <span class="handle-title">Cribmate Bot <span class="by-line">by UrbanTenants</span></span>
+        <button id="urbanmoxx-close" aria-label="Close chat">✕</button>
+    </div>
+    <iframe src="{% url 'chatbot' %}" title="UrbanTenants chat assistant"></iframe>
+</div>
+
+<script>
+    (function () {
+        const toggleBtn = document.getElementById("urbanmoxx-toggle");
+        const chatWindow = document.getElementById("urbanmoxx-window");
+        const closeBtn = document.getElementById("urbanmoxx-close");
+        const handle = document.getElementById("urbanmoxx-handle");
+
+        const isMobile = () => window.innerWidth <= 768;
+
+        // ---------- Keep an element fully inside the viewport ----------
+        // Checks right/bottom AND top/left so the box can never end up
+        // partially off-screen (the "half visible" bug).
+        function clampWithinViewport(el, margin) {
+            margin = margin == null ? 4 : margin;
+            const rect = el.getBoundingClientRect();
+
+            let right = window.innerWidth - rect.right;
+            let bottom = window.innerHeight - rect.bottom;
+
+            const maxRight = window.innerWidth - rect.width - margin;
+            const maxBottom = window.innerHeight - rect.height - margin;
+
+            right = Math.min(Math.max(right, margin), Math.max(maxRight, margin));
+            bottom = Math.min(Math.max(bottom, margin), Math.max(maxBottom, margin));
+
+            el.style.right = right + "px";
+            el.style.bottom = bottom + "px";
+        }
+
+        // ---------- Open / close ----------
+        function openChat() {
+            if (isMobile()) {
+                // On small screens, always let the CSS media query own the
+                // position/size. Any inline right/bottom left over from a
+                // previous desktop drag would otherwise override it and the
+                // window could render off-screen (looking like it "won't open").
+                chatWindow.style.right = "";
+                chatWindow.style.bottom = "";
+                chatWindow.style.left = "";
+                chatWindow.style.top = "";
+            }
+
+            chatWindow.classList.add("open");
+
+            // After becoming visible, make sure the whole box is on-screen
+            // (covers desktop drag positions too, including the top edge).
+            requestAnimationFrame(function () {
+                if (!isMobile()) {
+                    clampWithinViewport(chatWindow, 8);
+                }
+            });
+        }
+
+        function closeChat() {
+            chatWindow.classList.remove("open");
+        }
+
+        closeBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+            closeChat();
+        });
+
+        // ---------- Generic drag-to-move helper ----------
+        function makeDraggable(handleEl, moveTargetEl, onClickIfNotDragged, options) {
+            options = options || {};
+            let startX, startY, startRight, startBottom;
+            let dragging = false;
+            let moved = false;
+            let ignoreMouseUntil = 0; // ignore synthetic mouse events right after a touch
+            const DRAG_THRESHOLD = 10; // px (a bit higher to tolerate touch jitter)
+
+            function getPointer(e) {
+                if (e.touches && e.touches.length) {
+                    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+                return { x: e.clientX, y: e.clientY };
+            }
+
+            function onPointerDown(e) {
+                if (e.type === "mousedown" && Date.now() < ignoreMouseUntil) {
+                    return; // this is a synthetic mouse event fired after a touch tap
+                }
+                const p = getPointer(e);
+                startX = p.x;
+                startY = p.y;
+
+                const rect = moveTargetEl.getBoundingClientRect();
+                startRight = window.innerWidth - rect.right;
+                startBottom = window.innerHeight - rect.bottom;
+
+                dragging = true;
+                moved = false;
+                handleEl.classList.add("dragging");
+
+                document.addEventListener("mousemove", onPointerMove);
+                document.addEventListener("touchmove", onPointerMove, { passive: false });
+                document.addEventListener("mouseup", onPointerUp);
+                document.addEventListener("touchend", onPointerUp);
+            }
+
+            function onPointerMove(e) {
+                if (!dragging) return;
+                const p = getPointer(e);
+                const dx = p.x - startX;
+                const dy = p.y - startY;
+
+                if (Math.abs(dx) > DRAG_THRESHOLD || Math.abs(dy) > DRAG_THRESHOLD) {
+                    moved = true;
+                }
+
+                if (!moved) return;
+                if (e.cancelable) e.preventDefault();
+
+                let newRight = startRight - dx;
+                let newBottom = startBottom - dy;
+
+                // Clamp within viewport on all sides so the element can
+                // never be dragged partially or fully off-screen.
+                const rect = moveTargetEl.getBoundingClientRect();
+                const margin = 4;
+                const maxRight = window.innerWidth - rect.width - margin;
+                const maxBottom = window.innerHeight - rect.height - margin;
+
+                newRight = Math.min(Math.max(newRight, margin), Math.max(maxRight, margin));
+                newBottom = Math.min(Math.max(newBottom, margin), Math.max(maxBottom, margin));
+
+                moveTargetEl.style.right = newRight + "px";
+                moveTargetEl.style.bottom = newBottom + "px";
+            }
+
+            function onPointerUp(e) {
+                dragging = false;
+                handleEl.classList.remove("dragging");
+                document.removeEventListener("mousemove", onPointerMove);
+                document.removeEventListener("touchmove", onPointerMove);
+                document.removeEventListener("mouseup", onPointerUp);
+                document.removeEventListener("touchend", onPointerUp);
+
+                if (e && e.type === "touchend") {
+                    // Block the synthetic mousedown/click most mobile browsers
+                    // fire right after a touch interaction, which would
+                    // otherwise immediately re-trigger open/close.
+                    ignoreMouseUntil = Date.now() + 800;
+                }
+
+                if (!moved && typeof onClickIfNotDragged === "function") {
+                    onClickIfNotDragged();
+                }
+            }
+
+            handleEl.addEventListener("mousedown", onPointerDown);
+            handleEl.addEventListener("touchstart", onPointerDown, { passive: true });
+        }
+
+        // Toggle button: draggable, and acts as open/close click when not dragged
+        makeDraggable(toggleBtn, toggleBtn, function () {
+            if (chatWindow.classList.contains("open")) {
+                closeChat();
+            } else {
+                openChat();
+            }
+        });
+
+        // Window drag handle: draggable on desktop only (mobile keeps it docked
+        // to avoid fighting with the iframe's own touch scrolling/typing).
+        if (!isMobile()) {
+            makeDraggable(handle, chatWindow, null);
+        }
+
+        // Keep elements within viewport bounds on resize (e.g. orientation change).
+        // On mobile we clear inline positioning entirely so the @media rules
+        // are always the single source of truth there.
+        window.addEventListener("resize", function () {
+            if (isMobile()) {
+                chatWindow.style.right = "";
+                chatWindow.style.bottom = "";
+                chatWindow.style.left = "";
+                chatWindow.style.top = "";
+                clampWithinViewport(toggleBtn, 4);
+            } else {
+                clampWithinViewport(toggleBtn, 4);
+                if (chatWindow.classList.contains("open")) {
+                    clampWithinViewport(chatWindow, 8);
+                }
+            }
+        });
+    })();
+</script>

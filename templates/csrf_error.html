@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Session Expired — UrbanTenants</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #F7F4EE;
+      --charcoal: #1C1C1E;
+      --muted: #6B6B72;
+      --accent: #C96A3A;
+      --accent-light: #F0E0D4;
+      --border: #E0DDD6;
+      --white: #FFFFFF;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--cream);
+      color: var(--charcoal);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--white);
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--charcoal);
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+
+    .logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 0.875rem;
+      font-weight: 400;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--charcoal); }
+
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+    }
+
+    /* Left */
+    .left {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 5rem 4rem 5rem 5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent-light);
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 2px;
+      margin-bottom: 2rem;
+      width: fit-content;
+    }
+
+    .badge-icon {
+      font-size: 0.9rem;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -1.5px;
+      color: var(--charcoal);
+      margin-bottom: 0.6rem;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    .sub-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      font-weight: 400;
+      color: var(--muted);
+      margin-bottom: 2rem;
+      letter-spacing: -0.2px;
+    }
+
+    .description {
+      font-size: 1rem;
+      font-weight: 300;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 40ch;
+      margin-bottom: 2.5rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--charcoal);
+      color: var(--white);
+      text-decoration: none;
+      padding: 0.875rem 2rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      border-radius: 3px;
+      transition: background 0.2s, transform 0.15s;
+      border: none;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--charcoal);
+      text-decoration: none;
+      padding: 0.875rem 2rem;
+      font-size: 0.9rem;
+      font-weight: 400;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      transition: border-color 0.2s, color 0.2s, transform 0.15s;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--charcoal);
+      transform: translateY(-1px);
+    }
+
+    /* Timer countdown display */
+    .session-info {
+      margin-top: 2.5rem;
+      padding: 1.25rem 1.5rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      max-width: 380px;
+    }
+
+    .session-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .session-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .session-text .label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    .session-text .value {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--charcoal);
+    }
+
+    /* What was lost pills */
+    .what-happened {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .what-happened p {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.875rem;
+      color: var(--charcoal);
+    }
+
+    .step-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .step-dot.done {
+      background: #EAF3DE;
+      color: #3B6D11;
+    }
+
+    .step-dot.lost {
+      background: var(--accent-light);
+      color: var(--accent);
+    }
+
+    /* Right illustration */
+    .right {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--white);
+      border-left: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .scene {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .watermark {
+      position: absolute;
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(6rem, 12vw, 12rem);
+      font-weight: 700;
+      color: rgba(201, 106, 58, 0.05);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      user-select: none;
+      pointer-events: none;
+      letter-spacing: -4px;
+    }
+
+    /* Clock SVG container */
+    .clock-wrap {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 260px;
+      height: 260px;
+    }
+
+    /* Floating cards */
+    .float-card {
+      position: absolute;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+    }
+
+    .float-card .label {
+      color: var(--muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 4px;
+    }
+
+    .float-card .value {
+      font-weight: 500;
+      color: var(--charcoal);
+    }
+
+    .card-status {
+      top: 12%;
+      right: 8%;
+      animation: floatA 4s ease-in-out infinite;
+    }
+
+    .card-tip {
+      bottom: 25%;
+      left: 6%;
+      animation: floatB 5s ease-in-out infinite;
+    }
+
+    .card-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .card-dot.green {
+      background: #63991A;
+    }
+
+    @keyframes floatA {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes floatB {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    /* Animated clock hands */
+    #hand-minute {
+      transform-origin: 130px 130px;
+      animation: spinMinute 6s linear infinite;
+    }
+
+    #hand-hour {
+      transform-origin: 130px 130px;
+      animation: spinHour 72s linear infinite;
+    }
+
+    @keyframes spinMinute {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes spinHour {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Countdown bar */
+    .countdown-wrap {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70%;
+      text-align: center;
+    }
+
+    .countdown-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .bar-bg {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      animation: drainBar 30s linear forwards;
+    }
+
+    @keyframes drainBar {
+      from { width: 100%; }
+      to { width: 0%; }
+    }
+
+    footer {
+      padding: 1rem 2.5rem;
+      border-top: 1px solid var(--border);
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    footer p { font-size: 0.8rem; color: var(--muted); }
+
+    footer a {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    footer a:hover { color: var(--accent); }
+
+    @media (max-width: 768px) {
+      main { grid-template-columns: 1fr; }
+      .right { display: none; }
+      .left { padding: 3rem 1.75rem; }
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">Urban<span>Tenants</span></a>
+  <ul class="nav-links">
+    <li><a href="/listings">Listings</a></li>
+    <li><a href="/landlords">For Landlords</a></li>
+    <li><a href="/tenants">For Tenants</a></li>
+    <li><a href="/contact">Contact</a></li>
+  </ul>
+</nav>
+
+<main>
+  <section class="left">
+    <div class="badge">
+      <span class="badge-icon">⏱</span>
+      Session Expired
+    </div>
+
+    <h1>Your session<br/>has <em>timed out.</em></h1>
+    <p class="sub-heading">The lease on your form ran out.</p>
+    <p class="description">
+      For your security, we automatically end inactive sessions after a period of time.
+      Your progress has been cleared — please start over to continue.
+    </p>
+
+    <div class="actions">
+      <a href="/" class="btn-primary">Try Again</a>
+      <a href="/" class="btn-outline">Go to Home</a>
+    </div>
+
+    <div class="session-info">
+      <div class="session-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#C96A3A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="session-text">
+        <div class="label">Reason</div>
+        <div class="value">Inactive for too long — session cleared for security</div>
+      </div>
+    </div>
+
+    <div class="what-happened">
+      <p>What happened to your progress</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-dot done">✓</div>
+          <span>Personal details entered</span>
+        </div>
+        <div class="step">
+          <div class="step-dot done">✓</div>
+          <span>Property preferences selected</span>
+        </div>
+        <div class="step">
+          <div class="step-dot lost">!</div>
+          <span style="color: var(--accent);">Form data lost due to session timeout</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Right Illustration -->
+  <section class="right">
+    <div class="scene">
+      <div class="watermark">TIME</div>
+
+      <!-- Floating card: status -->
+      <div class="float-card card-status">
+        <div class="label">Session</div>
+        <div class="value"><span class="card-dot"></span>Expired</div>
+      </div>
+
+      <!-- Floating card: tip -->
+      <div class="float-card card-tip">
+        <div class="label">Security tip</div>
+        <div class="value"><span class="card-dot green"></span>Data cleared safely</div>
+      </div>
+
+      <!-- Animated Clock -->
+      <div class="clock-wrap">
+        <svg viewBox="0 0 260 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer ring -->
+          <circle cx="130" cy="130" r="118" fill="#F7F4EE" stroke="#E0DDD6" stroke-width="1.5"/>
+          <circle cx="130" cy="130" r="108" fill="none" stroke="#E0DDD6" stroke-width="0.5" stroke-dasharray="4 6"/>
+
+          <!-- Hour markers -->
+          <line x1="130" y1="22" x2="130" y2="34" stroke="#C8C4BC" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="238" y1="130" x2="226" y2="130" stroke="#C8C4BC" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="130" y1="238" x2="130" y2="226" stroke="#C8C4BC" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="22" y1="130" x2="34" y2="130" stroke="#C8C4BC" stroke-width="2.5" stroke-linecap="round"/>
+
+          <!-- Minor markers -->
+          <line x1="181" y1="33" x2="176" y2="43" stroke="#D5D0C8" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="227" y1="79" x2="217" y2="84" stroke="#D5D0C8" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="227" y1="181" x2="217" y2="176" stroke="#D5D0C8" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="181" y1="227" x2="176" y2="217" stroke="#D5D0C8" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="79" y1="227" x2="84" y2="217" stroke="#D5D0C8" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="33" y1="181" x2="43" y2="176" stroke="#D5D0C8" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="33" y1="79" x2="43" y2="84" stroke="#D5D0C8" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="79" y1="33" x2="84" y2="43" stroke="#D5D0C8" stroke-width="1.2" stroke-linecap="round"/>
+
+          <!-- Hour hand -->
+          <line id="hand-hour" x1="130" y1="130" x2="130" y2="80" stroke="#1C1C1E" stroke-width="4" stroke-linecap="round"/>
+
+          <!-- Minute hand -->
+          <line id="hand-minute" x1="130" y1="130" x2="130" y2="52" stroke="#1C1C1E" stroke-width="2.5" stroke-linecap="round"/>
+
+          <!-- Second / accent hand -->
+          <line x1="130" y1="130" x2="155" y2="112" stroke="#C96A3A" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="130" y1="130" x2="115" y2="150" stroke="#C96A3A" stroke-width="1.5" stroke-linecap="round"/>
+
+          <!-- Center cap -->
+          <circle cx="130" cy="130" r="6" fill="#C96A3A"/>
+          <circle cx="130" cy="130" r="3" fill="#FFFFFF"/>
+
+          <!-- "EXPIRED" arc text -->
+          <path id="arcPath" d="M 60,130 A 70,70 0 0,1 200,130" fill="none"/>
+          <text font-family="DM Sans, sans-serif" font-size="10" fill="#C96A3A" letter-spacing="4" font-weight="500">
+            <textPath href="#arcPath" startOffset="20%">SESSION EXPIRED</textPath>
+          </text>
+        </svg>
+      </div>
+
+      <!-- Countdown bar at bottom -->
+      <div class="countdown-wrap">
+        <div class="countdown-label">Session activity — drained</div>
+        <div class="bar-bg">
+          <div class="bar-fill"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>© 2025 UrbanTenants. All rights reserved.</p>
+  <a href="/sitemap">Sitemap</a>
+</footer>
+
+</body>
+</html>

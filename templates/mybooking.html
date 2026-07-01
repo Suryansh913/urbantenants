@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings</title>
+    <link rel="stylesheet" href="{% static 'mybooking.css' %}">
+</head>
+<body>
+    {% include 'header.html' %}
+
+    <section class="page-hero">
+        <div class="page-hero-content">
+            <h1>My Bookings</h1>
+            <p>Your confirmed bookings, payment details, and invoice access.</p>
+        </div>
+    </section>
+
+    <section class="booking-page">
+        {% if bookings %}
+            <div class="booking-list">
+                {% for booking in bookings %}
+                    <div class="booking-card">
+                        <div class="booking-top">
+                            <div class="booking-image-wrap">
+                                <img src="{{ booking.room.Room_images1.url }}" alt="{{ booking.room.Room_title }}" class="booking-image">
+                            </div>
+
+                            <div class="booking-main">
+                                <div class="booking-header">
+                                    <div>
+                                        <h2 class="room-title">{{ booking.room.Room_title }}</h2>
+                                        <p class="room-subtitle">{{ booking.room.Room_type }} Room</p>
+                                    </div>
+
+                                    <span class="status-badge status-{{ booking.status }}">
+                                        {{ booking.status }}
+                                    </span>
+                                </div>
+
+                                <div class="details-grid">
+                                    <div class="detail-item">
+                                        <span class="label">Rent</span>
+                                        <span class="value">₹{{ booking.room.Room_rent }}</span>
+                                    </div>
+
+                                    <div class="detail-item">
+                                        <span class="label">Security</span>
+                                        <span class="value">₹{{ booking.room.Room_security }}</span>
+                                    </div>
+
+                                    <div class="detail-item">
+                                        <span class="label">Check-in</span>
+                                        <span class="value">{{ booking.check_in_date }}</span>
+                                    </div>
+
+                                    <div class="detail-item">
+                                        <span class="label">Booked On</span>
+                                        <span class="value">{{ booking.created_at }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="amount-bar">
+                                    <span>Total Amount</span>
+                                    <strong>₹{{ booking.room.Room_rent }}</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="booking-bottom">
+                            <div class="info-block">
+                                <h3>Customer Details</h3>
+                                <div class="info-grid">
+                                    <div><strong>Name:</strong> {{ booking.name }}</div>
+                                    <div><strong>Email:</strong> {{ booking.email }}</div>
+                                    <div><strong>Phone:</strong> {{ booking.phone }}</div>
+                                    <div><strong>Payment Done:</strong> {{ booking.payment_done }}</div>
+                                </div>
+                            </div>
+
+                            <div class="info-block">
+                                <h3>Payment Details</h3>
+                                <div class="info-grid">
+                                    <div><strong>Payment Method:</strong> {{ booking.payment_method|default:"Not Provided" }}</div>
+                                    <div><strong>Transaction ID:</strong> {{ booking.transaction_id|default:"Not Available" }}</div>
+                                </div>
+                            </div>
+
+                            <div class="booking-actions">
+                                <a href="{% url 'invoice' booking.id %}" class="btn btn-primary">View Invoice</a>
+                                <a href="{% url 'download_invoice' booking.id %}" class="btn btn-success">Download Invoice</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h2>No bookings found</h2>
+                <p>You do not have any confirmed bookings yet.</p>
+            </div>
+        {% endif %}
+    </section>
+
+    {% include 'more.html' %}
+    {% include 'footer.html' %}
+</body>
+</html>

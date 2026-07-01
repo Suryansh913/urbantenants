@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Booking Request — UrbanTenants</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f6f8;font-family:Arial,sans-serif;">
+
+  <!-- hidden preheader -->
+  <div style="display:none;max-height:0;overflow:hidden;">Action required: A student has submitted a new booking request. Please verify it.</div>
+
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f4f6f8">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;">
+
+
+          <!-- ── HEADER ── -->
+          <tr>
+            <td bgcolor="#1a3f6e" style="padding:24px 32px;border-radius:8px 8px 0 0;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td>
+                    <span style="font-family:Arial,sans-serif;font-size:20px;font-weight:bold;color:#ffffff;letter-spacing:-0.3px;">Urban<span style="color:#90c4f9;">Tenants</span></span>
+                  </td>
+                  <td align="right">
+                    <span style="font-family:Arial,sans-serif;font-size:11px;color:rgba(255,255,255,0.6);">Partner Notification</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- ── ORANGE ACTION STRIP ── -->
+          <tr>
+            <td bgcolor="#e07b00" style="padding:10px 32px;">
+              <span style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;color:#ffffff;letter-spacing:0.5px;">&#9888;&#xFE0F;&nbsp; ACTION REQUIRED — New Booking Request</span>
+            </td>
+          </tr>
+
+
+          <!-- ── BODY ── -->
+          <tr>
+            <td bgcolor="#ffffff" style="padding:32px 32px 24px;">
+
+              <!-- Greeting -->
+              <p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:16px;color:#1a1a1a;">
+                Hi <strong>{{ partner_name }}</strong>,
+              </p>
+              <p style="margin:0 0 28px;font-family:Arial,sans-serif;font-size:14px;color:#555555;line-height:1.7;">
+                A student has submitted a new booking request for your property on <strong>UrbanTenants</strong>. Please review the details below and verify or decline it from your dashboard.
+              </p>
+
+              <!-- ── TENANT DETAILS ── -->
+              <p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#1a3f6e;">&#128100;&nbsp; Tenant Details</p>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e0e6ef;border-radius:6px;margin-bottom:20px;">
+                <tr>
+                  <td width="38%" style="padding:10px 16px;font-family:Arial,sans-serif;font-size:12px;color:#888888;border-bottom:1px solid #f0f3f7;background-color:#f8fafc;">Name</td>
+                  <td style="padding:10px 16px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;color:#1a1a1a;border-bottom:1px solid #f0f3f7;">{{ user_name }}</td>
+                </tr>
+                <tr>
+                  <td width="38%" style="padding:10px 16px;font-family:Arial,sans-serif;font-size:12px;color:#888888;border-bottom:1px solid #f0f3f7;background-color:#f8fafc;">Email</td>
+                  <td style="padding:10px 16px;font-family:Arial,sans-serif;font-size:13px;color:#1a3f6e;border-bottom:1px solid #f0f3f7;">{{ user_email }}</td>
+                </tr>
+                <tr>
+                  <td width="38%" style="padding:10px 16px;font-family:Arial,sans-serif;font-size:12px;color:#888888;background-color:#f8fafc;">Phone</td>
+                  <td style="padding:10px 16px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;color:#1a1a1a;">{{ user_phone }}</td>
+                </tr>
+              </table>
+
+              <!-- ── ROOM DETAILS ── -->
+              <p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#1a3f6e;">&#127968;&nbsp; Room Details</p>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e0e6ef;border-radius:6px;margin-bottom:20px;">
+                <tr>
+                  <td width="38%" style="padding:10px 16px;font-family:Arial,sans-serif;font-size:12px;color:#888888;border-bottom:1px solid #f0f3f7;background-color:#f8fafc;">Room</td>
+                  <td style="padding:10px 16px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;color:#1a1a1a;border-bottom:1px solid #f0f3f7;">{{ room_title }}</td>
+                </tr>
+                <tr>
+                  <td width="38%" style="padding:10px 16px;font-family:Arial,sans-serif;font-size:12px;color:#888888;background-color:#f8fafc;">Monthly Rent</td>
+                  <td style="padding:10px 16px;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;color:#1a3f6e;">&#8377;{{ room_rent }}</td>
+                </tr>
+              </table>
+
+              <!-- ── BOOKING INFO ── -->
+              <p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:11px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#1a3f6e;">&#128197;&nbsp; Booking Info</p>
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e0e6ef;border-radius:6px;margin-bottom:20px;">
+                <tr>
+                  <td width="38%" style="padding:10px 16px;font-family:Arial,sans-serif;font-size:12px;color:#888888;border-bottom:1px solid #f0f3f7;background-color:#f8fafc;">Check-in Date</td>
+                  <td style="padding:10px 16px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;color:#1a1a1a;border-bottom:1px solid #f0f3f7;">{{ check_in }}</td>
+                </tr>
+                <tr>
+                  <td width="38%" style="padding:10px 16px;font-family:Arial,sans-serif;font-size:12px;color:#888888;border-bottom:1px solid #f0f3f7;background-color:#f8fafc;">Transaction ID</td>
+                  <td style="padding:10px 16px;font-family:Arial,sans-serif;font-size:12px;color:#333333;border-bottom:1px solid #f0f3f7;font-family:Courier New,monospace;">{{ transaction_id }}</td>
+                </tr>
+                <tr>
+                  <td width="38%" style="padding:10px 16px;font-family:Arial,sans-serif;font-size:12px;color:#888888;background-color:#f8fafc;">Your Phone</td>
+                  <td style="padding:10px 16px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;color:#1a1a1a;">{{ partner_phone }}</td>
+                </tr>
+              </table>
+
+              <!-- ── NOTICE ── -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
+                <tr>
+                  <td style="background-color:#fff8e1;border-left:4px solid #f59e0b;padding:12px 16px;border-radius:0 4px 4px 0;">
+                    <p style="margin:0;font-family:Arial,sans-serif;font-size:13px;color:#7a4f00;line-height:1.6;">
+                      <strong>Please verify promptly.</strong> The tenant is waiting for your confirmation. Timely verification ensures a smooth move-in experience.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- ── CTA BUTTON ── -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
+                <tr>
+                  <td align="center">
+                    <a href="https://urbantenants.com/partner/register/"
+                       style="display:inline-block;background-color:#1a3f6e;color:#ffffff;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;text-decoration:none;padding:14px 40px;border-radius:6px;">
+                      Open Dashboard &amp; Verify Booking
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top:10px;">
+                    <span style="font-family:Arial,sans-serif;font-size:11px;color:#aaaaaa;">Or copy this link into your browser:</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top:4px;">
+                    <span style="font-family:Arial,sans-serif;font-size:11px;color:#1a3f6e;word-break:break-all;">
+                      <a href="https://urbantenants.com/partner/register/">https://urbantenants.com/partner/register/</a>
+                    </span>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- ── SIGN OFF ── -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #eeeeee;padding-top:20px;margin-top:4px;">
+                <tr>
+                  <td style="padding-top:20px;">
+                    <p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:14px;color:#555555;line-height:1.7;">
+                      Thank you for partnering with UrbanTenants.
+                    </p>
+                    <p style="margin:0;font-family:Arial,sans-serif;font-size:14px;color:#555555;">
+                      Regards,<br />
+                      <strong style="color:#1a1a1a;">The UrbanTenants Team</strong>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+           
+          <!-- ── FOOTER ── -->
+          <tr>
+            <td bgcolor="#1a3f6e" style="padding:20px 32px;border-radius:0 0 8px 8px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td>
+                    <p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;color:#ffffff;">UrbanTenants</p>
+                    <p style="margin:0;font-family:Arial,sans-serif;font-size:11px;color:rgba(255,255,255,0.5);line-height:1.6;">
+                      Student accommodation platform &nbsp;&middot;&nbsp; Zero Brokerage &nbsp;&middot;&nbsp; Verified Listings
+                    </p>
+                  </td>
+                  <td align="right" valign="top">
+                    <p style="margin:0;font-family:Arial,sans-serif;font-size:11px;color:rgba(255,255,255,0.4);">
+                      &copy; 2026 UrbanTenants
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="padding-top:14px;border-top:1px solid rgba(255,255,255,0.1);margin-top:14px;">
+                    <p style="margin:8px 0 0;font-family:Arial,sans-serif;font-size:11px;color:rgba(255,255,255,0.3);line-height:1.6;">
+                      You received this email because you are a registered partner on UrbanTenants. If this was not you, please contact us at UrbanTenants1@gmail.com
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+
+        </table>
+      </td>
+    </tr>
+  </table>
+<style>
+  
+</style>
+</body>
+</html>

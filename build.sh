@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -o errexit
+
+echo "Installing dependencies..."
+pip install --upgrade pip setuptools wheel
+pip install -r requirements.txt
+
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
+
+echo "Running migrations..."
+python manage.py migrate --noinput
+
+echo "Build completed successfully!"
+
+echo "DATABASE_URL is: $DATABASE_URL"

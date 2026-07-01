@@ -1,0 +1,998 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Listing — Partner Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-50:  #E6F1FB;
+      --blue-100: #B5D4F4;
+      --blue-300: #5BA3E8;
+      --blue-500: #2579D4;
+      --blue-600: #185FA5;
+      --blue-700: #0E4A84;
+      --blue-800: #0C447C;
+      --blue-900: #042C53;
+      --n-50:  #F7F9FC;
+      --n-100: #EEF2F8;
+      --n-200: #D8E1EF;
+      --n-300: #B8C9E0;
+      --n-400: #8FA5C4;
+      --n-600: #506180;
+      --n-700: #374B65;
+      --n-900: #111827;
+      --white: #ffffff;
+      --amber-50: #FFFBEB;
+      --amber-100: #FEF3C7;
+      --amber-400: #FBBF24;
+      --amber-600: #D97706;
+      --amber-700: #B45309;
+      --green-50: #F0FDF4;
+      --green-600: #16A34A;
+      --red-50: #FEE2E2;
+      --red-600: #EF4444;
+      --r-sm: 8px;
+      --r-md: 14px;
+      --r-lg: 22px;
+      --sh-sm: 0 2px 8px rgba(24,95,165,0.07);
+      --sh-md: 0 6px 24px rgba(24,95,165,0.12);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--n-50);
+      color: var(--n-900);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── HERO BANNER ── */
+    .hero {
+      background: linear-gradient(145deg, var(--blue-900) 0%, var(--blue-700) 55%, var(--blue-500) 100%);
+      padding: 48px 24px 44px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 40%, rgba(91,163,232,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 88% 20%, rgba(255,255,255,0.07) 0%, transparent 45%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.22);
+      border-radius: 100px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.85);
+      margin-bottom: 14px;
+      letter-spacing: 0.3px;
+    }
+    .hero-badge i { font-size: 13px; }
+    .hero h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+    .hero h1 em { font-style: normal; color: var(--blue-100); }
+    .hero-sub {
+      font-size: 14px;
+      color: rgba(255,255,255,0.65);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* listing meta pill shown in hero */
+    .listing-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: var(--r-sm);
+      padding: 8px 14px;
+    }
+    .listing-meta i { font-size: 15px; color: var(--amber-100); }
+    .listing-meta span { font-size: 13px; color: rgba(255,255,255,0.85); font-weight: 500; }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--r-sm);
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.22);
+      color: rgba(255,255,255,0.88);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.18s;
+      white-space: nowrap;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.18); }
+    .back-btn i { font-size: 16px; }
+
+    /* ── MESSAGES ── */
+    .messages-container {
+      max-width: 900px;
+      margin: -12px auto 24px;
+      padding: 0 32px;
+      position: relative;
+      z-index: 10;
+    }
+    .message-box {
+      border-radius: var(--r-md);
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: slideDown 0.3s ease;
+      box-shadow: var(--sh-sm);
+    }
+    .message-box.success { background: var(--green-50); border: 1px solid var(--green-600); color: #065F46; }
+    .message-box.error   { background: var(--red-50);   border: 1px solid var(--red-600);   color: #991B1B; }
+    .message-box i { font-size: 20px; flex-shrink: 0; }
+    .message-box span { font-size: 14px; font-weight: 500; }
+
+    /* ── PAGE BODY ── */
+    .page-body {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 36px 32px 72px;
+      width: 100%;
+    }
+
+    /* ── EDIT NOTICE BANNER ── */
+    .edit-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: var(--blue-50);
+      border: 1px solid var(--blue-300);
+      border-radius: var(--r-md);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.3s ease both;
+    }
+    .edit-notice i { font-size: 20px; color: var(--blue-600); flex-shrink: 0; margin-top: 1px; }
+    .edit-notice-text strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--blue-800);
+      margin-bottom: 2px;
+    }
+    .edit-notice-text span { font-size: 13px; color: var(--blue-600); line-height: 1.5; }
+
+    /* ── FORM CARD ── */
+    .form-card {
+      background: var(--white);
+      border: 1px solid var(--n-200);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--sh-sm);
+      animation: fadeUp 0.4s ease both;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 28px;
+      border-bottom: 1px solid var(--n-100);
+      background: var(--n-50);
+    }
+    .section-head-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--r-sm);
+      background: var(--blue-50);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .section-head-icon i { font-size: 17px; color: var(--blue-600); }
+    .section-head-icon.amber { background: var(--blue-50); }
+    .section-head-icon.amber i { color: var(--blue-600); }
+    .section-head-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--n-900);
+    }
+    .section-head-sub { font-size: 12px; color: var(--n-400); margin-top: 1px; }
+
+    .form-body { padding: 28px; }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .field-row.trio { grid-template-columns: 1fr 1fr 1fr; }
+    .field-row.single { grid-template-columns: 1fr; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: var(--n-600);
+    }
+    label .req { color: var(--blue-500); margin-left: 2px; }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--n-200);
+      border-radius: var(--r-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--n-900);
+      background: var(--white);
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--blue-500);
+      box-shadow: 0 0 0 3px rgba(37,121,212,0.12);
+    }
+    textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+    .field-hint { font-size: 11.5px; color: var(--n-400); line-height: 1.5; }
+
+    /* current image preview strip */
+    .current-images {
+      margin-bottom: 20px;
+    }
+    .current-images-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: var(--n-600);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .current-images-label i { font-size: 14px; color: var(--blue-600); }
+    .current-img-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .current-img-item {
+      aspect-ratio: 4/3;
+      border-radius: var(--r-sm);
+      border: 2px solid var(--blue-300);
+      overflow: hidden;
+      position: relative;
+    }
+    .current-img-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .current-img-badge {
+      position: absolute;
+      top: 5px;
+      left: 5px;
+      background: var(--blue-600);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .current-img-empty {
+      aspect-ratio: 4/3;
+      border-radius: var(--r-sm);
+      border: 1.5px dashed var(--n-200);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: var(--n-50);
+    }
+    .current-img-empty i { font-size: 18px; color: var(--n-300); }
+    .current-img-empty span { font-size: 10px; color: var(--n-400); }
+
+    /* upload zone */
+    .upload-zone {
+      border: 2px dashed var(--n-200);
+      border-radius: var(--r-md);
+      padding: 28px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.18s, background 0.18s;
+      position: relative;
+      background: var(--n-50);
+    }
+    .upload-zone:hover { border-color: var(--blue-300); background: var(--blue-50); }
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .upload-icon {
+      width: 44px; height: 44px;
+      border-radius: var(--r-sm);
+      background: var(--blue-50);
+      border: 1px solid var(--blue-100);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 12px;
+    }
+    .upload-icon i { font-size: 20px; color: var(--blue-600); }
+    .upload-label { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; color: var(--n-900); margin-bottom: 4px; }
+    .upload-sub { font-size: 12px; color: var(--n-400); }
+
+    /* new preview grid */
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .preview-item {
+      aspect-ratio: 4/3;
+      border-radius: var(--r-sm);
+      background: var(--n-100);
+      border: 1px solid var(--n-200);
+      overflow: hidden;
+      position: relative;
+    }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; display: none; }
+    .preview-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    }
+    .preview-placeholder i { font-size: 20px; color: var(--n-300); }
+    .preview-placeholder span { font-size: 10px; color: var(--n-400); }
+
+    .form-divider { margin: 8px 0 24px; border: none; border-top: 1px solid var(--n-100); }
+
+    /* ── AMENITIES ── */
+    .amenity-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .amenity-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1.5px solid var(--n-200);
+      border-radius: var(--r-sm);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+    .amenity-item input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--blue-600); }
+    .amenity-item:has(input:checked) { border-color: var(--blue-500); background: var(--blue-50); }
+    .amenity-label { font-size: 13px; color: var(--n-700); display: flex; align-items: center; gap: 7px; cursor: pointer; }
+    .amenity-label i { font-size: 15px; color: var(--n-400); }
+    .amenity-item:has(input:checked) .amenity-label i { color: var(--blue-500); }
+
+    /* ── SUBMIT ── */
+    .submit-row { display: flex; gap: 12px; align-items: center; margin-top: 8px; }
+    .btn-submit {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 24px;
+      border-radius: var(--r-sm);
+      background: var(--blue-600);
+      color: #fff;
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+      box-shadow: 0 4px 16px rgba(24,95,165,0.22);
+    }
+    .btn-submit:hover { background: var(--blue-700); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(24,95,165,0.28); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-submit i { font-size: 18px; }
+
+    .btn-danger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 14px 20px;
+      border-radius: var(--r-sm);
+      background: var(--white);
+      color: #991B1B;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1.5px solid #FECACA;
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .btn-danger:hover { background: var(--red-50); border-color: var(--red-600); }
+    .btn-danger i { font-size: 16px; }
+
+    .btn-cancel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 14px 20px;
+      border-radius: var(--r-sm);
+      background: var(--white);
+      color: var(--n-600);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1.5px solid var(--n-200);
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s;
+      white-space: nowrap;
+    }
+    .btn-cancel:hover { background: var(--n-50); border-color: var(--n-300); }
+    .btn-cancel i { font-size: 16px; }
+
+    /* ── ERROR LIST ── */
+    .error-box {
+      background: var(--red-50);
+      border: 1px solid var(--red-600);
+      border-radius: var(--r-md);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .error-box-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .error-box-header i { font-size: 20px; color: #991B1B; }
+    .error-box-header strong { color: #991B1B; font-size: 15px; }
+    .error-box ul { margin: 0; padding-left: 20px; color: #991B1B; }
+    .error-box li { margin-bottom: 6px; font-size: 13px; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hero { padding: 36px 20px 32px; }
+      .page-body { padding: 24px 16px 56px; }
+      .messages-container { padding: 0 16px; }
+      .form-body { padding: 20px 18px; }
+      .field-row { grid-template-columns: 1fr; }
+      .field-row.trio { grid-template-columns: 1fr; }
+      .preview-grid { grid-template-columns: repeat(3, 1fr); }
+      .current-img-grid { grid-template-columns: repeat(3, 1fr); }
+      .amenity-grid { grid-template-columns: 1fr 1fr; }
+      .submit-row { flex-direction: column; }
+      .btn-danger, .btn-cancel { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+{% include 'header.html' %}
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <i class="ti ti-building-estate" aria-hidden="true"></i>
+        Partner Portal
+      </div>
+      <h1>Edit <em>Listing</em></h1>
+      <p class="hero-sub">Update the details below — changes will reflect immediately after saving.</p>
+      {% if listing %}
+      <div class="listing-meta">
+        <i class="ti ti-building-estate" aria-hidden="true"></i>
+        <span>{{ listing.Room_title }}</span>
+      </div>
+      {% endif %}
+    </div>
+    <a href="{% url 'partner_dashboard' %}" class="back-btn">
+      <i class="ti ti-arrow-left" aria-hidden="true"></i>
+      Back to Dashboard
+    </a>
+  </div>
+</div>
+
+<!-- MESSAGES -->
+{% if messages %}
+<div class="messages-container">
+  {% for message in messages %}
+  <div class="message-box {% if message.tags == 'success' %}success{% else %}error{% endif %}">
+    <i class="ti ti-{% if message.tags == 'success' %}circle-check{% else %}alert-circle{% endif %}" aria-hidden="true"></i>
+    <span>{{ message }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- BODY -->
+<div class="page-body">
+
+  <!-- Edit notice -->
+  <div class="edit-notice">
+    <i class="ti ti-info-circle" aria-hidden="true"></i>
+    <div class="edit-notice-text">
+      <strong>You are editing an existing listing</strong>
+      <span>Fields pre-filled with current values. Leave photo fields empty to keep existing images. Only upload new photos if you want to replace them.</span>
+    </div>
+  </div>
+
+  <form method="POST" enctype="multipart/form-data" id="editListingForm">
+    {% csrf_token %}
+
+    <!-- Form Errors -->
+    {% if form.errors %}
+    <div class="error-box">
+      <div class="error-box-header">
+        <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+        <strong>Please correct the following errors:</strong>
+      </div>
+      <ul>
+        {% for field, errors in form.errors.items %}
+          {% for error in errors %}
+            <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- ── BASIC INFO ── -->
+    <div class="form-card" style="margin-bottom:24px;">
+      <div class="section-head">
+        <div class="section-head-icon"><i class="ti ti-info-circle" aria-hidden="true"></i></div>
+        <div>
+          <div class="section-head-title">Basic Information</div>
+          <div class="section-head-sub">Property title, type, rent and availability</div>
+        </div>
+      </div>
+      <div class="form-body">
+
+        <div class="field-row single">
+          <div class="field">
+            <label for="{{ form.Room_title.id_for_label }}">Property Title <span class="req">*</span></label>
+            {{ form.Room_title }}
+            <span class="field-hint">Write a clear, attractive title. E.g. "Furnished 2BHK near College"</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="{{ form.Room_type.id_for_label }}">Room Type <span class="req">*</span></label>
+            {{ form.Room_type }}
+          </div>
+          <div class="field">
+            <label for="{{ form.Room_available.id_for_label }}">Room Available <span class="req">*</span></label>
+            {{ form.Room_available }}
+            <span class="field-hint">Is this room currently available?</span>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="{{ form.Room_rent.id_for_label }}">Monthly Rent (₹) <span class="req">*</span></label>
+            {{ form.Room_rent }}
+          </div>
+          <div class="field">
+            <label for="{{ form.Room_security.id_for_label }}">Security Deposit (₹) <span class="req">*</span></label>
+            {{ form.Room_security }}
+          </div>
+        </div>
+
+        <hr class="form-divider">
+
+        <div class="field-row single">
+          <div class="field">
+            <label for="{{ form.Room_details.id_for_label }}">Room Details <span class="req">*</span></label>
+            {{ form.Room_details }}
+            <span class="field-hint">Describe the property, nearby landmarks, rules, furnishing status, etc.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── AMENITIES ── -->
+    <div class="form-card" style="margin-bottom:24px;">
+      <div class="section-head">
+        <div class="section-head-icon"><i class="ti ti-list-check" aria-hidden="true"></i></div>
+        <div>
+          <div class="section-head-title">Amenities & Furniture</div>
+          <div class="section-head-sub">Select all available amenities</div>
+        </div>
+      </div>
+      <div class="form-body">
+        <div class="amenity-grid">
+
+          <label class="amenity-item">
+            {{ form.wifi }}
+            <span class="amenity-label"><i class="ti ti-wifi" aria-hidden="true"></i> Wi-Fi</span>
+          </label>
+
+          <label class="amenity-item">
+            {{ form.bed }}
+            <span class="amenity-label"><i class="ti ti-bed" aria-hidden="true"></i> Bed</span>
+          </label>
+
+          <label class="amenity-item">
+            {{ form.mattres }}
+            <span class="amenity-label"><i class="ti ti-layout" aria-hidden="true"></i> Mattress</span>
+          </label>
+
+          <label class="amenity-item">
+            {{ form.table }}
+            <span class="amenity-label"><i class="ti ti-table" aria-hidden="true"></i> Table</span>
+          </label>
+
+          <label class="amenity-item">
+            {{ form.chair }}
+            <span class="amenity-label"><i class="ti ti-armchair" aria-hidden="true"></i> Chair</span>
+          </label>
+
+          <label class="amenity-item">
+            {{ form.fan }}
+            <span class="amenity-label"><i class="ti ti-propeller" aria-hidden="true"></i> Fan</span>
+          </label>
+
+          <label class="amenity-item">
+            {{ form.Ac }}
+            <span class="amenity-label"><i class="ti ti-air-conditioning" aria-hidden="true"></i> AC</span>
+          </label>
+
+          <label class="amenity-item">
+            {{ form.ro }}
+            <span class="amenity-label"><i class="ti ti-droplet" aria-hidden="true"></i> RO Water</span>
+          </label>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PHOTOS ── -->
+    <div class="form-card" style="margin-bottom:24px;">
+      <div class="section-head">
+        <div class="section-head-icon amber"><i class="ti ti-photo" aria-hidden="true"></i></div>
+        <div>
+          <div class="section-head-title">Property Photos</div>
+          <div class="section-head-sub">Upload new photos to replace existing ones, or leave empty to keep current</div>
+        </div>
+      </div>
+      <div class="form-body">
+
+        <!-- Current images -->
+        {% if listing %}
+        <div class="current-images">
+          <div class="current-images-label">
+            <i class="ti ti-photo-check" aria-hidden="true" style="color:var(--blue-600);"></i>
+            Current Photos
+          </div>
+          <div class="current-img-grid">
+            {% if listing.Room_images1 %}
+            <div class="current-img-item">
+              <img src="{{ listing.Room_images1.url }}" alt="Current Photo 1">
+              <span class="current-img-badge">Photo 1</span>
+            </div>
+            {% else %}
+            <div class="current-img-empty">
+              <i class="ti ti-photo-off" aria-hidden="true"></i>
+              <span>No photo</span>
+            </div>
+            {% endif %}
+
+            {% if listing.Room_images2 %}
+            <div class="current-img-item">
+              <img src="{{ listing.Room_images2.url }}" alt="Current Photo 2">
+              <span class="current-img-badge">Photo 2</span>
+            </div>
+            {% else %}
+            <div class="current-img-empty">
+              <i class="ti ti-photo-off" aria-hidden="true"></i>
+              <span>No photo</span>
+            </div>
+            {% endif %}
+
+            {% if listing.Room_images3 %}
+            <div class="current-img-item">
+              <img src="{{ listing.Room_images3.url }}" alt="Current Photo 3">
+              <span class="current-img-badge">Photo 3</span>
+            </div>
+            {% else %}
+            <div class="current-img-empty">
+              <i class="ti ti-photo-off" aria-hidden="true"></i>
+              <span>No photo</span>
+            </div>
+            {% endif %}
+
+            {% if listing.Room_images4 %}
+            <div class="current-img-item">
+              <img src="{{ listing.Room_images4.url }}" alt="Current Photo 4">
+              <span class="current-img-badge">Photo 4</span>
+            </div>
+            {% else %}
+            <div class="current-img-empty">
+              <i class="ti ti-photo-off" aria-hidden="true"></i>
+              <span>No photo</span>
+            </div>
+            {% endif %}
+
+            {% if listing.Room_images5 %}
+            <div class="current-img-item">
+              <img src="{{ listing.Room_images5.url }}" alt="Current Photo 5">
+              <span class="current-img-badge">Photo 5</span>
+            </div>
+            {% else %}
+            <div class="current-img-empty">
+              <i class="ti ti-photo-off" aria-hidden="true"></i>
+              <span>No photo</span>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        <hr class="form-divider">
+        {% endif %}
+
+        <!-- New upload previews -->
+        <div class="current-images-label" style="margin-bottom:10px;">
+          <i class="ti ti-upload" aria-hidden="true" style="color:var(--blue-600);"></i>
+          Replace with New Photos
+        </div>
+
+        <div class="preview-grid" id="previewGrid">
+          <div class="preview-item" id="prev1">
+            <div class="preview-placeholder"><i class="ti ti-photo" aria-hidden="true"></i><span>New 1</span></div>
+            <img id="prevImg1" alt="New Photo 1">
+          </div>
+          <div class="preview-item" id="prev2">
+            <div class="preview-placeholder"><i class="ti ti-photo" aria-hidden="true"></i><span>New 2</span></div>
+            <img id="prevImg2" alt="New Photo 2">
+          </div>
+          <div class="preview-item" id="prev3">
+            <div class="preview-placeholder"><i class="ti ti-photo" aria-hidden="true"></i><span>New 3</span></div>
+            <img id="prevImg3" alt="New Photo 3">
+          </div>
+          <div class="preview-item" id="prev4">
+            <div class="preview-placeholder"><i class="ti ti-photo" aria-hidden="true"></i><span>New 4</span></div>
+            <img id="prevImg4" alt="New Photo 4">
+          </div>
+          <div class="preview-item" id="prev5">
+            <div class="preview-placeholder"><i class="ti ti-photo" aria-hidden="true"></i><span>New 5</span></div>
+            <img id="prevImg5" alt="New Photo 5">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+
+          <div class="field">
+            <label for="{{ form.Room_images1.id_for_label }}">Replace Photo 1</label>
+            <div class="upload-zone">
+              {{ form.Room_images1 }}
+              <div class="upload-icon"><i class="ti ti-upload" aria-hidden="true"></i></div>
+              <div class="upload-label">Click to upload new</div>
+              <div class="upload-sub">JPG, PNG, WEBP · max 5MB</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="{{ form.Room_images2.id_for_label }}">Replace Photo 2</label>
+            <div class="upload-zone">
+              {{ form.Room_images2 }}
+              <div class="upload-icon"><i class="ti ti-upload" aria-hidden="true"></i></div>
+              <div class="upload-label">Click to upload new</div>
+              <div class="upload-sub">JPG, PNG, WEBP · max 5MB</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="{{ form.Room_images3.id_for_label }}">Replace Photo 3</label>
+            <div class="upload-zone">
+              {{ form.Room_images3 }}
+              <div class="upload-icon"><i class="ti ti-upload" aria-hidden="true"></i></div>
+              <div class="upload-label">Click to upload new</div>
+              <div class="upload-sub">JPG, PNG, WEBP · max 5MB</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="{{ form.Room_images4.id_for_label }}">Replace Photo 4</label>
+            <div class="upload-zone">
+              {{ form.Room_images4 }}
+              <div class="upload-icon"><i class="ti ti-upload" aria-hidden="true"></i></div>
+              <div class="upload-label">Click to upload new</div>
+              <div class="upload-sub">JPG, PNG, WEBP · max 5MB</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="{{ form.Room_images5.id_for_label }}">Replace Photo 5</label>
+            <div class="upload-zone">
+              {{ form.Room_images5 }}
+              <div class="upload-icon"><i class="ti ti-upload" aria-hidden="true"></i></div>
+              <div class="upload-label">Click to upload new</div>
+              <div class="upload-sub">JPG, PNG, WEBP · max 5MB</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SUBMIT ── -->
+    <div class="form-card">
+      <div class="form-body" style="padding:22px 28px;">
+        <div class="submit-row">
+          <button type="submit" class="btn-submit">
+            <i class="ti ti-device-floppy" aria-hidden="true"></i>
+            Save Changes
+          </button>
+          <button type="button" class="btn-cancel" onclick="window.location.href='{% url 'partner_dashboard' %}'">
+            <i class="ti ti-x" aria-hidden="true"></i>
+            Cancel
+          </button>
+          {% if listing %}
+          <a href="{% url 'delete_listing' listing.id %}" class="btn-danger" onclick="return confirm('Are you sure you want to delete this listing? This cannot be undone.')">
+            <i class="ti ti-trash" aria-hidden="true"></i>
+            Delete
+          </a>
+          {% endif %}
+        </div>
+        <p style="font-size:12px;color:var(--n-400);margin-top:12px;text-align:center;">
+          Changes are saved immediately and visible to tenants after publishing.
+        </p>
+      </div>
+    </div>
+
+  </form>
+  <div style="background:linear-gradient(145deg,#042C53 0%,#0E4A84 55%,#2579D4 100%);border-radius:var(--r-lg);padding:36px 32px 32px;      position:relative;overflow:hidden;margin-top:24px;">
+      <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;"></div>
+      <div style="position:relative;z-index:1;">
+        <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:100px;padding:5px 14px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.85);margin-bottom:12px;">
+          <i class="ti ti-tag" aria-hidden="true"></i> Discount &amp; Offers
+        </div>
+        <h2 style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px;margin-bottom:6px;">Boost your listing with an <em style="font-style:normal;color:var(--blue-100);">offer</em></h2>
+        <p style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:22px;max-width:520px;">Listings with discounts get up to 3× more views and fill 60% faster. Set a limited-time offer to attract tenants quickly.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px;">
+          <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:14px 16px;">
+            <i class="ti ti-eye" style="font-size:22px;color:#FBBF24;display:block;margin-bottom:8px;" aria-hidden="true"></i>
+            <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">3× more visibility</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.5;">Discounted rooms appear higher in search and get a special badge.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:14px 16px;">
+            <i class="ti ti-bolt" style="font-size:22px;color:#FBBF24;display:block;margin-bottom:8px;" aria-hidden="true"></i>
+            <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">Fill rooms faster</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.5;">Offers reduce average vacancy time from 18 days to just 6 days.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:14px 16px;">
+            <i class="ti ti-star" style="font-size:22px;color:#FBBF24;display:block;margin-bottom:8px;" aria-hidden="true"></i>
+            <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px;">"% OFF" badge</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.55);line-height:1.5;">A bright offer badge on your card makes tenants click first.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="{% url 'set_offer' listing.id %}" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:8px;background:#FBBF24;color:#042C53;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;border:none;text-decoration:none;">
+            <i class="ti ti-tag" aria-hidden="true"></i> Set Offer
+          </a>
+          <a href="{% url 'remove_offer' listing.id %}" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:8px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.75);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;border:1px solid rgba(255,255,255,0.2);text-decoration:none;">
+            <i class="ti ti-trash" aria-hidden="true"></i> Remove Offer
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const imageInputs = [
+      { input: 'id_Room_images1', preview: 'prevImg1', container: 'prev1' },
+      { input: 'id_Room_images2', preview: 'prevImg2', container: 'prev2' },
+      { input: 'id_Room_images3', preview: 'prevImg3', container: 'prev3' },
+      { input: 'id_Room_images4', preview: 'prevImg4', container: 'prev4' },
+      { input: 'id_Room_images5', preview: 'prevImg5', container: 'prev5' },
+    ];
+
+    imageInputs.forEach(item => {
+      const input = document.getElementById(item.input);
+      if (!input) return;
+      input.addEventListener('change', function() {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.getElementById(item.preview);
+          const container = document.getElementById(item.container);
+          if (img && container) {
+            img.src = e.target.result;
+            img.style.display = 'block';
+            const placeholder = container.querySelector('.preview-placeholder');
+            if (placeholder) placeholder.style.display = 'none';
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    // Drag and drop
+    document.querySelectorAll('.upload-zone').forEach(zone => {
+      zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.style.borderColor = 'var(--blue-400)';
+        zone.style.background = 'var(--blue-50)';
+      });
+      zone.addEventListener('dragleave', () => {
+        zone.style.borderColor = '';
+        zone.style.background = '';
+      });
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.style.borderColor = '';
+        zone.style.background = '';
+        const input = zone.querySelector('input[type="file"]');
+        if (input && e.dataTransfer.files.length) {
+          input.files = e.dataTransfer.files;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    });
+  });
+</script>
+{% include 'footer.html' %}
+</body>
+</html>

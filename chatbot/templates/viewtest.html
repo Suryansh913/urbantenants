@@ -1,0 +1,1717 @@
+import json
+import re
+
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.conf import settings
+
+import google.generativeai as genai
+
+from listings.models import listings
+
+
+# =====================================================
+# GEMINI SETUP
+# =====================================================
+
+genai.configure(api_key=settings.GEMINI_API_KEY)
+model = genai.GenerativeModel("gemini-2.5-flash")
+
+
+def ask_gemini(message):
+    prompt = f"""
+    You are UrbanTenants AI Assistant.
+
+    Reply in the SAME language and script the user used below. If they wrote
+    in Hindi, reply in Hindi. If Tamil, reply in Tamil. If Hinglish, reply in
+    Hinglish. Match their language exactly.
+
+    Answer politely and briefly.
+
+    User Question:
+    {message}
+    """
+    response = model.generate_content(prompt)
+    return response.text
+
+
+# =====================================================
+# UNIVERSAL LANGUAGE HANDLING
+# Voice input (or typed text) can come in ANY language/script — Hindi
+# (Devanagari), Tamil, Bengali, French, etc. Our intent keywords, location
+# names, and amenity matching are all written in plain Roman-script
+# English/Hinglish, so non-Latin-script input would never match anything
+# and would always fall through to the Gemini fallback.
+#
+# Fix: if the message contains non-Latin-script characters, translate it
+# to plain English with Gemini FIRST, then run all matching (search,
+# intents) on the translated text, and always reply in English.
+# =====================================================
+
+NON_LATIN_RANGE = re.compile(r'[^\x00-\x7F]')
+
+
+def has_non_latin_script(text):
+    """True if the text contains any character outside basic Latin/ASCII
+    (covers Devanagari, Tamil, Bengali, Arabic, Chinese, etc.)."""
+    return bool(NON_LATIN_RANGE.search(text))
+
+
+def translate_to_english(text):
+    """
+    Uses Gemini to translate ANY language/script into plain, literal English.
+    Keeps place names and numbers intact so downstream matching (city
+    lookup, budget extraction, amenity keywords) still works correctly.
+    Falls back to the original text if translation fails for any reason.
+    """
+    try:
+        prompt = f"""
+        Translate the following message into simple, plain English.
+
+        Rules:
+        - Output ONLY the translated sentence. No explanation, no extra words.
+        - Do NOT answer the question or add any information — translate only.
+        - Keep place/city names and numbers exactly as they are (transliterate
+          to Roman script if needed, don't translate the name itself).
+        - Always use the literal English word "room" for words meaning a
+          room/accommodation/PG/flat to rent (do not substitute synonyms like
+          "accommodation", "place", "lodging", "housing", or "stay").
+        - Always use the literal English word "rent" for words about rent/cost
+          (not "price", "cost", "fee", etc.).
+        - Keep words like PG, AC, WiFi, BHK exactly as written.
+
+        Message: {text}
+        """
+        response = model.generate_content(prompt)
+        translated = (response.text or "").strip()
+        return translated if translated else text
+    except Exception as e:
+        print("Translation error:", e)
+        return text
+
+
+def localize_reply(english_text, raw_msg):
+    """
+    Translates a canned English reply (from INTENTS/DEFAULT_REPLIES) into
+    whatever language the user originally wrote/spoke in, using raw_msg as
+    the language reference. Used for languages we don't have hand-written
+    replies for (anything other than English/Hindi/Hinglish, e.g. Tamil,
+    Bengali, French). Falls back to the English text if translation fails.
+    """
+    try:
+        prompt = f"""
+        Translate the text below into the SAME language and script as this
+        reference message: {raw_msg}
+
+        Output ONLY the translation, nothing else.
+
+        Text to translate:
+        {english_text}
+        """
+        response = model.generate_content(prompt)
+        translated = (response.text or "").strip()
+        return translated if translated else english_text
+    except Exception as e:
+        print("Reply localization error:", e)
+        return english_text
+
+
+def chat_page(request):
+    return render(request, "chatbot.html")
+
+
+# =====================================================
+# TEXT NORMALIZATION
+# =====================================================
+
+def normalize(text):
+    """
+    Lowercase + strip, AND remove punctuation.
+
+    This matters a lot for voice input: speech-to-text engines almost
+    always attach punctuation (periods, question marks, commas) to the
+    transcript, e.g. "Room chahiye." or "Kanpur me room hai?". Typed
+    messages rarely have this. Our intent matching below does an exact
+    word-set comparison (keyword_words.issubset(words)), so a trailing
+    period on the last word ("chahiye.") would never match the keyword
+    ("chahiye") and the message would silently fall through to the
+    Gemini fallback instead of hitting the intended canned reply.
+
+    \\w in Python's re module is Unicode-aware, so this safely strips
+    punctuation while leaving Devanagari (Hindi) words intact.
+    """
+    text = text.lower().strip()
+    text = re.sub(r"[^\w\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+# =====================================================
+# LANGUAGE DETECTION
+# =====================================================
+
+DEVANAGARI_RANGE = re.compile(r'[\u0900-\u097F]')
+
+HINGLISH_MARKERS = [
+    "kya", "hai", "kaise", "kitna", "kitne", "chahiye", "karna",
+    "karo", "kare", "hota", "milega", "mujhe", "aap", "apna",
+    "khali", "wala", "bhi", "nahi", "haan", "paise", "ghar",
+    "kab", "kahan", "konsa", "konsi",
+]
+
+
+def detect_language(msg):
+    """
+    Returns one of: 'hi' (Devanagari), 'hinglish' (Roman Hindi), 'en' (English)
+    """
+    if DEVANAGARI_RANGE.search(msg):
+        return "hi"
+
+    words = msg.lower().split()
+    hinglish_hits = sum(1 for w in words if w in HINGLISH_MARKERS)
+
+    if hinglish_hits > 0:
+        return "hinglish"
+
+    return "en"
+
+
+def reply_for(lang, replies: dict):
+    """
+    replies = {"en": "...", "hi": "...", "hinglish": "..."}
+    Falls back to hinglish -> en if a specific translation is missing.
+    """
+    return replies.get(lang) or replies.get("hinglish") or replies.get("en")
+
+
+# =====================================================
+# STRUCTURED ROOM SEARCH CONFIGURATION
+# Centralized so adding a new location/amenity/etc. is a one-line change.
+# =====================================================
+
+SEARCH_TRIGGER_WORDS = [
+    "room", "rooms", "pg", "flat", "ghar", "rent", "kamra", "kamre",
+    # Devanagari safety net — used if translation fails/is skipped and the
+    # raw Hindi text is checked directly.
+    "कमरा", "कमरे", "रूम", "पीजी", "फ्लैट", "घर", "किराया",
+]
+
+LOCATIONS = [
+    "kanpur", "lucknow", "nawabganj", "kakadeo",
+    "swaroop nagar", "indira nagar", "gomti nagar",
+]
+
+# field_name (on the listings model) -> keywords that should set field=True
+AMENITY_FIELD_MAP = {
+    "wifi": ["wifi"],
+    "Ac": ["ac "],          # trailing space avoids matching inside "kanpur", "package", etc.
+    "bed": [" bed "],
+    "table": ["table"],
+    "chair": ["chair"],
+    "fan": [" fan "],
+    "ro": [" ro water", " ro "],
+    "mattres": ["mattress", "gadda"],  # NOTE: model field is spelled "mattres" (no double s)
+}
+
+# Each tuple: (keywords, value to match against Room_type)
+BHK_PATTERNS = [
+    (["1bhk", "1 bhk"], "1"),
+    (["2bhk", "2 bhk"], "2"),
+    (["3bhk", "3 bhk"], "3"),
+]
+
+# Gender / tenant-type preference -> value stored in gender_preference field
+GENDER_KEYWORDS = {
+    "boys": ["boys", "boy ", "ladke", "ladko ke liye"],
+    "girls": ["girls", "girl ", "ladkiyo ke liye", "ladies"],
+    "family": ["family", "parivar"],
+}
+
+# Set this to True once a `gender_preference` CharField is added to the listings model
+# (values: "boys" / "girls" / "family" / "any"). Until then, gender keywords in a
+# message are detected (for potential future use / logging) but NOT used to filter,
+# since filtering on a non-existent field would raise a FieldError.
+HAS_GENDER_FIELD = False
+
+MAX_RESULTS = 5
+
+
+def extract_location(msg):
+    for location in LOCATIONS:
+        if location in msg:
+            return location
+    return None
+
+
+def extract_bhk(msg):
+    for keywords, value in BHK_PATTERNS:
+        if any(k in msg for k in keywords):
+            return value
+    return None
+
+
+def extract_gender_preference(msg):
+    for value, keywords in GENDER_KEYWORDS.items():
+        if any(k in msg for k in keywords):
+            return value
+    return None
+
+
+def extract_budget(msg):
+    """
+    Looks for patterns like:
+    'under 5000', '5000 se kam', '7000 tak', 'budget 6000', '10000 ke andar',
+    plus common English/translated phrasings: 'in 5000', 'within 5000',
+    'below 5000', 'less than 5000', 'up to 5000', 'around 5000', 'max 5000',
+    'for 5000'.
+    Returns an integer max budget, or None if not found.
+    """
+    patterns = [
+        r"under\s*(\d{3,6})",
+        r"(\d{3,6})\s*se\s*kam",
+        r"(\d{3,6})\s*tak",
+        r"(\d{3,6})\s*ke\s*andar",
+        r"budget\s*(?:of\s*)?(\d{3,6})",
+        r"(\d{3,6})\s*budget",
+        r"within\s*(\d{3,6})",
+        r"below\s*(\d{3,6})",
+        r"less\s*than\s*(\d{3,6})",
+        r"up\s*to\s*(\d{3,6})",
+        r"around\s*(\d{3,6})",
+        r"max(?:imum)?\s*(\d{3,6})",
+        r"\bin\s*(\d{3,6})\b",
+        r"\bfor\s*(\d{3,6})\b",
+        r"\bat\s*(\d{3,6})\b",
+        r"₹\s*(\d{3,6})",
+        r"rs\.?\s*(\d{3,6})",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, msg)
+        if match:
+            return int(match.group(1))
+    return None
+
+
+def extract_is_pg(msg):
+    return "pg" in msg
+
+
+def is_search_query(msg):
+    return any(word in msg for word in SEARCH_TRIGGER_WORDS)
+
+
+def search_rooms(msg):
+    """
+    Applies all detected filters to the listings queryset.
+    Returns a queryset (possibly empty) plus a debug dict of what was applied.
+    """
+    from django.db.models import Q
+
+    padded_msg = f" {msg} "  # padding helps the spaced keyword checks above
+    rooms = listings.objects.filter(Room_available=True)
+
+    debug = {"base_count": rooms.count()}
+
+    location = extract_location(msg)
+    if location:
+        # IMPORTANT: many listings have the city only in Room_title and leave
+        # location_name blank/None (e.g. a listing titled "lucknow" with no
+        # location_name set). So we match against BOTH fields with OR.
+        rooms = rooms.filter(
+            Q(location_name__icontains=location) | Q(Room_title__icontains=location)
+        )
+    debug["location"] = location
+    debug["after_location_count"] = rooms.count()
+
+    applied_amenities = []
+    for field_name, keywords in AMENITY_FIELD_MAP.items():
+        if any(k in padded_msg for k in keywords):
+            rooms = rooms.filter(**{field_name: True})
+            applied_amenities.append(field_name)
+    debug["amenities"] = applied_amenities
+    debug["after_amenities_count"] = rooms.count()
+
+    bhk_value = extract_bhk(msg)
+    if bhk_value:
+        rooms = rooms.filter(Room_type__icontains=bhk_value)
+    debug["bhk"] = bhk_value
+
+    if extract_is_pg(msg):
+        rooms = rooms.filter(Room_title__icontains="pg")
+    debug["is_pg"] = extract_is_pg(msg)
+
+    gender_pref = extract_gender_preference(msg)
+    if gender_pref and HAS_GENDER_FIELD:
+        rooms = rooms.filter(gender_preference__in=[gender_pref, "any"])
+    debug["gender_pref_detected"] = gender_pref
+    debug["gender_filter_applied"] = bool(gender_pref and HAS_GENDER_FIELD)
+
+    budget = extract_budget(msg)
+    if budget:
+        rooms = rooms.filter(Room_rent__lte=budget)
+    debug["budget"] = budget
+
+    debug["final_count_before_slice"] = rooms.count()
+
+    return rooms[:MAX_RESULTS], debug
+
+
+def serialize_rooms(rooms):
+    rooms_data = []
+    for room in rooms:
+        # Build a clean list of amenity labels for whatever is True on this room
+        amenity_labels = []
+        if room.wifi:
+            amenity_labels.append("WiFi")
+        if room.Ac:
+            amenity_labels.append("AC")
+        if room.bed:
+            amenity_labels.append("Bed")
+        if room.mattres:
+            amenity_labels.append("Mattress")
+        if room.table:
+            amenity_labels.append("Table")
+        if room.chair:
+            amenity_labels.append("Chair")
+        if room.fan:
+            amenity_labels.append("Fan")
+        if room.ro:
+            amenity_labels.append("RO Water")
+
+        # location_name is often blank on older/quick listings where the owner
+        # only put the city in the title (e.g. title="lucknow"). Fall back to
+        # scanning the title for a known city name so the card doesn't show "None".
+        location_display = room.location_name
+        if not location_display:
+            title_lower = (room.Room_title or "").lower()
+            for city in LOCATIONS:
+                if city in title_lower:
+                    location_display = city.title()
+                    break
+        if not location_display:
+            location_display = "Location not specified"
+
+        rooms_data.append({
+            "id": room.id,
+            "title": room.Room_title,
+            "room_type": room.Room_type,
+            "rent": room.Room_rent,
+            "security_deposit": room.Room_security,
+            "location": location_display,
+            "amenities": amenity_labels,
+            "image": str(room.Room_images1.url) if room.Room_images1 else "",
+        })
+    return rooms_data
+
+
+# =====================================================
+# INTENT DEFINITIONS
+# Each intent: keywords (language-agnostic matching) + replies per language.
+#
+# ORDER MATTERS: more specific intents must come before more generic ones,
+# since the first matching intent wins.
+# =====================================================
+
+INTENTS = [
+    {
+        "name": "greeting",
+        "keywords": ["hello", "hi", "namaste", "hey", "hii", "good morning", "good evening"],
+        "replies": {
+            "en": "Hello 👋 Welcome to UrbanTenants! You can ask about rooms, booking, rent, or documents.",
+            "hinglish": "Hello 👋 UrbanTenants me aapka swagat hai! Aap room, booking, rent, ya documents ke baare me puch sakte ho.",
+            "hi": "नमस्ते 👋 UrbanTenants में आपका स्वागत है! आप रूम, बुकिंग, रेंट या दस्तावेज़ों के बारे में पूछ सकते हैं।",
+        },
+    },
+    {
+        "name": "location_room_search",
+        "keywords": [
+            "kanpur me room chahiye", "kanpur me room cahiye",
+            "nawabganj me room chahiye", "nawabganj me room cahiye",
+            "lucknow me room chahiye", "lucknow me room cahiye",
+            "kanpur me pg chahiye", "lucknow me pg chahiye",
+            "room rent in kanpur", "room rent in lucknow",
+            "nawabganj rent room", "kanpur me rental room", "lucknow me rental room",
+            "room near csjmu", "room near iit kanpur", "room near hazratganj", "room near gomti nagar",
+            "kanpur me sasta room", "lucknow me affordable room",
+            "room available in kanpur", "room available in lucknow",
+        ],
+        "replies": {
+            "en": (
+                "🏠 Great! We can help you find rooms in your preferred location.\n"
+                "📍 Search available properties in Kanpur, Nawabganj, Lucknow, or any nearby area.\n"
+                "🔎 Use filters such as budget, room type, sharing preference, and facilities.\n"
+                "💰 Rental prices vary based on location and amenities.\n"
+                "📞 Once you find a suitable property, you can contact the owner directly for details and visits."
+            ),
+            "hinglish": (
+                "🏠 Bilkul! Hum aapko aapki preferred location me room dhundhne me help kar sakte hain.\n"
+                "📍 Kanpur, Nawabganj, Lucknow ya kisi bhi nearby area ki available properties search kare.\n"
+                "🔎 Budget, room type, sharing preference aur facilities ke hisab se filter laga sakte hain.\n"
+                "💰 Rent location aur amenities ke hisab se alag-alag ho sakta hai.\n"
+                "📞 Pasand aane par aap direct owner se contact karke visit aur booking ki jankari le sakte hain."
+            ),
+            "hi": (
+                "🏠 बिल्कुल! हम आपकी पसंदीदा लोकेशन में कमरा ढूंढने में सहायता कर सकते हैं।\n"
+                "📍 कानपुर, नवाबगंज, लखनऊ या किसी भी नजदीकी क्षेत्र की उपलब्ध प्रॉपर्टी खोजें।\n"
+                "🔎 बजट, कमरे के प्रकार, शेयरिंग और सुविधाओं के अनुसार फ़िल्टर लगा सकते हैं।\n"
+                "💰 किराया स्थान और सुविधाओं के अनुसार अलग-अलग हो सकता है।\n"
+                "📞 पसंद आने पर आप सीधे ओनर से संपर्क करके विजिट और बुकिंग की जानकारी प्राप्त कर सकते हैं।"
+            ),
+        },
+    },
+    {
+        "name": "booking_process",
+        "keywords": ["book", "booking", "kaise book", "rent kaise", "room kaise le", "booking process", "how to book"],
+        "replies": {
+            "en": (
+                "Booking process is simple:\n"
+                "1. Select a property\n"
+                "2. Click on 'Book Now'\n"
+                "3. Fill in your details\n"
+                "4. Owner will confirm"
+            ),
+            "hinglish": (
+                "Booking process simple hai:\n"
+                "1. Property select kare\n"
+                "2. 'Book Now' par click kare\n"
+                "3. Details fill kare\n"
+                "4. Owner confirm karega"
+            ),
+            "hi": (
+                "बुकिंग प्रक्रिया आसान है:\n"
+                "1. प्रॉपर्टी चुनें\n"
+                "2. 'Book Now' पर क्लिक करें\n"
+                "3. अपनी डिटेल्स भरें\n"
+                "4. ओनर कन्फर्म करेगा"
+            ),
+        },
+    },
+    {
+        "name": "cancel_booking",
+        "keywords": ["cancel booking", "booking cancel", "cancel kaise kare", "refund", "cancel my booking"],
+        "replies": {
+            "en": (
+                "To cancel your booking:\n"
+                "1. Go to 'My Bookings' section\n"
+                "2. Select the booking\n"
+                "3. Click 'Cancel'\n"
+                "Refund will be processed in 5-7 days as per policy."
+            ),
+            "hinglish": (
+                "Booking cancel karne ke liye:\n"
+                "1. 'My Bookings' section me jaye\n"
+                "2. Booking select kare\n"
+                "3. 'Cancel' par click kare\n"
+                "Refund policy ke hisab se amount 5-7 din me wapas aa jayega."
+            ),
+            "hi": (
+                "बुकिंग कैंसिल करने के लिए:\n"
+                "1. 'My Bookings' सेक्शन में जाएं\n"
+                "2. बुकिंग चुनें\n"
+                "3. 'Cancel' पर क्लिक करें\n"
+                "रिफंड पॉलिसी के अनुसार राशि 5-7 दिनों में वापस आ जाएगी।"
+            ),
+        },
+    },
+    {
+        "name": "documents",
+        "keywords": ["document", "documents", "id proof", "kaunse documents", "papers chahiye", "aadhar", "what documents"],
+        "replies": {
+            "en": (
+                "Documents required for booking:\n"
+                "1. Aadhar Card / Govt ID Proof\n"
+                "2. Passport size photo\n"
+                "3. (Optional) Office ID or Student ID"
+            ),
+            "hinglish": (
+                "Booking ke liye ye documents chahiye:\n"
+                "1. Aadhar Card / Govt ID Proof\n"
+                "2. Passport size photo\n"
+                "3. (Optional) Office ID ya Student ID"
+            ),
+            "hi": (
+                "बुकिंग के लिए ये दस्तावेज़ चाहिए:\n"
+                "1. आधार कार्ड / सरकारी ID प्रूफ\n"
+                "2. पासपोर्ट साइज़ फोटो\n"
+                "3. (वैकल्पिक) ऑफिस ID या स्टूडेंट ID"
+            ),
+        },
+    },
+    {
+        "name": "payment",
+        "keywords": ["payment", "paise kaise de", "upi", "card payment", "pay kaise kare", "advance", "how to pay"],
+        "replies": {
+            "en": (
+                "We support these payment options:\n"
+                "✅ UPI\n✅ Debit/Credit Card\n✅ Net Banking\n"
+                "Advance booking amount varies by property."
+            ),
+            "hinglish": (
+                "Hum ye payment options support karte hai:\n"
+                "✅ UPI\n✅ Debit/Credit Card\n✅ Net Banking\n"
+                "Advance booking amount property ke hisab se vary karta hai."
+            ),
+            "hi": (
+                "हम ये पेमेंट ऑप्शन सपोर्ट करते हैं:\n"
+                "✅ UPI\n✅ डेबिट/क्रेडिट कार्ड\n✅ नेट बैंकिंग\n"
+                "एडवांस बुकिंग राशि प्रॉपर्टी के अनुसार बदलती है।"
+            ),
+        },
+    },
+    {
+        "name": "contact_support",
+        "keywords": ["contact", "number", "support", "help", "customer care", "phone number"],
+        "replies": {
+            "en": "Support: support@urbantenants.com 📩\nCall/WhatsApp: +91-XXXXXXXXXX",
+            "hinglish": "Support: support@urbantenants.com 📩\nCall/WhatsApp: +91-XXXXXXXXXX",
+            "hi": "सपोर्ट: support@urbantenants.com 📩\nकॉल/व्हाट्सएप: +91-XXXXXXXXXX",
+        },
+    },
+    {
+        "name": "room_rental_access",
+        "keywords": [
+            "room rental kya hai", "what is a room rental", "shared access", "rest of property",
+            "puri property", "private room", "shared bathroom", "kya pura ghar milega",
+            "क्या पूरा घर मिलेगा", "रूम रेंटल क्या है",
+        ],
+        "replies": {
+            "en": (
+                "A room rental on UrbanTenants gives you your own private room, "
+                "with shared access to the rest of the property (kitchen, hall, common areas).\n"
+                "Whether the bathroom is private or shared varies by listing — check the listing "
+                "details or message the owner directly to confirm."
+            ),
+            "hinglish": (
+                "UrbanTenants par room rental me aapko apna private room milta hai, "
+                "aur baki property (kitchen, hall, common areas) shared hoti hai.\n"
+                "Bathroom private hai ya shared, ye listing ke hisab se alag hota hai — "
+                "listing details check kare ya owner se directly confirm kare."
+            ),
+            "hi": (
+                "UrbanTenants पर रूम रेंटल में आपको अपना प्राइवेट रूम मिलता है, "
+                "और बाकी प्रॉपर्टी (किचन, हॉल, कॉमन एरिया) शेयर्ड होती है।\n"
+                "बाथरूम प्राइवेट है या शेयर्ड, यह लिस्टिंग के अनुसार अलग होता है — "
+                "लिस्टिंग डिटेल्स देखें या ओनर से सीधे पुष्टि करें।"
+            ),
+        },
+    },
+    {
+        "name": "room_furnishing_check",
+        "keywords": [
+            "room furnished hai", "is the room furnished", "apna furniture", "bring furniture",
+            "shared living space furniture", "samaan lana hoga", "furniture lana padega",
+            "सामान लाना होगा", "फर्निशर है क्या",
+        ],
+        "replies": {
+            "en": (
+                "Each UrbanTenants listing shows whether the room and shared spaces are furnished.\n"
+                "If something's unclear, ask the person listing the room what's included before "
+                "you plan on bringing your own furniture or belongings."
+            ),
+            "hinglish": (
+                "Har UrbanTenants listing me ye mention hota hai ki room aur shared spaces furnished hai ya nahi.\n"
+                "Agar clear na ho, to apna furniture/samaan lane se pehle owner se confirm kar le ki "
+                "kya already included hai."
+            ),
+            "hi": (
+                "हर UrbanTenants लिस्टिंग में बताया जाता है कि रूम और शेयर्ड स्पेस फर्निश्ड हैं या नहीं।\n"
+                "अगर स्पष्ट न हो, तो अपना फर्नीचर/सामान लाने से पहले ओनर से पुष्टि कर लें कि "
+                "क्या पहले से शामिल है।"
+            ),
+        },
+    },
+    {
+        "name": "gender_housemate_missing",
+        "keywords": [
+            "gender description nahi dikh raha", "housemate details missing", "gender field empty",
+            "housemate info kyu nahi", "जेंडर डिटेल नहीं दिख रही",
+        ],
+        "replies": {
+            "en": (
+                "Gender and housemate details are optional fields that the property owner can choose to add. "
+                "If you don't see them on a UrbanTenants listing, it simply means the owner hasn't filled that "
+                "in — feel free to ask them directly."
+            ),
+            "hinglish": (
+                "Gender aur housemate details optional fields hai jo owner add kar sakta hai. "
+                "Agar UrbanTenants listing me ye nahi dikh raha, iska matlab bas itna hai ki owner ne "
+                "abhi fill nahi kiya — aap directly owner se puch sakte ho."
+            ),
+            "hi": (
+                "जेंडर और हाउसमेट डिटेल्स ऑप्शनल फील्ड हैं जिन्हें ओनर चाहें तो भर सकते हैं। "
+                "अगर UrbanTenants लिस्टिंग में यह नहीं दिख रहा, तो इसका मतलब सिर्फ इतना है कि ओनर ने "
+                "अभी नहीं भरा — आप सीधे ओनर से पूछ सकते हैं।"
+            ),
+        },
+    },
+    {
+        "name": "gender_preference_legality",
+        "keywords": [
+            "gender preference kyu", "fair housing", "ye legal hai kya", "only girls kyu likha",
+            "only boys kyu likha", "discrimination", "जेंडर प्रेफरेंस क्यों",
+        ],
+        "replies": {
+            "en": (
+                "In shared/cohabiting living situations, stating a gender preference for housemates is "
+                "generally permitted under housing regulations, since you'll be sharing common living spaces "
+                "directly. UrbanTenants follows these norms in how listings are allowed to describe preferences."
+            ),
+            "hinglish": (
+                "Shared/cohabiting living situations me, housemates ke liye gender preference batana "
+                "generally allowed hota hai, kyunki aap common living spaces directly share karte ho. "
+                "UrbanTenants bhi listings me preferences describe karne ke in norms ko follow karta hai."
+            ),
+            "hi": (
+                "शेयर्ड/को-हैबिटिंग लिविंग सिचुएशन में, हाउसमेट्स के लिए जेंडर प्रेफरेंस बताना आमतौर पर "
+                "अनुमति प्राप्त है, क्योंकि आप कॉमन लिविंग स्पेस सीधे शेयर करते हैं। UrbanTenants भी लिस्टिंग में "
+                "प्रेफरेंस बताने के इन नियमों का पालन करता है।"
+            ),
+        },
+    },
+    {
+        "name": "room_scam_tips",
+        "keywords": [
+            "scam se kaise bache", "fraud tips", "room rental scam", "avoid scam",
+            "fraud avoid kaise kare", "फ्रॉड से कैसे बचें",
+        ],
+        "replies": {
+            "en": (
+                "A few tips to stay safe while searching for a room on UrbanTenants:\n"
+                "1. Never pay before a verified booking or site visit\n"
+                "2. Avoid owners who refuse video/in-person verification\n"
+                "3. Don't share OTPs or banking details over chat\n"
+                "4. Use UrbanTenants' in-app payment instead of direct bank transfers\n"
+                "All listings go through ID verification, but staying alert always helps."
+            ),
+            "hinglish": (
+                "UrbanTenants par room dhoondte waqt safe rehne ke liye:\n"
+                "1. Verified booking ya site visit se pehle kabhi payment na kare\n"
+                "2. Jo owner video/in-person verification se mana kare, unse avoid kare\n"
+                "3. Chat me OTP ya banking details share na kare\n"
+                "4. Direct bank transfer ki jagah UrbanTenants ka in-app payment use kare\n"
+                "Saari listings ID-verified hoti hai, lekin alert rehna hamesha helpful hota hai."
+            ),
+            "hi": (
+                "UrbanTenants पर रूम ढूंढते समय सुरक्षित रहने के लिए:\n"
+                "1. वेरिफाइड बुकिंग या साइट विज़िट से पहले कभी पेमेंट न करें\n"
+                "2. जो ओनर वीडियो/इन-पर्सन वेरिफिकेशन से मना करे, उनसे बचें\n"
+                "3. चैट में OTP या बैंकिंग डिटेल्स शेयर न करें\n"
+                "4. डायरेक्ट बैंक ट्रांसफर की जगह UrbanTenants का इन-ऐप पेमेंट इस्तेमाल करें\n"
+                "सभी लिस्टिंग ID-वेरिफाइड होती हैं, फिर भी सतर्क रहना हमेशा मददगार होता है।"
+            ),
+        },
+    },
+    {
+        "name": "room_filter_usage",
+        "keywords": [
+            "room filter kaise kaam karta", "filter ke saath room", "room filter use",
+            "रूम फिल्टर कैसे काम करता है",
+        ],
+        "replies": {
+            "en": (
+                "The 'Room' filter on UrbanTenants narrows results to individual private-room listings only.\n"
+                "You can combine it with other filters like number of bedrooms or bathrooms — those still "
+                "refer to the full property (e.g. a private room within a 3-bedroom flat)."
+            ),
+            "hinglish": (
+                "UrbanTenants ka 'Room' filter sirf individual private-room listings tak results narrow karta hai.\n"
+                "Aap ise bedroom ya bathroom count jaise filters ke saath combine kar sakte ho — wo filters "
+                "poori property ko refer karte hai (jaise 3-bedroom flat ke andar ek private room)."
+            ),
+            "hi": (
+                "UrbanTenants का 'Room' फ़िल्टर केवल इंडिविजुअल प्राइवेट-रूम लिस्टिंग तक रिजल्ट सीमित करता है।\n"
+                "आप इसे बेडरूम या बाथरूम काउंट जैसे फ़िल्टर के साथ जोड़ सकते हैं — वे फ़िल्टर पूरी प्रॉपर्टी को "
+                "रेफर करते हैं (जैसे 3-बेडरूम फ्लैट के अंदर एक प्राइवेट रूम)।"
+            ),
+        },
+    },
+    {
+        "name": "room_within_property_meaning",
+        "keywords": [
+            "room for rent ka matlab", "bedroom house room for rent", "iska matlab kya hai listing",
+            "रूम फॉर रेंट का मतलब",
+        ],
+        "replies": {
+            "en": (
+                "When a UrbanTenants listing shows a property size (e.g. '4-bedroom house') alongside "
+                "'Room for rent,' it means you're booking just one private room within that larger home — "
+                "not the entire property."
+            ),
+            "hinglish": (
+                "Jab UrbanTenants listing me property size (jaise '4-bedroom house') ke saath "
+                "'Room for rent' likha ho, iska matlab hai aap us bade ghar ke andar sirf ek private room "
+                "book kar rahe ho — poori property nahi."
+            ),
+            "hi": (
+                "जब UrbanTenants लिस्टिंग में प्रॉपर्टी साइज़ (जैसे '4-bedroom house') के साथ "
+                "'Room for rent' लिखा हो, इसका मतलब है आप उस बड़े घर के अंदर सिर्फ एक प्राइवेट रूम "
+                "बुक कर रहे हैं — पूरी प्रॉपर्टी नहीं।"
+            ),
+        },
+    },
+    {
+        "name": "saved_search_room_missing",
+        "keywords": [
+            "saved search me room nahi dikh raha", "saved search room listings",
+            "सेव्ड सर्च में रूम नहीं दिख रहा",
+        ],
+        "replies": {
+            "en": (
+                "Room listings are a newer addition on UrbanTenants, so saved searches may not always "
+                "include them right away. Try refreshing the page or re-applying your filters to pull in "
+                "the latest room listings."
+            ),
+            "hinglish": (
+                "Room listings UrbanTenants par nayi addition hai, isliye saved searches me ye hamesha "
+                "turant nahi dikhte. Page refresh kare ya filters dobara apply kare, latest room listings "
+                "dikhne lagengi."
+            ),
+            "hi": (
+                "रूम लिस्टिंग UrbanTenants पर नई जोड़ी गई हैं, इसलिए सेव्ड सर्च में ये हमेशा तुरंत नहीं दिखतीं। "
+                "पेज रिफ्रेश करें या फ़िल्टर दोबारा लगाएं, नवीनतम रूम लिस्टिंग दिखने लगेंगी।"
+            ),
+        },
+    },
+    {
+        "name": "hidden_address",
+        "keywords": [
+            "address hidden kyu hai", "exact location kab milegi", "address kyu nahi dikh raha",
+            "पता छुपा हुआ क्यों है", "exact address",
+        ],
+        "replies": {
+            "en": (
+                "The exact address is kept hidden on UrbanTenants at the request of the listing owner, "
+                "for privacy and safety. The precise location is shared once you schedule a site visit "
+                "or move forward with the booking process."
+            ),
+            "hinglish": (
+                "UrbanTenants par exact address owner ke request par hidden rakha jata hai, privacy aur "
+                "safety ke liye. Exact location aapko tab share hoti hai jab aap site visit schedule "
+                "karte ho ya booking process aage badhate ho."
+            ),
+            "hi": (
+                "UrbanTenants पर सटीक पता ओनर के अनुरोध पर छुपाया जाता है, प्राइवेसी और सुरक्षा के लिए। "
+                "सटीक लोकेशन तब शेयर की जाती है जब आप साइट विज़िट शेड्यूल करते हैं या बुकिंग प्रोसेस आगे "
+                "बढ़ाते हैं।"
+            ),
+        },
+    },
+    {
+        "name": "rent_details",
+        "keywords": [
+            "room rent kitna hai", "monthly rent kya hai", "kiraya kitna padega",
+            "rent negotiable hai", "last rent kitna doge", "rent fixed hai", "rent flexible hai",
+            "rent kab dena hota hai", "rent online de sakte", "rent cash me de sakte",
+            "rent receipt milegi",
+        ],
+        "replies": {
+            "en": (
+                "Here's how rent works on UrbanTenants:\n"
+                "💰 Monthly rent varies by property and location — check the listing for exact amount\n"
+                "🤝 Some owners are open to negotiation, ask them directly\n"
+                "📅 Rent is usually due monthly, in advance\n"
+                "💳 You can pay via UPI, card, or net banking — cash payment depends on the owner\n"
+                "🧾 A digital rent receipt is generated for every payment made through UrbanTenants"
+            ),
+            "hinglish": (
+                "UrbanTenants par rent kuch is tarah work karta hai:\n"
+                "💰 Monthly rent property aur location ke hisab se vary karta hai — exact amount listing me check kare\n"
+                "🤝 Kuch owners negotiation ke liye open hote hai, unse directly puch le\n"
+                "📅 Rent generally monthly, advance me due hota hai\n"
+                "💳 Aap UPI, card, ya net banking se pay kar sakte ho — cash payment owner par depend karta hai\n"
+                "🧾 UrbanTenants ke through kiye gaye har payment ki digital receipt milti hai"
+            ),
+            "hi": (
+                "UrbanTenants पर रेंट इस तरह काम करता है:\n"
+                "💰 मासिक किराया प्रॉपर्टी और लोकेशन के अनुसार बदलता है — सटीक राशि लिस्टिंग में देखें\n"
+                "🤝 कुछ ओनर बातचीत के लिए तैयार होते हैं, उनसे सीधे पूछें\n"
+                "📅 किराया आमतौर पर हर महीने, एडवांस में देना होता है\n"
+                "💳 आप UPI, कार्ड, या नेट बैंकिंग से भुगतान कर सकते हैं — कैश पेमेंट ओनर पर निर्भर करता है\n"
+                "🧾 UrbanTenants के माध्यम से किए गए हर भुगतान की डिजिटल रसीद मिलती है"
+            ),
+        },
+    },
+    {
+        "name": "deposit_details",
+        "keywords": [
+            "security deposit kitna hai", "deposit refundable hai", "deposit kab wapas milega",
+            "deposit mandatory hai", "deposit bina room mil sakta", "advance kitna dena hoga",
+            "deposit installments me", "deposit owner rakhega", "deposit cut kyu hota hai",
+            "deposit ka proof milega",
+        ],
+        "replies": {
+            "en": (
+                "Here's how security deposit works on UrbanTenants:\n"
+                "💰 Usually 1-2 months' rent, varies by property\n"
+                "✅ Refundable when you vacate, provided there's no damage or dues\n"
+                "📜 Mandatory for most listings, mentioned upfront in the listing\n"
+                "🏦 Held as per the agreement terms between you and the owner\n"
+                "🧾 You'll get a digital proof/receipt for the deposit paid via UrbanTenants\n"
+                "Deductions, if any, are explained at the time of move-out — ask the owner for a breakdown."
+            ),
+            "hinglish": (
+                "UrbanTenants par security deposit kuch is tarah work karta hai:\n"
+                "💰 Generally 1-2 month ka rent, property ke hisab se vary karta hai\n"
+                "✅ Vacate karne par refundable hai, agar koi damage ya dues na ho\n"
+                "📜 Zyadatar listings me mandatory hota hai, listing me hi upfront mention hota hai\n"
+                "🏦 Aapke aur owner ke beech agreement terms ke hisab se held rehta hai\n"
+                "🧾 UrbanTenants ke through pay kiya gaya deposit ka digital proof/receipt milta hai\n"
+                "Agar koi deduction ho, to move-out ke waqt explain kiya jata hai — owner se breakdown puch sakte ho."
+            ),
+            "hi": (
+                "UrbanTenants पर सिक्योरिटी डिपॉजिट इस तरह काम करता है:\n"
+                "💰 आमतौर पर 1-2 महीने का किराया, प्रॉपर्टी के अनुसार बदलता है\n"
+                "✅ खाली करने पर रिफंडेबल है, बशर्ते कोई नुकसान या बकाया न हो\n"
+                "📜 ज्यादातर लिस्टिंग में अनिवार्य होता है, लिस्टिंग में पहले से बताया जाता है\n"
+                "🏦 आपके और ओनर के बीच एग्रीमेंट शर्तों के अनुसार रखा जाता है\n"
+                "🧾 UrbanTenants के माध्यम से दिए गए डिपॉजिट की डिजिटल रसीद मिलती है\n"
+                "अगर कोई कटौती हो, तो मूव-आउट के समय बताई जाती है — ओनर से विवरण पूछ सकते हैं।"
+            ),
+        },
+    },
+    {
+        "name": "availability_details",
+        "keywords": [
+            "room available hai", "vacancy hai", "room khali hai", "room vacant hai",
+            "kab se room available", "kitne rooms available", "total vacancies",
+            "fresh vacancy", "new listing hai", "last room available",
+            "aaj ke liye room", "kal se room mil", "agle hafte room", "next month se room",
+            "immediate shifting", "same day possession", "same week possession",
+            "same month possession", "weekend par room", "month end me vacancy",
+            "single room available", "double sharing available", "triple sharing available",
+            "four sharing room", "twin sharing available", "single occupancy",
+            "shared room available", "independent room available",
+            "boys ke liye room", "girls ke liye room", "family room available",
+            "couple ke liye room", "students ke liye room", "working professionals ke liye room",
+            "male tenants ke liye", "female tenants ke liye", "mixed occupancy",
+            "pet friendly room", "non smoker room", "smoking allowed room", "vegetarian tenants",
+            "pg available hai", "hostel type room", "flat available", "1 bhk available",
+            "2 bhk available", "3 bhk available", "independent house me room",
+            "apartment me vacancy", "society ke andar room", "gated society me vacancy",
+            "attached bathroom wala room", "balcony wala room", "ac room available",
+            "non ac room available", "corner room available", "ground floor room",
+            "first floor room", "top floor room", "furnished room available",
+            "semi furnished room", "unfurnished room available", "newly renovated room",
+            "premium room available", "budget room available", "luxury room available",
+            "booking open hai", "booking kab start", "waiting list hai", "room reserve kar sakte",
+            "advance booking possible", "online booking available", "room hold kar sakte",
+            "viewing ke baad booking", "room inspection ke baad", "already booked to nahi",
+            "booking cancel ho to room",
+            "short term room", "long term room", "monthly rental available",
+            "weekly rental available", "daily rental available", "semester ke liye room",
+            "academic year ke liye room", "internship duration", "exam duration ke liye room",
+            "cu gate ke paas room", "university walking distance room",
+            "chandigarh university admission season", "kanpur me vacancy", "lucknow me room available",
+            "kharar me room available", "mohali me room available",
+            "abhi kitni vacancies bachi", "vacancy jaldi fill", "suitable room available hai",
+        ],
+        "replies": {
+            "en": (
+                "Here's how room availability works on UrbanTenants:\n"
+                "📅 Each listing shows the exact 'Available From' date — including immediate, next month, "
+                "or semester/academic-year stays\n"
+                "🛏️ Filter by sharing type — single, double, triple, four-sharing, or family rooms\n"
+                "👥 Listings note tenant preference (students, working professionals, boys/girls/family/couples) "
+                "where applicable\n"
+                "🏠 Property type (PG, hostel, flat, 1/2/3 BHK) and room features (AC, attached bathroom, "
+                "furnished, floor) are filterable too\n"
+                "✅ To book or place a hold, use 'Book Now' on the listing — owners confirm availability in real time, "
+                "so what you see is generally up to date\n"
+                "Tell me your city, sharing type, and any preferences, and I'll help you find what's open right now."
+            ),
+            "hinglish": (
+                "UrbanTenants par room availability kuch is tarah work karta hai:\n"
+                "📅 Har listing me exact 'Available From' date dikhti hai — immediate, next month, "
+                "ya semester/academic-year stay tak\n"
+                "🛏️ Sharing type ke hisab se filter kare — single, double, triple, four-sharing, ya family rooms\n"
+                "👥 Listings me tenant preference (students, working professionals, boys/girls/family/couples) "
+                "jahan applicable ho wahan mention hoti hai\n"
+                "🏠 Property type (PG, hostel, flat, 1/2/3 BHK) aur room features (AC, attached bathroom, "
+                "furnished, floor) bhi filter kar sakte ho\n"
+                "✅ Book karne ya hold lagane ke liye listing par 'Book Now' use kare — owners real time me "
+                "availability confirm karte hai, isliye jo dikh raha hai generally up to date hota hai\n"
+                "City, sharing type, aur preferences batao, main abhi jo available hai wo dhoondne me help karta hoon."
+            ),
+            "hi": (
+                "UrbanTenants पर रूम उपलब्धता इस तरह काम करती है:\n"
+                "📅 हर लिस्टिंग में सटीक 'Available From' तारीख दिखती है — तुरंत, अगले महीने, "
+                "या सेमेस्टर/शैक्षणिक-वर्ष के ठहराव तक\n"
+                "🛏️ शेयरिंग टाइप के अनुसार फ़िल्टर करें — सिंगल, डबल, ट्रिपल, फोर-शेयरिंग, या फैमिली रूम\n"
+                "👥 जहां लागू हो वहां लिस्टिंग में टेनेंट प्रेफरेंस (छात्र, वर्किंग प्रोफेशनल्स, लड़के/लड़कियां/परिवार/कपल) "
+                "बताई जाती है\n"
+                "🏠 प्रॉपर्टी टाइप (PG, हॉस्टल, फ्लैट, 1/2/3 BHK) और रूम फीचर्स (AC, अटैच्ड बाथरूम, "
+                "फर्निश्ड, फ्लोर) भी फ़िल्टर कर सकते हैं\n"
+                "✅ बुक करने या होल्ड लगाने के लिए लिस्टिंग पर 'Book Now' इस्तेमाल करें — ओनर रियल टाइम में "
+                "उपलब्धता कन्फर्म करते हैं, इसलिए जो दिख रहा है आमतौर पर अपडेटेड होता है\n"
+                "शहर, शेयरिंग टाइप, और प्राथमिकताएं बताएं, मैं अभी जो उपलब्ध है वह ढूंढने में मदद करता हूं।"
+            ),
+        },
+    },
+    {
+        "name": "location_details",
+        "keywords": [
+            "chandigarh university se kitni dur", "cu ke paas room hai", "mohali me room milega",
+            "kharar me pg hai", "lucknow university ke paas room hai", "metro kitni dur hai",
+            "bus stand kitna dur hai", "railway station kitna dur hai", "market paas me hai",
+        ],
+        "replies": {
+            "en": (
+                "UrbanTenants has listings across Chandigarh University, Mohali, Kharar, Lucknow University, "
+                "and Kanpur, among other areas.\n"
+                "Distance to metro, bus stand, railway station, or market is mentioned in each listing's details.\n"
+                "Tell me your college/area of interest and I'll show you nearby rooms."
+            ),
+            "hinglish": (
+                "UrbanTenants ke paas Chandigarh University, Mohali, Kharar, Lucknow University, "
+                "aur Kanpur samet kayi areas me listings hai.\n"
+                "Metro, bus stand, railway station, ya market ki distance har listing ke details me mention hoti hai.\n"
+                "Apna college/area batao, main nearby rooms dikhata hoon."
+            ),
+            "hi": (
+                "UrbanTenants के पास Chandigarh University, Mohali, Kharar, Lucknow University, "
+                "और Kanpur सहित कई क्षेत्रों में लिस्टिंग हैं।\n"
+                "मेट्रो, बस स्टैंड, रेलवे स्टेशन, या बाज़ार की दूरी हर लिस्टिंग के विवरण में बताई जाती है।\n"
+                "अपना कॉलेज/क्षेत्र बताएं, मैं आस-पास के कमरे दिखाता हूं।"
+            ),
+        },
+    },
+    {
+        "name": "facilities_details",
+        "keywords": [
+            "wifi hai", "ac hai", "cooler hai", "geyser hai", "washing machine hai",
+            "fridge hai", "ro water hai", "kitchen hai", "balcony hai", "study table hai",
+        ],
+        "replies": {
+            "en": (
+                "Facilities vary by property on UrbanTenants. Commonly listed amenities include:\n"
+                "📶 WiFi  ❄️ AC/Cooler  🚿 Geyser  🧺 Washing machine\n"
+                "🧊 Fridge  💧 RO water  🍳 Kitchen access  🌇 Balcony  📚 Study table\n"
+                "Check the specific listing's amenities section, or tell me which property/city and I'll confirm."
+            ),
+            "hinglish": (
+                "Facilities UrbanTenants par property ke hisab se vary karti hai. Commonly listed amenities:\n"
+                "📶 WiFi  ❄️ AC/Cooler  🚿 Geyser  🧺 Washing machine\n"
+                "🧊 Fridge  💧 RO water  🍳 Kitchen access  🌇 Balcony  📚 Study table\n"
+                "Specific listing ka amenities section check kare, ya property/city batao, main confirm kar deta hoon."
+            ),
+            "hi": (
+                "सुविधाएं UrbanTenants पर प्रॉपर्टी के अनुसार बदलती हैं। आमतौर पर लिस्टेड सुविधाएं:\n"
+                "📶 वाईफाई  ❄️ AC/कूलर  🚿 गीज़र  🧺 वॉशिंग मशीन\n"
+                "🧊 फ्रिज  💧 RO पानी  🍳 किचन एक्सेस  🌇 बालकनी  📚 स्टडी टेबल\n"
+                "विशिष्ट लिस्टिंग का सुविधा सेक्शन देखें, या प्रॉपर्टी/शहर बताएं, मैं पुष्टि कर देता हूं।"
+            ),
+        },
+    },
+    {
+        "name": "food_details",
+        "keywords": [
+            "food included hai", "mess facility hai", "veg food milta hai", "non veg allowed hai",
+            "tiffin service hai", "breakfast milta hai", "lunch milta hai", "dinner milta hai",
+            "food charges alag hain", "self cooking allowed hai",
+        ],
+        "replies": {
+            "en": (
+                "Food options vary by property on UrbanTenants:\n"
+                "🍽️ Some listings include mess/tiffin service (breakfast, lunch, dinner), others don't\n"
+                "🥗 Veg/non-veg availability depends on the property — check the listing or ask the owner\n"
+                "👨‍🍳 Self-cooking is allowed in most kitchen-access listings\n"
+                "💵 If food isn't included in rent, charges are usually mentioned separately"
+            ),
+            "hinglish": (
+                "Food options UrbanTenants par property ke hisab se vary karte hai:\n"
+                "🍽️ Kuch listings me mess/tiffin service (breakfast, lunch, dinner) included hoti hai, kuch me nahi\n"
+                "🥗 Veg/non-veg availability property par depend karta hai — listing check kare ya owner se puche\n"
+                "👨‍🍳 Self-cooking zyadatar kitchen-access wali listings me allowed hota hai\n"
+                "💵 Agar food rent me included nahi hai, to charges generally separately mention hote hai"
+            ),
+            "hi": (
+                "खाने के विकल्प UrbanTenants पर प्रॉपर्टी के अनुसार बदलते हैं:\n"
+                "🍽️ कुछ लिस्टिंग में मेस/टिफिन सेवा (नाश्ता, लंच, डिनर) शामिल होती है, कुछ में नहीं\n"
+                "🥗 वेज/नॉन-वेज उपलब्धता प्रॉपर्टी पर निर्भर करती है — लिस्टिंग देखें या ओनर से पूछें\n"
+                "👨‍🍳 ज्यादातर किचन-एक्सेस वाली लिस्टिंग में सेल्फ-कुकिंग की अनुमति है\n"
+                "💵 अगर खाना किराए में शामिल नहीं है, तो चार्ज आमतौर पर अलग से बताए जाते हैं"
+            ),
+        },
+    },
+    {
+        "name": "electricity_details",
+        "keywords": [
+            "electricity bill included hai", "meter separate hai", "per unit charge kitna hai",
+            "power backup hai", "inverter hai", "generator hai", "electricity ka bill kaise aata hai",
+            "extra electricity charge lagega", "ac ka alag bill hai", "light cut hoti hai",
+        ],
+        "replies": {
+            "en": (
+                "Electricity setup varies by property on UrbanTenants:\n"
+                "⚡ Some properties include electricity in rent, others bill separately by meter reading\n"
+                "🔌 Power backup (inverter/generator) availability is mentioned in the listing if applicable\n"
+                "💡 AC usage sometimes has a separate per-unit charge — check the listing or ask the owner\n"
+                "Exact billing method and rates differ per property, so it's best to confirm directly."
+            ),
+            "hinglish": (
+                "Electricity setup UrbanTenants par property ke hisab se vary karta hai:\n"
+                "⚡ Kuch properties me electricity rent me included hoti hai, kuch me meter reading se "
+                "separately bill hoti hai\n"
+                "🔌 Power backup (inverter/generator) ki availability listing me mention hoti hai agar applicable ho\n"
+                "💡 AC use karne par kabhi kabhi separate per-unit charge lagta hai — listing check kare ya owner se puche\n"
+                "Exact billing method aur rates property ke hisab se alag hote hai, isliye directly confirm kar lena best hai."
+            ),
+            "hi": (
+                "बिजली व्यवस्था UrbanTenants पर प्रॉपर्टी के अनुसार बदलती है:\n"
+                "⚡ कुछ प्रॉपर्टी में बिजली किराए में शामिल होती है, कुछ में मीटर रीडिंग से अलग बिल आता है\n"
+                "🔌 पावर बैकअप (इन्वर्टर/जनरेटर) की उपलब्धता लिस्टिंग में बताई जाती है अगर लागू हो\n"
+                "💡 AC इस्तेमाल पर कभी-कभी अलग प्रति-यूनिट चार्ज लगता है — लिस्टिंग देखें या ओनर से पूछें\n"
+                "सटीक बिलिंग तरीका और दरें प्रॉपर्टी के अनुसार अलग होती हैं, इसलिए सीधे पुष्टि करना बेहतर है।"
+            ),
+        },
+    },
+    {
+        "name": "water_details",
+        "keywords": [
+            "water supply 24x7 hai", "drinking water milta hai", "water bill included hai",
+            "ro available hai", "tanker aata hai", "water shortage hoti hai", "hot water milta hai",
+            "geyser working hai", "bathroom attached hai", "common bathroom hai",
+        ],
+        "replies": {
+            "en": (
+                "Water facilities vary by property on UrbanTenants:\n"
+                "🚰 Most listings offer 24x7 water supply, but check the listing to confirm\n"
+                "💧 RO/drinking water availability is mentioned where applicable\n"
+                "🔥 Hot water (geyser) availability depends on the property\n"
+                "🚪 Attached vs. common bathroom is specified in each listing\n"
+                "Water bill is usually included in rent unless stated otherwise — confirm with the owner for specifics."
+            ),
+            "hinglish": (
+                "Water facilities UrbanTenants par property ke hisab se vary karti hai:\n"
+                "🚰 Zyadatar listings 24x7 water supply offer karti hai, lekin listing check kar lena confirm ke liye\n"
+                "💧 RO/drinking water ki availability jahan applicable ho wahan mention hoti hai\n"
+                "🔥 Hot water (geyser) ki availability property par depend karti hai\n"
+                "🚪 Attached ya common bathroom har listing me specify kiya hota hai\n"
+                "Water bill generally rent me included hota hai jab tak otherwise na bataya ho — specifics ke liye owner se confirm kare."
+            ),
+            "hi": (
+                "पानी की सुविधाएं UrbanTenants पर प्रॉपर्टी के अनुसार बदलती हैं:\n"
+                "🚰 ज्यादातर लिस्टिंग में 24x7 पानी की आपूर्ति होती है, लेकिन लिस्टिंग में पुष्टि कर लें\n"
+                "💧 RO/पीने का पानी जहां लागू हो वहां बताया जाता है\n"
+                "🔥 गर्म पानी (गीज़र) की उपलब्धता प्रॉपर्टी पर निर्भर करती है\n"
+                "🚪 अटैच्ड या कॉमन बाथरूम हर लिस्टिंग में बताया जाता है\n"
+                "पानी का बिल आमतौर पर किराए में शामिल होता है जब तक अन्यथा न बताया जाए — विवरण के लिए ओनर से पुष्टि करें।"
+            ),
+        },
+    },
+    {
+        "name": "safety_details",
+        "keywords": [
+            "cctv cameras lage hain", "security guard available", "building safe hai", "area safe hai",
+            "night security hai", "24x7 security hai", "security alarm hai", "intercom hai",
+            "security camera room ke bahar", "biometric se entry", "access card milta hai",
+            "police verification hua hai", "owner verified hai", "tenant verification hota hai",
+            "entry register maintain", "visitor verification hoti hai", "security guard id check",
+            "cctv recording kitne din",
+            "girls ke liye safe hai", "boys ke liye safe hai", "ladies hostel jaisi security",
+            "girls late night aa sakti", "family ke liye safe hai", "student ke liye safe hai",
+            "working professionals ke liye safe hai",
+            "visitor entry allowed", "guest entry ka rule", "gate pass chahiye",
+            "stranger ko entry milti", "night me gate band", "curfew timing kya hai",
+            "late night entry allowed",
+            "fire extinguisher hai", "fire safety system hai", "emergency exit hai",
+            "emergency contact available", "emergency medical help milegi", "nearby hospital hai",
+            "theft ka risk hai", "chori ki incidents", "area me crime rate", "night me area safe rehta",
+            "nearby police station kitni dur",
+            "society secure hai", "gated society hai", "lift safe hai", "parking safe hai",
+            "bike parking secure", "car parking secure", "security deposit safe rahega",
+        ],
+        "replies": {
+            "en": (
+                "Safety is a priority on UrbanTenants:\n"
+                "✅ All owners go through ID verification before a listing goes live; police verification "
+                "status is mentioned on select listings\n"
+                "🎥 CCTV coverage, security guards, and entry registers vary by property — check the listing's "
+                "safety section for specifics\n"
+                "🚪 Gate timings, curfew, and visitor/guest entry rules are set by each property — confirm with "
+                "the owner before booking\n"
+                "🔥 Fire safety (extinguishers, emergency exits) and nearby hospital access are noted where applicable\n"
+                "🅿️ Parking and lift safety, gated society status, and CCTV in common areas also vary by listing\n"
+                "If something safety-related isn't mentioned in the listing, it's always fine to ask the owner "
+                "directly or request a site visit before committing."
+            ),
+            "hinglish": (
+                "Safety UrbanTenants par priority hai:\n"
+                "✅ Listing live hone se pehle saare owners ID verification se guzarte hai; police verification "
+                "status select listings me mention hoti hai\n"
+                "🎥 CCTV coverage, security guards, aur entry registers property ke hisab se vary karte hai — "
+                "listing ka safety section check kare specifics ke liye\n"
+                "🚪 Gate timings, curfew, aur visitor/guest entry rules har property apne hisab se set karti hai — "
+                "booking se pehle owner se confirm kar le\n"
+                "🔥 Fire safety (extinguishers, emergency exits) aur nearby hospital access jahan applicable ho "
+                "wahan note kiya jata hai\n"
+                "🅿️ Parking aur lift safety, gated society status, aur common areas me CCTV bhi listing ke "
+                "hisab se vary karta hai\n"
+                "Agar koi safety-related cheez listing me mention nahi hai, to owner se directly puchna ya "
+                "booking se pehle site visit request karna hamesha theek hai."
+            ),
+            "hi": (
+                "सुरक्षा UrbanTenants पर प्राथमिकता है:\n"
+                "✅ लिस्टिंग लाइव होने से पहले सभी ओनर ID वेरिफिकेशन से गुजरते हैं; पुलिस वेरिफिकेशन "
+                "स्टेटस कुछ लिस्टिंग में बताया जाता है\n"
+                "🎥 CCTV कवरेज, सिक्योरिटी गार्ड, और एंट्री रजिस्टर प्रॉपर्टी के अनुसार अलग होते हैं — "
+                "विवरण के लिए लिस्टिंग का सेफ्टी सेक्शन देखें\n"
+                "🚪 गेट टाइमिंग, कर्फ्यू, और विज़िटर/गेस्ट एंट्री नियम हर प्रॉपर्टी अपने अनुसार तय करती है — "
+                "बुकिंग से पहले ओनर से पुष्टि कर लें\n"
+                "🔥 फायर सेफ्टी (एक्सटिंग्विशर, इमरजेंसी एग्जिट) और नज़दीकी अस्पताल की पहुंच जहां लागू हो वहां बताई जाती है\n"
+                "🅿️ पार्किंग और लिफ्ट सुरक्षा, गेटेड सोसाइटी स्टेटस, और कॉमन एरिया में CCTV भी लिस्टिंग के "
+                "अनुसार बदलते हैं\n"
+                "अगर कोई सुरक्षा-संबंधी जानकारी लिस्टिंग में नहीं है, तो ओनर से सीधे पूछना या बुकिंग से पहले "
+                "साइट विज़िट का अनुरोध करना हमेशा ठीक है।"
+            ),
+        },
+    },
+    {
+        "name": "student_specific_details",
+        "keywords": [
+            "chandigarh university ke paas room", "cu gate 1 se kitni dur", "cu gate 2 se kitni dur",
+            "walking distance par room", "shuttle service hai", "lpu students ke liye room",
+            "aktu students ke liye room", "kanpur university ke paas room",
+            "lucknow university ke paas room",
+            "students hi rehte hain", "freshers ke liye room", "seniors ke saath room",
+            "cu students zyada rehte hain", "coaching students rehte hain",
+            "jee preparation students rehte", "upsc students rehte",
+            "semester basis par room", "academic year ke liye room", "internship duration ke liye room",
+            "placement season ke liye temporary room",
+            "study table hai", "study lamp hai", "study environment hai", "library paas me hai",
+            "wifi speed kitni hai", "online classes attend kar sakte", "night study allowed",
+            "group study allowed", "exam time restrictions", "attendance issue hoga",
+            "parents visit kar sakte hain",
+        ],
+        "replies": {
+            "en": (
+                "UrbanTenants has plenty of student-friendly listings, especially around Chandigarh University, "
+                "LPU, AKTU, and universities in Kanpur and Lucknow:\n"
+                "🎓 Many properties are within walking distance of campus gates, with shuttle access noted "
+                "where available\n"
+                "📚 Several listings already house CU/university students, freshers, seniors, and coaching/"
+                "competitive-exam aspirants (JEE, UPSC) — good for a peer study environment\n"
+                "🪑 Study table, WiFi speed, and library/coaching proximity are mentioned in select listings\n"
+                "🌙 Night study and group study depend on each property's house rules — check before booking\n"
+                "📅 Rooms are available on semester, academic-year, internship, or even short placement-season "
+                "durations depending on the owner\n"
+                "👨‍👩‍👧 Parents visiting is generally fine — just inform the owner in advance\n"
+                "Tell me your college and preferred duration, and I'll help you shortlist rooms nearby."
+            ),
+            "hinglish": (
+                "UrbanTenants par kaafi student-friendly listings hai, especially Chandigarh University, "
+                "LPU, AKTU, aur Kanpur/Lucknow ki universities ke aas paas:\n"
+                "🎓 Kayi properties campus gates se walking distance par hai, shuttle access jahan available "
+                "ho wahan mention kiya jata hai\n"
+                "📚 Kayi listings me already CU/university students, freshers, seniors, aur coaching/competitive-"
+                "exam aspirants (JEE, UPSC) rehte hai — peer study environment ke liye accha\n"
+                "🪑 Study table, WiFi speed, aur library/coaching proximity select listings me mention hoti hai\n"
+                "🌙 Night study aur group study har property ke house rules par depend karte hai — booking se "
+                "pehle check kar le\n"
+                "📅 Rooms semester, academic-year, internship, ya short placement-season duration ke liye bhi "
+                "available hote hai, owner ke hisab se\n"
+                "👨‍👩‍👧 Parents visit kar sakte hai generally — bas owner ko advance me inform kar dena\n"
+                "Apna college aur preferred duration batao, main nearby rooms shortlist karne me help karta hoon."
+            ),
+            "hi": (
+                "UrbanTenants पर काफी स्टूडेंट-फ्रेंडली लिस्टिंग हैं, खासकर Chandigarh University, "
+                "LPU, AKTU, और Kanpur/Lucknow की यूनिवर्सिटीज़ के आस-पास:\n"
+                "🎓 कई प्रॉपर्टी कैंपस गेट्स से वॉकिंग डिस्टेंस पर हैं, शटल एक्सेस जहां उपलब्ध हो वहां बताई जाती है\n"
+                "📚 कई लिस्टिंग में पहले से CU/यूनिवर्सिटी छात्र, फ्रेशर्स, सीनियर्स, और कोचिंग/प्रतियोगी-परीक्षा "
+                "अभ्यर्थी (JEE, UPSC) रहते हैं — साथी स्टडी माहौल के लिए अच्छा\n"
+                "🪑 स्टडी टेबल, वाईफाई स्पीड, और लाइब्रेरी/कोचिंग निकटता कुछ लिस्टिंग में बताई जाती है\n"
+                "🌙 नाइट स्टडी और ग्रुप स्टडी हर प्रॉपर्टी के हाउस रूल्स पर निर्भर करते हैं — बुकिंग से पहले देख लें\n"
+                "📅 कमरे सेमेस्टर, शैक्षणिक-वर्ष, इंटर्नशिप, या यहां तक कि छोटी प्लेसमेंट-सीज़न अवधि के लिए भी "
+                "उपलब्ध होते हैं, ओनर के अनुसार\n"
+                "👨‍👩‍👧 पेरेंट्स विज़िट कर सकते हैं आमतौर पर — बस ओनर को पहले से सूचित कर दें\n"
+                "अपना कॉलेज और पसंदीदा अवधि बताएं, मैं आस-पास के कमरे शॉर्टलिस्ट करने में मदद करता हूं।"
+            ),
+        },
+    },
+    {
+        "name": "agreement_documentation_details",
+        "keywords": [
+            "rent agreement milega", "agreement mandatory hai", "agreement kitne months ka",
+            "11 month agreement", "registered agreement hai", "agreement charges kitne hain",
+            "police verification hoga", "aadhaar card chalega", "pan card dena hoga",
+            "student id chalegi", "passport required hai", "local guardian details chahiye",
+            "agreement online banega", "agreement renewal kaise hoga", "agreement cancel kaise hoga",
+            "agreement copy milegi", "e-sign accepted hai", "address proof milega",
+            "agreement transfer ho sakta hai",
+        ],
+        "replies": {
+            "en": (
+                "Here's how rent agreements & documentation generally work on UrbanTenants:\n"
+                "📄 A rent agreement is generated for most bookings — many owners prefer an 11-month term, "
+                "since agreements of 12 months or longer typically require compulsory registration under "
+                "most State Registration Acts, while shorter ones often don't\n"
+                "✍️ E-signed agreements are accepted on UrbanTenants; physical/registered agreements depend "
+                "on the owner's preference and local state rules\n"
+                "🪪 Common ID proofs accepted: Aadhaar, PAN, passport, or a student/employee ID — exact "
+                "requirements vary by owner\n"
+                "👨‍👩‍👦 Some owners ask for local guardian details, especially for student tenants\n"
+                "🔁 Renewal, cancellation, and transfer terms are set out in your specific agreement — notice "
+                "period is commonly around 30 days, but check your copy for the exact figure\n"
+                "🧾 You'll receive a digital agreement copy and rent receipts for payments made through UrbanTenants\n\n"
+                "Note: Exact legal requirements (registration, stamp duty, police verification) vary by state "
+                "and are governed by local Rent Control Acts or the Model Tenancy framework where adopted. "
+                "UrbanTenants helps generate standard agreements, but for anything legally binding, it's a good "
+                "idea to review the terms carefully or consult a legal professional."
+            ),
+            "hinglish": (
+                "UrbanTenants par rent agreement aur documentation generally is tarah work karta hai:\n"
+                "📄 Zyadatar bookings ke liye rent agreement generate hota hai — kayi owners 11-month term "
+                "prefer karte hai, kyunki 12 months ya usse zyada ke agreements ko zyadatar State Registration "
+                "Acts ke under compulsory registration chahiye hota hai, jabki chhote agreements me aksar "
+                "ye zaroorat nahi hoti\n"
+                "✍️ UrbanTenants par e-signed agreements accept hote hai; physical/registered agreement "
+                "owner ki preference aur local state rules par depend karta hai\n"
+                "🪪 Common ID proofs jo accept hote hai: Aadhaar, PAN, passport, ya student/employee ID — "
+                "exact requirement owner ke hisab se vary karti hai\n"
+                "👨‍👩‍👦 Kuch owners local guardian details maangte hai, especially student tenants ke liye\n"
+                "🔁 Renewal, cancellation, aur transfer terms aapke specific agreement me likhe hote hai — "
+                "notice period generally ~30 din hota hai, lekin exact figure apni copy me check kare\n"
+                "🧾 UrbanTenants ke through kiye gaye payments ke liye digital agreement copy aur rent receipt "
+                "milti hai\n\n"
+                "Note: Exact legal requirements (registration, stamp duty, police verification) state ke hisab "
+                "se vary karti hai aur local Rent Control Acts ya jahan adopt hua hai wahan Model Tenancy "
+                "framework se governed hoti hai. UrbanTenants standard agreement generate karne me help karta "
+                "hai, lekin kisi bhi legally binding cheez ke liye terms carefully review karna ya legal "
+                "professional se consult karna accha rahega."
+            ),
+            "hi": (
+                "UrbanTenants पर रेंट एग्रीमेंट और दस्तावेज़ीकरण आमतौर पर इस तरह काम करता है:\n"
+                "📄 ज्यादातर बुकिंग के लिए रेंट एग्रीमेंट जनरेट होता है — कई ओनर 11-महीने की अवधि पसंद करते हैं, "
+                "क्योंकि 12 महीने या उससे अधिक के एग्रीमेंट को ज्यादातर राज्य पंजीकरण अधिनियमों के तहत अनिवार्य "
+                "पंजीकरण चाहिए होता है, जबकि छोटे एग्रीमेंट में अक्सर यह ज़रूरत नहीं होती\n"
+                "✍️ UrbanTenants पर ई-साइन्ड एग्रीमेंट स्वीकार किए जाते हैं; फिजिकल/रजिस्टर्ड एग्रीमेंट ओनर की "
+                "प्राथमिकता और स्थानीय राज्य नियमों पर निर्भर करता है\n"
+                "🪪 आमतौर पर स्वीकार किए जाने वाले ID प्रूफ: आधार, PAN, पासपोर्ट, या स्टूडेंट/एम्प्लॉयी ID — "
+                "सटीक आवश्यकता ओनर के अनुसार बदलती है\n"
+                "👨‍👩‍👦 कुछ ओनर लोकल गार्जियन डिटेल्स मांगते हैं, खासकर स्टूडेंट टेनेंट्स के लिए\n"
+                "🔁 रिन्यूअल, कैंसिलेशन, और ट्रांसफर की शर्तें आपके विशिष्ट एग्रीमेंट में लिखी होती हैं — "
+                "नोटिस पीरियड आमतौर पर ~30 दिन का होता है, लेकिन सटीक आंकड़ा अपनी कॉपी में देखें\n"
+                "🧾 UrbanTenants के माध्यम से किए गए भुगतान के लिए डिजिटल एग्रीमेंट कॉपी और किराया रसीद मिलती है\n\n"
+                "नोट: सटीक कानूनी आवश्यकताएं (पंजीकरण, स्टाम्प ड्यूटी, पुलिस सत्यापन) राज्य के अनुसार बदलती हैं "
+                "और स्थानीय किराया नियंत्रण अधिनियमों या जहां अपनाया गया हो वहां मॉडल टेनेंसी फ्रेमवर्क द्वारा "
+                "नियंत्रित होती हैं। UrbanTenants मानक एग्रीमेंट बनाने में मदद करता है, लेकिन किसी भी कानूनी रूप "
+                "से बाध्यकारी मामले के लिए शर्तों की सावधानीपूर्वक समीक्षा करना या कानूनी सलाहकार से सलाह लेना बेहतर है।"
+            ),
+        },
+    },
+    {
+        "name": "move_in_out_details",
+        "keywords": [
+            "kab shift ho sakte hain", "immediate move-in possible", "move-in charges hain",
+            "shifting help milegi", "weekend move-in allowed", "raat me move-in",
+            "move-out notice kitna dena", "move-out process kya hai", "deposit kab refund hoga",
+            "room inspection hoga", "cleaning charges lagenge", "keys return karni hongi",
+            "furniture damage ka charge", "early move-out allowed", "agreement khatam hone se pehle",
+            "move-out ke baad noc",
+        ],
+        "replies": {
+            "en": (
+                "Here's how move-in and move-out generally work on UrbanTenants:\n"
+                "📦 Move-in date depends on the property's availability — some allow immediate move-in, "
+                "others have a set start date. Weekend or late-night move-ins depend on the owner's schedule\n"
+                "💰 Most properties don't charge separately for move-in, but always confirm on the listing\n"
+                "📝 For move-out, you'll typically need to give notice (commonly ~30 days) as per your "
+                "rent agreement\n"
+                "🔍 A room inspection is common before move-out, to check for damages\n"
+                "🧹 Cleaning or repair charges (if any) are usually deducted from the security deposit, "
+                "not charged separately\n"
+                "🔑 Keys are returned to the owner/caretaker at move-out, and your deposit refund follows "
+                "after the inspection clears\n"
+                "📄 Some owners issue a No Objection Certificate (NOC) once dues are cleared and the room "
+                "is handed over — ask your owner if this applies\n"
+                "⚠️ Moving out before your agreement term ends may involve forfeiting part of the deposit, "
+                "depending on what's specified in your agreement — review your agreement's exit clause "
+                "before deciding."
+            ),
+            "hinglish": (
+                "UrbanTenants par move-in aur move-out generally is tarah work karta hai:\n"
+                "📦 Move-in date property ki availability par depend karta hai — kuch me immediate move-in "
+                "allowed hota hai, kuch ki ek fixed start date hoti hai. Weekend ya late-night move-in "
+                "owner ke schedule par depend karta hai\n"
+                "💰 Zyadatar properties move-in ke liye separately charge nahi karti, lekin listing me "
+                "hamesha confirm kar le\n"
+                "📝 Move-out ke liye, generally aapko apne rent agreement ke hisab se notice dena hota hai "
+                "(commonly ~30 din)\n"
+                "🔍 Move-out se pehle room inspection common hota hai, damages check karne ke liye\n"
+                "🧹 Cleaning ya repair charges (agar koi ho) generally security deposit se deduct hote hai, "
+                "separately charge nahi hote\n"
+                "🔑 Move-out par keys owner/caretaker ko return ki jati hai, aur inspection clear hone ke "
+                "baad deposit refund follow karta hai\n"
+                "📄 Kuch owners dues clear hone aur room handover ke baad No Objection Certificate (NOC) "
+                "issue karte hai — apne owner se confirm kar le ki ye applicable hai ya nahi\n"
+                "⚠️ Agreement term khatam hone se pehle move-out karne par deposit ka kuch hissa forfeit "
+                "ho sakta hai, ye apke agreement ki exit clause par depend karta hai — decide karne se "
+                "pehle agreement review kar le."
+            ),
+            "hi": (
+                "UrbanTenants पर मूव-इन और मूव-आउट आमतौर पर इस तरह काम करता है:\n"
+                "📦 मूव-इन की तारीख प्रॉपर्टी की उपलब्धता पर निर्भर करती है — कुछ में तुरंत मूव-इन की अनुमति होती है, "
+                "कुछ की एक तय शुरुआती तारीख होती है। वीकेंड या देर रात मूव-इन ओनर के शेड्यूल पर निर्भर करता है\n"
+                "💰 ज्यादातर प्रॉपर्टी मूव-इन के लिए अलग से चार्ज नहीं करतीं, लेकिन लिस्टिंग में हमेशा पुष्टि कर लें\n"
+                "📝 मूव-आउट के लिए, आमतौर पर आपको अपने रेंट एग्रीमेंट के अनुसार नोटिस देना होता है (सामान्यतः ~30 दिन)\n"
+                "🔍 मूव-आउट से पहले रूम इंस्पेक्शन आम बात है, नुकसान जांचने के लिए\n"
+                "🧹 सफाई या मरम्मत शुल्क (अगर कोई हो) आमतौर पर सिक्योरिटी डिपॉजिट से काटे जाते हैं, अलग से चार्ज नहीं होते\n"
+                "🔑 मूव-आउट पर चाबियां ओनर/केयरटेकर को वापस की जाती हैं, और इंस्पेक्शन क्लियर होने के बाद डिपॉजिट "
+                "रिफंड फॉलो करता है\n"
+                "📄 कुछ ओनर बकाया चुकने और रूम हैंडओवर के बाद नो ऑब्जेक्शन सर्टिफिकेट (NOC) जारी करते हैं — "
+                "अपने ओनर से पुष्टि कर लें कि यह लागू होता है या नहीं\n"
+                "⚠️ एग्रीमेंट अवधि खत्म होने से पहले मूव-आउट करने पर डिपॉजिट का कुछ हिस्सा जब्त हो सकता है, "
+                "यह आपके एग्रीमेंट की एग्ज़िट क्लॉज़ पर निर्भर करता है — निर्णय लेने से पहले एग्रीमेंट की समीक्षा करें।"
+            ),
+        },
+    },
+    {
+        "name": "gender_preference",
+        "keywords": ["boys pg", "girls pg", "ladies pg", "only girls", "only boys", "co-living", "unisex"],
+        "replies": {
+            "en": "We have Boys-only, Girls-only, and Co-living options available. Which one would you like?",
+            "hinglish": "Hamare paas Boys-only, Girls-only aur Co-living dono options available hai. Aapko konsa chahiye?",
+            "hi": "हमारे पास Boys-only, Girls-only और Co-living विकल्प उपलब्ध हैं। आपको कौन सा चाहिए?",
+        },
+    },
+    {
+        "name": "minimum_stay",
+        "keywords": ["minimum stay", "lock in", "kitne mahine", "short term", "1 month ke liye"],
+        "replies": {
+            "en": (
+                "Minimum stay varies by property — some allow just 1 month, "
+                "others have a 3-6 month lock-in. Check the property details for specifics."
+            ),
+            "hinglish": (
+                "Minimum stay property ke hisab se vary karta hai — kuch me 1 month bhi chalta hai, "
+                "kuch me 3-6 month ka lock-in hota hai. Property details me ye mention hota hai."
+            ),
+            "hi": (
+                "न्यूनतम ठहराव प्रॉपर्टी के अनुसार अलग होता है — कुछ में सिर्फ 1 महीना भी चलता है, "
+                "कुछ में 3-6 महीने का लॉक-इन होता है। प्रॉपर्टी डिटेल्स में यह जानकारी मिलेगी।"
+            ),
+        },
+    },
+    {
+        "name": "notice_period",
+        "keywords": ["notice period", "room khali karna", "vacate", "chodna hai room"],
+        "replies": {
+            "en": "You generally need to give 30 days' notice before vacating. Exact terms will be mentioned in your rent agreement.",
+            "hinglish": "Room vacate karne ke liye generally 30 din ka notice dena hota hai. Exact terms aapke rent agreement me mention honge.",
+            "hi": "रूम खाली करने के लिए आमतौर पर 30 दिन का नोटिस देना होता है। सटीक शर्तें आपके रेंट एग्रीमेंट में लिखी होंगी।",
+        },
+    },
+    {
+        "name": "safety_verification",
+        "keywords": ["safe hai", "safety", "verified", "trust", "fraud", "genuine hai", "scam", "is it safe"],
+        "replies": {
+            "en": (
+                "Yes, all owners and properties on UrbanTenants are verified ✅\n"
+                "We approve listings only after ID verification and property checks."
+            ),
+            "hinglish": (
+                "Haan, UrbanTenants par saare owners aur properties verify kiye jate hai ✅\n"
+                "Hum ID verification aur property check ke baad hi listing approve karte hai."
+            ),
+            "hi": (
+                "हां, UrbanTenants पर सभी ओनर और प्रॉपर्टी वेरिफाई की जाती हैं ✅\n"
+                "हम ID वेरिफिकेशन और प्रॉपर्टी चेक के बाद ही लिस्टिंग अप्रूव करते हैं।"
+            ),
+        },
+    },
+    {
+        "name": "location_nearby",
+        "keywords": [
+            "near", "nearby", "kitni door", "station se", "office se distance", "college ke pass",
+            "university", "ke aas paas", "ke pass", "ke nazdeek", "ke nearby",
+            "के पास", "के नज़दीक", "विश्वविद्यालय",
+        ],
+        "replies": {
+            "en": "Tell me your preferred location or landmark (station, office, college/university) and I'll show nearby properties.",
+            "hinglish": "Aap apni preferred location ya landmark (station, office, college/university) batao, main nearby properties dikhata hoon.",
+            "hi": "अपनी पसंदीदा लोकेशन या लैंडमार्क (स्टेशन, ऑफिस, कॉलेज/यूनिवर्सिटी) बताएं, मैं आस-पास की प्रॉपर्टी दिखाता हूं।",
+        },
+    },
+    {
+        "name": "site_visit",
+        "keywords": ["visit", "room dekhna", "site visit", "directly dekh sakte", "physically dekhna"],
+        "replies": {
+            "en": (
+                "Sure! You can schedule a site visit before booking.\n"
+                "Use the 'Schedule Visit' option on the property page or contact the owner directly."
+            ),
+            "hinglish": (
+                "Bilkul! Aap booking se pehle site visit schedule kar sakte ho.\n"
+                "Property page par 'Schedule Visit' option use kare ya owner se directly contact kare."
+            ),
+            "hi": (
+                "बिल्कुल! आप बुकिंग से पहले साइट विज़िट शेड्यूल कर सकते हैं।\n"
+                "प्रॉपर्टी पेज पर 'Schedule Visit' विकल्प का उपयोग करें या ओनर से सीधे संपर्क करें।"
+            ),
+        },
+    },
+    {
+        "name": "maintenance",
+        "keywords": ["maintenance", "complaint", "repair", "kharab hai", "problem room me", "leakage"],
+        "replies": {
+            "en": (
+                "For maintenance issues, raise a complaint in the 'Help Center',\n"
+                "or email support@urbantenants.com directly. We resolve issues in 24-48 hrs."
+            ),
+            "hinglish": (
+                "Maintenance issue ke liye aap 'Help Center' me complaint raise kar sakte ho,\n"
+                "ya directly support@urbantenants.com par email kare. Hum 24-48 hrs me resolve karte hai."
+            ),
+            "hi": (
+                "मेंटेनेंस समस्या के लिए 'Help Center' में शिकायत दर्ज करें,\n"
+                "या सीधे support@urbantenants.com पर ईमेल करें। हम 24-48 घंटों में समाधान करते हैं।"
+            ),
+        },
+    },
+    {
+        "name": "pets",
+        "keywords": ["pet", "pets allowed", "dog allowed", "cat allowed"],
+        "replies": {
+            "en": "Pet policy depends on the property owner. Check the 'Pet Friendly' tag in the property details.",
+            "hinglish": "Pet policy property owner par depend karti hai. Aap property details me 'Pet Friendly' tag check kar sakte ho.",
+            "hi": "पेट पॉलिसी प्रॉपर्टी ओनर पर निर्भर करती है। प्रॉपर्टी डिटेल्स में 'Pet Friendly' टैग चेक करें।",
+        },
+    },
+    {
+        "name": "owner_listing",
+        "keywords": ["property list kaise kare", "owner", "list my property", "apna ghar list", "list property"],
+        "replies": {
+            "en": (
+                "To list your property:\n"
+                "1. Click on 'List Property'\n"
+                "2. Upload property details and photos\n"
+                "3. After verification, listing goes live"
+            ),
+            "hinglish": (
+                "Apni property list karne ke liye:\n"
+                "1. 'List Property' option par click kare\n"
+                "2. Property details aur photos upload kare\n"
+                "3. Verification ke baad listing live ho jayegi"
+            ),
+            "hi": (
+                "अपनी प्रॉपर्टी लिस्ट करने के लिए:\n"
+                "1. 'List Property' पर क्लिक करें\n"
+                "2. प्रॉपर्टी डिटेल्स और फोटो अपलोड करें\n"
+                "3. वेरिफिकेशन के बाद लिस्टिंग लाइव हो जाएगी"
+            ),
+        },
+    },
+    {
+        "name": "bills",
+        "keywords": ["electricity bill", "bijli bill", "water bill", "bills included", "extra charges"],
+        "replies": {
+            "en": "Some properties include electricity/water bills in rent, others charge extra — this will be clearly mentioned in property details.",
+            "hinglish": "Kuch properties me electricity/water bills rent me included hote hai, kuch me extra charge hota hai — property details me clearly mention hoga.",
+            "hi": "कुछ प्रॉपर्टी में बिजली/पानी का बिल किराए में शामिल होता है, कुछ में अतिरिक्त चार्ज लगता है — यह प्रॉपर्टी डिटेल्स में साफ लिखा होगा।",
+        },
+    },
+    {
+        "name": "curfew_rules",
+        "keywords": ["curfew", "entry timing", "gate band", "late night entry", "rules"],
+        "replies": {
+            "en": "Curfew/timing rules differ by PG. Check the property details or confirm directly with the owner.",
+            "hinglish": "Curfew/timing rules har PG ke alag hote hai. Aap property details ya owner se directly confirm kar sakte ho.",
+            "hi": "कर्फ्यू/समय के नियम हर PG में अलग होते हैं। प्रॉपर्टी डिटेल्स में देखें या ओनर से सीधे पुष्टि करें।",
+        },
+    },
+    # ---- Generic, catch-all intents go LAST since they're broad ----
+    {
+        "name": "property_search",
+        "keywords": [
+            "room", "flat", "ghar", "pg", "1bhk", "2bhk", "accommodation", "property dikhao", "looking for room",
+            "कमरा", "कमरे", "फ्लैट", "घर", "पीजी", "रूम चाहिए", "कमरा चाहिए",
+        ],
+        "replies": {
+            "en": "Which city are you looking for a property in?\nAnd what's your budget? 🏠",
+            "hinglish": "Aap kis city me property dhoond rahe ho?\nAur budget kitna hai? 🏠",
+            "hi": "आप किस शहर में प्रॉपर्टी ढूंढ रहे हैं?\nऔर बजट कितना है? 🏠",
+        },
+    },
+    {
+        "name": "rent_price",
+        "keywords": ["rent", "price", "kitna", "cost", "monthly rent", "charges", "how much"],
+        "replies": {
+            "en": "Rent varies by city and location. Tell me the city and I'll show you the best options.",
+            "hinglish": "Rent city aur location ke hisab se change hota hai. Aap city batao, main best options dikhata hoon.",
+            "hi": "किराया शहर और लोकेशन के अनुसार बदलता है। शहर बताएं, मैं बेहतरीन विकल्प दिखाता हूं।",
+        },
+    },
+    {
+        "name": "amenities",
+        "keywords": ["amenities", "facilities", "furnished", "food included", "parking"],
+        "replies": {
+            "en": (
+                "Amenities vary by property, such as:\n"
+                "🛏️ Furnished rooms\n📶 WiFi\n🍽️ Food (in some PGs)\n🚗 Parking\n"
+                "Which property/city do you need details for?"
+            ),
+            "hinglish": (
+                "Property ke hisab se amenities alag hoti hai jaise:\n"
+                "🛏️ Furnished rooms\n📶 WiFi\n🍽️ Food (kuch PGs me)\n🚗 Parking\n"
+                "Kis property/city ke liye details chahiye?"
+            ),
+            "hi": (
+                "सुविधाएं प्रॉपर्टी के अनुसार अलग होती हैं, जैसे:\n"
+                "🛏️ फर्निश्ड रूम\n📶 वाईफाई\n🍽️ खाना (कुछ PG में)\n🚗 पार्किंग\n"
+                "किस प्रॉपर्टी/शहर के लिए जानकारी चाहिए?"
+            ),
+        },
+    },
+    {
+        "name": "roommate_sharing",
+        "keywords": ["roommate", "sharing", "single room", "double sharing", "triple sharing", "kitne log"],
+        "replies": {
+            "en": (
+                "We offer single, double, and triple sharing options 🛏️\n"
+                "What type of sharing do you prefer and in which city?"
+            ),
+            "hinglish": (
+                "Hum single, double aur triple sharing options offer karte hai 🛏️\n"
+                "Aap kis type ka sharing prefer karte ho aur kis city me?"
+            ),
+            "hi": (
+                "हम सिंगल, डबल और ट्रिपल शेयरिंग विकल्प देते हैं 🛏️\n"
+                "आप किस तरह की शेयरिंग पसंद करते हैं और किस शहर में?"
+            ),
+        },
+    },
+    {
+        "name": "move_in_date",
+        "keywords": ["move in", "kab se milega", "available kab", "shifting date", "kab tak khali", "when available"],
+        "replies": {
+            "en": (
+                "Move-in date depends on property availability.\n"
+                "Check the 'Available From' date on the property page, or tell me the city and I'll confirm."
+            ),
+            "hinglish": (
+                "Move-in date property availability par depend karta hai.\n"
+                "Aap property page par 'Available From' date check kar sakte ho, ya city batao, main confirm kar deta hoon."
+            ),
+            "hi": (
+                "मूव-इन डेट प्रॉपर्टी की उपलब्धता पर निर्भर करती है।\n"
+                "प्रॉपर्टी पेज पर 'Available From' डेट चेक करें, या शहर बताएं, मैं कन्फर्म कर देता हूं।"
+            ),
+        },
+    },
+]
+
+
+DEFAULT_REPLIES = {
+    "en": (
+        "Sorry, I didn't quite understand that 😕\n"
+        "You can ask me about booking, room search, rent, documents, payment, or contact details."
+    ),
+    "hinglish": (
+        "Mujhe samajh nahi aaya 😕\n"
+        "Aap booking, room search, rent, documents, payment, ya contact ke baare me puch sakte ho."
+    ),
+    "hi": (
+        "माफ़ कीजिए, मुझे समझ नहीं आया 😕\n"
+        "आप बुकिंग, रूम सर्च, रेंट, दस्तावेज़, पेमेंट या संपर्क जानकारी के बारे में पूछ सकते हैं।"
+    ),
+}
+
+
+# =====================================================
+# MAIN VIEW
+# =====================================================
+
+def chat_api(request):
+    data = json.loads(request.body)
+    raw_msg = data.get("message", "")
+
+    DEBUG = settings.DEBUG  # only print verbose debug info when Django DEBUG=True
+
+    # ---- 0. Universal language handling ----
+    # Voice/typed input can be in ANY language/script. Our intent keywords,
+    # location names, and amenity matching are written in plain Roman-script
+    # English/Hinglish, so non-Latin-script input needs to be translated to
+    # English FIRST for matching purposes (working_msg). The reply, however,
+    # should go back in the user's own language — so we track that
+    # separately as `lang`:
+    #   "hi"       -> Devanagari Hindi (we have hand-written hi replies)
+    #   "hinglish" -> Roman Hindi (we have hand-written hinglish replies)
+    #   "en"       -> English
+    #   "other"    -> any other language/script (Tamil, Bengali, French...)
+    #                 — no hand-written reply, so we translate the matched
+    #                 English reply back into it with Gemini at send-time.
+    translated_from_other_language = has_non_latin_script(raw_msg)
+    if translated_from_other_language:
+        working_msg = translate_to_english(raw_msg)
+        lang = "hi" if DEVANAGARI_RANGE.search(raw_msg) else "other"
+    else:
+        working_msg = raw_msg
+        lang = detect_language(raw_msg)
+
+    msg = normalize(working_msg)
+
+    if DEBUG:
+        print("RAW MSG:", repr(raw_msg))
+        if translated_from_other_language:
+            print("TRANSLATED MSG (for matching):", repr(working_msg))
+        print("NORMALIZED MSG:", repr(msg))
+        print("LANG (for reply):", lang)
+
+    # ---- 1. Structured room search (DB-backed) ----
+    # Check the translated text first; if translation altered/dropped the
+    # trigger word (e.g. "room" -> "place"), also check the raw original
+    # message as a safety net before giving up on search detection.
+    search_triggered = is_search_query(msg) or is_search_query(normalize(raw_msg))
+    if search_triggered:
+        rooms, debug_info = search_rooms(msg)
+
+        if DEBUG:
+            print("SEARCH DEBUG:", debug_info)
+
+        if rooms.exists():
+            return JsonResponse({
+                "type": "listing",
+                "rooms": serialize_rooms(rooms),
+            })
+
+        # No DB match. If the user specified real filters (budget, location,
+        # amenity, bhk, pg) and genuinely nothing matched, tell them clearly
+        # instead of silently handing off to Gemini for an unrelated reply —
+        # that's what made "2000 mein room dikhao" look broken: the budget
+        # filter correctly found zero rooms that cheap, but the response
+        # fell through to a generic chat answer instead of saying so.
+        filters_applied = any([
+            debug_info.get("location"),
+            debug_info.get("budget"),
+            debug_info.get("bhk"),
+            debug_info.get("is_pg"),
+            debug_info.get("amenities"),
+        ])
+        if filters_applied:
+            return JsonResponse({"type": "listing", "rooms": []})
+        # Otherwise (e.g. just "room" with no specifics), fall through to
+        # INTENTS / Gemini below for a more conversational, helpful reply.
+
+    # ---- 2. Keyword-based INTENTS ----
+    words = set(msg.split())
+    for intent in INTENTS:
+        for keyword in intent["keywords"]:
+            keyword_words = set(normalize(keyword).split())
+            if keyword_words.issubset(words):
+                if DEBUG:
+                    print("MATCHED INTENT:", intent["name"], "| keyword:", keyword)
+                reply_text = reply_for(lang if lang != "other" else "en", intent["replies"])
+                if lang == "other":
+                    reply_text = localize_reply(reply_text, raw_msg)
+                return JsonResponse({"reply": reply_text})
+
+    # ---- 3. Gemini fallback ----
+    try:
+        ai_reply = ask_gemini(raw_msg)
+        return JsonResponse({"reply": ai_reply})
+    except Exception as e:
+        print("Gemini Error:", e)
+        default_text = reply_for(lang if lang != "other" else "en", DEFAULT_REPLIES)
+        if lang == "other":
+            default_text = localize_reply(default_text, raw_msg)
+        return JsonResponse({"reply": default_text})

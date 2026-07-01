@@ -1,0 +1,303 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem;
+}
+
+/* ── Main Card ── */
+.card {
+    width: 100%;
+    max-width: 760px;
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(16px);
+    border-radius: 20px;
+    overflow: hidden;
+    border: 0.5px solid rgba(255, 255, 255, 0.15);
+}
+
+/* ── Header ── */
+.card-header {
+    background: linear-gradient(135deg, #10b981, #059669);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.card-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.card-header p {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 4px 0 0;
+}
+
+/* ── Body ── */
+.card-body {
+    padding: 2rem;
+}
+
+/* ── Sections ── */
+.section {
+    margin-bottom: 2rem;
+}
+
+.section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 0.5px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ── Grids ── */
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.img-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.toggle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.75rem;
+}
+
+/* ── Form Fields ── */
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 1rem;
+}
+
+.field label {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.field input,
+.field textarea,
+.field select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 0.5px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: #fff;
+    font-size: 14px;
+    width: 100%;
+    transition: border-color 0.2s, background 0.2s;
+    outline: none;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+    border-color: #10b981;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.field select option {
+    background: #203a43;
+    color: #fff;
+}
+
+.field textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+/* ── File Input ── */
+.field input[type="file"] {
+    padding: 8px 14px;
+    cursor: pointer;
+}
+
+.field input[type="file"]::file-selector-button {
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+/* ── Rupee Prefix ── */
+.price-group {
+    position: relative;
+}
+
+.price-group .prefix {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.price-group input {
+    padding-left: 28px;
+}
+
+/* ── Availability Toggle ── */
+.avail-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.avail-btn {
+    flex: 1;
+    padding: 11px;
+    border: 0.5px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    user-select: none;
+}
+
+.avail-btn.active {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: #10b981;
+    color: #fff;
+}
+
+/* ── Amenity Toggle Cards ── */
+.toggle-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 0.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.toggle-item:hover {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+}
+
+.toggle-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #10b981;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.toggle-item span {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.toggle-item .icon {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+/* ── Submit Button ── */
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.2s;
+}
+
+.submit-btn:hover {
+    opacity: 0.9;
+}
+
+/* ── Back Link ── */
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 1.25rem;
+    color: rgba(255, 211, 100, 0.9);
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    color: #ffd369;
+}
+
+/* ── Responsive ── */
+@media (max-width: 560px) {
+
+    .grid-2,
+    .img-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    .toggle-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+}

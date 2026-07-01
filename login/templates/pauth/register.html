@@ -1,0 +1,346 @@
+{% load static %}
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UrbanTenants – Register</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <style>
+    * { padding: 0; margin: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+    body { background: #0f172a; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+
+    .page { display: flex; width: 100vw; min-height: 100vh; }
+
+    /* LEFT PANEL */
+    .left-panel { flex: 1; background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%, #0f2942 100%); position: relative; display: flex; flex-direction: column; justify-content: flex-end; overflow: hidden; min-height: 100vh; }
+    .stars { position: absolute; top: 0; left: 0; width: 100%; height: 55%; overflow: hidden; }
+    .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 2s infinite alternate; }
+    @keyframes twinkle { 0% { opacity: 0.15; } 100% { opacity: 1; } }
+    .moon { position: absolute; top: 28px; right: 48px; width: 48px; height: 48px; background: #fef9c3; border-radius: 50%; box-shadow: 0 0 28px #fef08a99; }
+    .brand-text { position: absolute; top: 36px; left: 40px; z-index: 10; }
+    .brand-text h1 { font-size: 32px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+    .brand-text h1 span { color: #22c55e; }
+    .brand-text p { font-size: 14px; color: #94a3b8; margin-top: 6px; }
+    .features { position: absolute; top: 120px; left: 40px; z-index: 10; display: flex; flex-direction: column; gap: 14px; }
+    .feature-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; width: 260px; backdrop-filter: blur(4px); animation: fadeSlideIn 0.6s ease both; }
+    .feature-card:nth-child(1) { animation-delay: 0.1s; }
+    .feature-card:nth-child(2) { animation-delay: 0.25s; }
+    .feature-card:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes fadeSlideIn { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: translateX(0); } }
+    .feature-icon { width: 38px; height: 38px; border-radius: 10px; background: rgba(34,197,94,0.18); border: 1px solid rgba(34,197,94,0.35); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+    .feature-text strong { display: block; font-size: 13px; font-weight: 600; color: #e2e8f0; }
+    .feature-text span { font-size: 11.5px; color: #94a3b8; }
+    .stats-row { position: absolute; bottom: 200px; left: 40px; z-index: 10; display: flex; gap: 28px; }
+    .stat .num { font-size: 22px; font-weight: 700; color: #22c55e; }
+    .stat .lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
+    .cityscape { position: absolute; bottom: 0; left: 0; width: 100%; height: 220px; }
+
+    /* RIGHT PANEL */
+    .right-panel { width: 440px; background: #ffffff; display: flex; flex-direction: column; justify-content: center; padding: 48px 44px; box-shadow: -8px 0 32px rgba(0,0,0,0.25); overflow-y: auto; min-height: 100vh; }
+    .form-header { margin-bottom: 24px; }
+    .form-header h2 { font-size: 24px; font-weight: 700; color: #0f172a; }
+    .form-header p { font-size: 13px; color: #64748b; margin-top: 6px; }
+    .tab-row { display: flex; margin-bottom: 24px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .tab { flex: 1; padding: 11px; text-align: center; font-size: 14px; font-weight: 500; cursor: pointer; background: #f8fafc; color: #64748b; text-decoration: none; transition: 0.2s; }
+    .tab.active { background: #0f172a; color: #fff; }
+    .tab:not(.active):hover { background: #f1f5f9; }
+    .field { margin-bottom: 16px; }
+    .field label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.7px; display: block; margin-bottom: 6px; }
+    .field input { width: 100%; height: 44px; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 0 14px; font-size: 14px; color: #0f172a; outline: none; transition: 0.2s; font-family: 'Poppins', sans-serif; background: #fff; }
+    .field input:focus { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.12); }
+    .error-block { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; }
+    .error-block ul { margin: 0; padding-left: 16px; }
+    .error-block li { font-size: 12px; color: #ef4444; margin-bottom: 2px; }
+    .submit-btn { width: 100%; height: 46px; background: #0f172a; color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; transition: 0.25s; font-family: 'Poppins', sans-serif; letter-spacing: 0.3px; }
+    .submit-btn:hover { background: #22c55e; }
+    .divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+    .divider span { font-size: 12px; color: #94a3b8; white-space: nowrap; }
+    .google-btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 46px; border: 1.5px solid #e2e8f0; border-radius: 8px; font-size: 14px; font-weight: 500; color: #0f172a; text-decoration: none; transition: 0.2s; font-family: 'Poppins', sans-serif; background: #fff; }
+    .google-btn:hover { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.08); }
+    .bottom-note { text-align: center; margin-top: 18px; font-size: 13px; color: #64748b; }
+    .bottom-note a { color: #22c55e; font-weight: 600; text-decoration: none; }
+    .bottom-note a:hover { text-decoration: underline; }
+
+    /* MOBILE */
+    .left-panel-mobile { display: none; }
+    @media (max-width: 768px) {
+      body { align-items: flex-start; }
+      .page { flex-direction: column; min-height: 100vh; }
+      .left-panel { display: none; }
+      .left-panel-mobile { display: block; background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 60%, #0f2942 100%); padding: 28px 24px 20px; position: relative; overflow: hidden; }
+      .stars-mobile { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
+      .moon-mobile { position: absolute; top: 16px; right: 24px; width: 32px; height: 32px; background: #fef9c3; border-radius: 50%; box-shadow: 0 0 20px #fef08a99; }
+      .brand-mobile h1 { font-size: 26px; font-weight: 700; color: #fff; }
+      .brand-mobile h1 span { color: #22c55e; }
+      .brand-mobile p { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+      .features-mobile { display: flex; gap: 10px; margin-top: 16px; overflow-x: auto; padding-bottom: 4px; }
+      .features-mobile::-webkit-scrollbar { display: none; }
+      .feature-card-mobile { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; min-width: 180px; flex-shrink: 0; }
+      .feature-icon-mobile { width: 32px; height: 32px; border-radius: 8px; background: rgba(34,197,94,0.18); border: 1px solid rgba(34,197,94,0.35); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+      .feature-text-mobile strong { display: block; font-size: 11px; font-weight: 600; color: #e2e8f0; }
+      .feature-text-mobile span { font-size: 10px; color: #94a3b8; }
+      .stats-mobile { display: flex; gap: 20px; margin-top: 14px; }
+      .stat-mobile .num { font-size: 18px; font-weight: 700; color: #22c55e; }
+      .stat-mobile .lbl { font-size: 10px; color: #64748b; }
+      .right-panel { width: 100%; min-height: auto; padding: 32px 24px 40px; box-shadow: none; justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- MOBILE TOP PANEL -->
+<div class="left-panel-mobile">
+  <div class="stars-mobile" id="stars-mobile"></div>
+  <div class="moon-mobile"></div>
+  <div class="brand-mobile">
+    <h1>Urban<span>Tenants</span></h1>
+    <p>Find safe rooms, PGs &amp; flats</p>
+  </div>
+  <div class="features-mobile">
+    <div class="feature-card-mobile">
+      <div class="feature-icon-mobile">🏠</div>
+      <div class="feature-text-mobile"><strong>Verified Listings</strong><span>Checked &amp; verified</span></div>
+    </div>
+    <div class="feature-card-mobile">
+      <div class="feature-icon-mobile">📍</div>
+      <div class="feature-text-mobile"><strong>Prime Locations</strong><span>Near colleges &amp; offices</span></div>
+    </div>
+    <div class="feature-card-mobile">
+      <div class="feature-icon-mobile">🔒</div>
+      <div class="feature-text-mobile"><strong>Safe &amp; Secure</strong><span>Zero fraud</span></div>
+    </div>
+  </div>
+  <div class="stats-mobile">
+    <div class="stat-mobile"><div class="num">2,400+</div><div class="lbl">Listings</div></div>
+    <div class="stat-mobile"><div class="num">8,000+</div><div class="lbl">Tenants</div></div>
+    <div class="stat-mobile"><div class="num">50+</div><div class="lbl">Cities</div></div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- LEFT PANEL (desktop) -->
+  <div class="left-panel">
+    <div class="stars" id="stars"></div>
+    <div class="moon"></div>
+    <div class="brand-text">
+      <h1>Urban<span>Tenants</span></h1>
+      <p>Find safe rooms, PGs &amp; flats</p>
+    </div>
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🏠</div>
+        <div class="feature-text"><strong>Verified Listings</strong><span>Every property is checked &amp; verified</span></div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📍</div>
+        <div class="feature-text"><strong>Prime Locations</strong><span>Near colleges, offices &amp; metros</span></div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-text"><strong>Safe &amp; Secure</strong><span>Trusted landlords, zero fraud</span></div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="num">2,400+</div><div class="lbl">Active Listings</div></div>
+      <div class="stat"><div class="num">8,000+</div><div class="lbl">Happy Tenants</div></div>
+      <div class="stat"><div class="num">50+</div><div class="lbl">Cities</div></div>
+    </div>
+    <svg class="cityscape" viewBox="0 0 500 220" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="130" width="500" height="90" fill="#0a1628"/>
+      <rect x="10" y="80" width="38" height="140" fill="#162236" rx="2"/>
+      <rect x="16" y="88" width="8" height="10" fill="#fbbf24" opacity="0.8"/>
+      <rect x="28" y="88" width="8" height="10" fill="#fbbf24" opacity="0.5"/>
+      <rect x="16" y="104" width="8" height="10" fill="#fbbf24" opacity="0.9"/>
+      <rect x="28" y="104" width="8" height="10" fill="#38bdf8" opacity="0.6"/>
+      <rect x="16" y="120" width="8" height="10" fill="#fbbf24" opacity="0.4"/>
+      <rect x="55" y="55" width="50" height="165" fill="#1e3a5f" rx="2"/>
+      <rect x="60" y="62" width="10" height="12" fill="#fbbf24" opacity="0.7"/>
+      <rect x="75" y="62" width="10" height="12" fill="#38bdf8" opacity="0.8"/>
+      <rect x="90" y="62" width="10" height="12" fill="#fbbf24" opacity="0.5"/>
+      <rect x="60" y="80" width="10" height="12" fill="#38bdf8" opacity="0.9"/>
+      <rect x="75" y="80" width="10" height="12" fill="#fbbf24" opacity="0.6"/>
+      <rect x="90" y="80" width="10" height="12" fill="#38bdf8" opacity="0.4"/>
+      <rect x="60" y="98" width="10" height="12" fill="#fbbf24" opacity="0.8"/>
+      <rect x="75" y="98" width="10" height="12" fill="#fbbf24" opacity="0.3"/>
+      <rect x="60" y="116" width="10" height="12" fill="#38bdf8" opacity="0.7"/>
+      <rect x="75" y="116" width="10" height="12" fill="#fbbf24" opacity="0.9"/>
+      <rect x="110" y="100" width="30" height="120" fill="#162236" rx="2"/>
+      <rect x="115" y="108" width="8" height="9" fill="#fbbf24" opacity="0.6"/>
+      <rect x="127" y="108" width="8" height="9" fill="#38bdf8" opacity="0.7"/>
+      <rect x="115" y="122" width="8" height="9" fill="#fbbf24" opacity="0.9"/>
+      <rect x="127" y="122" width="8" height="9" fill="#fbbf24" opacity="0.4"/>
+      <rect x="145" y="70" width="45" height="150" fill="#1e3a5f" rx="2"/>
+      <rect x="150" y="78" width="9" height="11" fill="#fbbf24" opacity="0.8"/>
+      <rect x="163" y="78" width="9" height="11" fill="#38bdf8" opacity="0.6"/>
+      <rect x="175" y="78" width="9" height="11" fill="#fbbf24" opacity="0.5"/>
+      <rect x="150" y="95" width="9" height="11" fill="#fbbf24" opacity="0.4"/>
+      <rect x="163" y="95" width="9" height="11" fill="#fbbf24" opacity="0.9"/>
+      <rect x="175" y="95" width="9" height="11" fill="#38bdf8" opacity="0.7"/>
+      <rect x="150" y="112" width="9" height="11" fill="#38bdf8" opacity="0.8"/>
+      <rect x="163" y="112" width="9" height="11" fill="#fbbf24" opacity="0.6"/>
+      <rect x="195" y="40" width="60" height="180" fill="#162236" rx="2"/>
+      <rect x="200" y="48" width="12" height="14" fill="#fbbf24" opacity="0.9"/>
+      <rect x="216" y="48" width="12" height="14" fill="#38bdf8" opacity="0.7"/>
+      <rect x="232" y="48" width="12" height="14" fill="#fbbf24" opacity="0.5"/>
+      <rect x="200" y="68" width="12" height="14" fill="#38bdf8" opacity="0.8"/>
+      <rect x="216" y="68" width="12" height="14" fill="#fbbf24" opacity="0.6"/>
+      <rect x="232" y="68" width="12" height="14" fill="#fbbf24" opacity="0.4"/>
+      <rect x="200" y="88" width="12" height="14" fill="#fbbf24" opacity="0.9"/>
+      <rect x="216" y="88" width="12" height="14" fill="#38bdf8" opacity="0.5"/>
+      <rect x="232" y="88" width="12" height="14" fill="#fbbf24" opacity="0.7"/>
+      <rect x="200" y="108" width="12" height="14" fill="#fbbf24" opacity="0.3"/>
+      <rect x="216" y="108" width="12" height="14" fill="#fbbf24" opacity="0.8"/>
+      <rect x="260" y="90" width="35" height="130" fill="#1e3a5f" rx="2"/>
+      <rect x="265" y="98" width="9" height="11" fill="#fbbf24" opacity="0.7"/>
+      <rect x="278" y="98" width="9" height="11" fill="#38bdf8" opacity="0.9"/>
+      <rect x="265" y="115" width="9" height="11" fill="#fbbf24" opacity="0.5"/>
+      <rect x="278" y="115" width="9" height="11" fill="#fbbf24" opacity="0.8"/>
+      <rect x="300" y="60" width="55" height="160" fill="#162236" rx="2"/>
+      <rect x="305" y="68" width="11" height="13" fill="#38bdf8" opacity="0.8"/>
+      <rect x="320" y="68" width="11" height="13" fill="#fbbf24" opacity="0.6"/>
+      <rect x="335" y="68" width="11" height="13" fill="#fbbf24" opacity="0.9"/>
+      <rect x="305" y="87" width="11" height="13" fill="#fbbf24" opacity="0.4"/>
+      <rect x="320" y="87" width="11" height="13" fill="#38bdf8" opacity="0.7"/>
+      <rect x="335" y="87" width="11" height="13" fill="#fbbf24" opacity="0.5"/>
+      <rect x="305" y="106" width="11" height="13" fill="#fbbf24" opacity="0.9"/>
+      <rect x="360" y="110" width="28" height="110" fill="#1e3a5f" rx="2"/>
+      <rect x="365" y="118" width="8" height="10" fill="#fbbf24" opacity="0.7"/>
+      <rect x="377" y="118" width="8" height="10" fill="#38bdf8" opacity="0.5"/>
+      <rect x="365" y="133" width="8" height="10" fill="#fbbf24" opacity="0.9"/>
+      <rect x="393" y="75" width="42" height="145" fill="#162236" rx="2"/>
+      <rect x="398" y="83" width="9" height="11" fill="#fbbf24" opacity="0.8"/>
+      <rect x="411" y="83" width="9" height="11" fill="#38bdf8" opacity="0.6"/>
+      <rect x="424" y="83" width="9" height="11" fill="#fbbf24" opacity="0.5"/>
+      <rect x="398" y="100" width="9" height="11" fill="#fbbf24" opacity="0.9"/>
+      <rect x="411" y="100" width="9" height="11" fill="#fbbf24" opacity="0.4"/>
+      <rect x="440" y="95" width="32" height="125" fill="#1e3a5f" rx="2"/>
+      <rect x="445" y="103" width="8" height="10" fill="#38bdf8" opacity="0.7"/>
+      <rect x="457" y="103" width="8" height="10" fill="#fbbf24" opacity="0.8"/>
+      <rect x="445" y="119" width="8" height="10" fill="#fbbf24" opacity="0.5"/>
+      <rect x="475" y="120" width="25" height="100" fill="#162236" rx="2"/>
+      <rect x="480" y="128" width="7" height="9" fill="#fbbf24" opacity="0.6"/>
+      <rect x="490" y="128" width="7" height="9" fill="#38bdf8" opacity="0.8"/>
+      <rect x="0" y="170" width="500" height="2" fill="#22c55e" opacity="0.3"/>
+      <rect x="0" y="185" width="500" height="35" fill="#0a1628"/>
+      <rect x="20" y="188" width="6" height="3" fill="#fbbf24" opacity="0.6"/>
+      <rect x="60" y="190" width="6" height="3" fill="#fbbf24" opacity="0.5"/>
+      <rect x="120" y="188" width="6" height="3" fill="#fbbf24" opacity="0.7"/>
+      <rect x="200" y="190" width="6" height="3" fill="#fbbf24" opacity="0.4"/>
+      <rect x="280" y="188" width="6" height="3" fill="#fbbf24" opacity="0.8"/>
+      <rect x="360" y="190" width="6" height="3" fill="#fbbf24" opacity="0.6"/>
+      <rect x="440" y="188" width="6" height="3" fill="#fbbf24" opacity="0.5"/>
+    </svg>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="form-header">
+      <h2>Create account</h2>
+      <p>Join thousands finding their perfect home</p>
+    </div>
+
+    <div class="tab-row">
+      <a class="tab" href="{% url 'loginv' %}">Login</a>
+      <a class="tab active" href="#">Register</a>
+    </div>
+
+    <form action="{% url 'registerv' %}" method="post">
+      {% csrf_token %}
+
+      <div class="field">
+        <label for="{{ form.name.id_for_label }}">Name</label>
+        <input type="text"
+               id="{{ form.name.id_for_label }}"
+               name="{{ form.name.name }}"
+               value="{{ form.name.value|default:'' }}"
+               placeholder="Enter your name">
+      </div>
+
+      <div class="field">
+        <label for="{{ form.email.id_for_label }}">Email Address</label>
+        <input type="email"
+               id="{{ form.email.id_for_label }}"
+               name="{{ form.email.name }}"
+               value="{{ form.email.value|default:'' }}"
+               placeholder="you@example.com">
+      </div>
+
+      <div class="field">
+        <label for="{{ form.password1.id_for_label }}">Password</label>
+        <input type="password"
+               id="{{ form.password1.id_for_label }}"
+               name="{{ form.password1.name }}"
+               placeholder="Create a strong password">
+      </div>
+
+      <div class="field">
+        <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+        <input type="password"
+               id="{{ form.password2.id_for_label }}"
+               name="{{ form.password2.name }}"
+               placeholder="Repeat your password">
+      </div>
+
+      {% if form.errors %}
+        <div class="error-block">
+          <ul>
+            {% for field in form %}
+              {% for error in field.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <button type="submit" class="submit-btn">Create Account →</button>
+    </form>
+
+    <div class="divider"><span>or</span></div>
+
+    <a href="{% provider_login_url 'google' %}" class="google-btn">
+      <svg width="18" height="18" viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      Continue with Google
+    </a>
+
+    <div class="bottom-note">
+      Already have an account? <a href="{% url 'loginv' %}">Sign in</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const sc = document.getElementById('stars');
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2.5 + 1;
+    s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*90}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${1.5+Math.random()*2}s;`;
+    sc.appendChild(s);
+  }
+  const scm = document.getElementById('stars-mobile');
+  if (scm) {
+    for (let i = 0; i < 30; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const sz = Math.random() * 2 + 1;
+      s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${1.5+Math.random()*2}s;`;
+      scm.appendChild(s);
+    }
+  }
+</script>
+</body>
+</html>

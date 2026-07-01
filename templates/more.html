@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/static/more.css">
+</head>
+
+<body>
+    <div class="more">
+    {% for n in listingdata %}
+
+        <div class="box o ">
+            <div class="im" id="i11"><img src="{{n.Room_images1.url}}" alt="image" height="100%" width="250px"
+                    class="room-img">
+            </div>
+            <div class="tex" id="t11">
+                <!-- ta means text area isme sara text kardiya  -->
+                <div class="ta">
+                    <h2>{{n.Room_title}}</h2>
+                    <h4> {{n.Room_rent}} </h4>
+
+                </div>
+                <hr>
+                <!-- button ara -->
+                <div class="ba"> <a href="{% url 'room' n.id %}"> <button class="bt" id="bt11"> VIEW
+                            DETAILS </a> </button>
+                </div>
+            </div>
+
+
+        </div>
+
+    {% endfor %}
+    </div>
+
+    </div>
+
+</body>
+
+</html>

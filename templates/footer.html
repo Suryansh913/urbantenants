@@ -1,0 +1,463 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Housify Footer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #F2F6FF;
+      --card:     #FFFFFF;
+      --b900:     #0E2D5A;
+      --b700:     #1A4A8A;
+      --b500:     #2E6DD4;
+      --b400:     #4F8EF7;
+      --b100:     #DDEAFF;
+      --b50:      #EEF4FF;
+      --muted:    #5A7399;
+      --faint:    #A8BFDA;
+      --line:     #DCE8F5;
+    }
+    body { background: #e4eaf5; font-family: 'Outfit', sans-serif; }
+
+    footer {
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+      border-top: 1px solid var(--line);
+    }
+
+    /* blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .blob-1 { width:500px;height:500px;top:-180px;right:-100px;background:radial-gradient(circle,rgba(79,142,247,0.10) 0%,transparent 70%); }
+    .blob-2 { width:300px;height:300px;bottom:-60px;left:-60px;background:radial-gradient(circle,rgba(46,109,212,0.08) 0%,transparent 70%); }
+
+    /* cityscape watermark */
+    .cityscape {
+      position:absolute;
+      bottom:0;left:0;right:0;
+      width:100%;height:260px;
+      pointer-events:none;
+      opacity:0.055;
+    }
+
+    .ft-inner {
+      position:relative;
+      max-width:1160px;
+      margin:0 auto;
+      padding:0 32px;
+      z-index:1;
+    }
+
+    /* TOP */
+    .ft-top {
+      display:grid;
+      grid-template-columns:290px 1fr;
+      gap:52px;
+      padding:58px 0 48px;
+      border-bottom:1px solid var(--line);
+    }
+
+    .ft-logo {
+      font-family:'Playfair Display',serif;
+      font-size:30px;
+      font-weight:700;
+      color:var(--b900);
+      display:flex;
+      align-items:center;
+      margin-bottom:8px;
+    }
+    .ft-logo em { font-style:normal; color:var(--b500); }
+    .ft-dot {
+      width:8px;height:8px;
+      border-radius:50%;
+      background:var(--b400);
+      margin-left:3px;
+      flex-shrink:0;
+      margin-bottom:14px;
+    }
+
+    .ft-tagline {
+      font-size:14px;
+      font-weight:400;
+      color:var(--muted);
+      line-height:1.75;
+      max-width:230px;
+      margin-bottom:20px;
+    }
+
+    .ft-trust {
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      background:var(--b50);
+      border:1px solid var(--b100);
+      border-radius:100px;
+      padding:6px 14px;
+      font-size:12px;
+      font-weight:500;
+      color:var(--b700);
+      margin-bottom:20px;
+    }
+    .ft-trust i { font-size:11px;color:var(--b500); }
+
+    /* house icon */
+    .ft-housesvg { display:block; margin-bottom:20px; }
+
+    /* columns */
+    .ft-cols {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:20px;
+    }
+    .ft-col h4 {
+      font-size:10.5px;
+      font-weight:600;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      color:var(--b500);
+      margin-bottom:16px;
+    }
+    .ft-col ul { list-style:none;display:flex;flex-direction:column;gap:1px; }
+    .ft-col ul li a,
+    .ft-col ul li span {
+      font-size:13.5px;
+      font-weight:400;
+      color:var(--muted);
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      gap:9px;
+      padding:7px 8px;
+      border-radius:8px;
+      transition:background .15s,color .15s;
+    }
+    .ft-col ul li a:hover { color:var(--b700);background:var(--b50); }
+    .ft-col ul li a i,
+    .ft-col ul li span i { font-size:13px;color:var(--faint);width:15px;flex-shrink:0;transition:color .15s; }
+    .ft-col ul li a:hover i { color:var(--b400); }
+
+    /* contact */
+    .ft-ci {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:6px 8px;
+      border-radius:8px;
+      margin-bottom:2px;
+      transition:background .15s;
+    }
+    .ft-ci:hover { background:var(--b50); }
+    .ft-cicon {
+      width:30px;height:30px;
+      border-radius:8px;
+      background:var(--b50);
+      border:1px solid var(--b100);
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;
+    }
+    .ft-cicon i { font-size:12px;color:var(--b500); }
+    .ft-ctext { font-size:13px;color:var(--muted);line-height:1.4; }
+    .ft-ctext a { color:var(--muted);text-decoration:none;transition:color .15s; }
+    .ft-ctext a:hover { color:var(--b700); }
+
+    /* STATS */
+    .ft-stats {
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:1px;
+      background:var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      margin:28px 0;
+    }
+    .ft-stat {
+      background:var(--card);
+      padding:18px 20px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    .ft-sicon {
+      width:40px;height:40px;
+      border-radius:10px;
+      background:var(--b50);
+      border:1px solid var(--b100);
+      display:flex;align-items:center;justify-content:center;
+      flex-shrink:0;
+    }
+    .ft-sicon i { font-size:16px;color:var(--b500); }
+    .ft-snum {
+      font-family:'Playfair Display',serif;
+      font-size:19px;
+      font-weight:700;
+      color:var(--b900);
+      line-height:1;
+      margin-bottom:2px;
+    }
+    .ft-slabel { font-size:11.5px;color:var(--muted); }
+
+    /* BOTTOM */
+    .ft-bottom {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:18px 0 26px;
+      flex-wrap:wrap;
+    }
+    .ft-copy { font-size:12px;color:var(--faint); }
+    .ft-legal { display:flex;align-items:center;gap:3px;flex-wrap:wrap; }
+    .ft-legal a {
+      font-size:12px;
+      color:var(--muted);
+      text-decoration:none;
+      padding:4px 9px;
+      border-radius:6px;
+      transition:color .15s,background .15s;
+    }
+    .ft-legal a:hover { color:var(--b700);background:var(--b50); }
+    .ft-legal .sep { width:3px;height:3px;border-radius:50%;background:var(--faint);display:inline-block; }
+    .ft-socials { display:flex;gap:7px; }
+    .ft-sbtn {
+      width:34px;height:34px;
+      border-radius:9px;
+      background:var(--card);
+      border:1px solid var(--line);
+      display:flex;align-items:center;justify-content:center;
+      color:var(--muted);
+      text-decoration:none;
+      font-size:13px;
+      transition:background .15s,color .15s,border-color .15s;
+    }
+    .ft-sbtn:hover { background:var(--b500);border-color:var(--b500);color:#fff; }
+
+    /* RESPONSIVE */
+    @media(max-width:960px){
+      .ft-top{grid-template-columns:1fr;gap:32px;}
+      .ft-tagline{max-width:100%;}
+      .ft-cols{grid-template-columns:repeat(2,1fr);}
+      .ft-stats{grid-template-columns:repeat(2,1fr);}
+    }
+    @media(max-width:600px){
+      .ft-inner{padding:0 18px;}
+      .ft-top{padding:38px 0 32px;}
+      .ft-cols{grid-template-columns:1fr 1fr;gap:14px;}
+      .ft-stats{grid-template-columns:1fr 1fr;}
+      .ft-bottom{flex-direction:column;align-items:flex-start;gap:12px;}
+    }
+    @media(max-width:400px){
+      .ft-cols{grid-template-columns:1fr;}
+      .ft-stats{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<footer>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <!-- CITYSCAPE SVG WATERMARK -->
+  <svg class="cityscape" viewBox="0 0 1200 260" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect x="0"   y="155" width="48"  height="105" fill="#1A4A8A"/>
+    <rect x="9"   y="135" width="30"  height="22"  fill="#1A4A8A"/>
+    <rect x="52"  y="115" width="62"  height="145" fill="#1A4A8A"/>
+    <rect x="62"  y="95"  width="42"  height="22"  fill="#1A4A8A"/>
+    <rect x="60"  y="126" width="8" height="8" fill="#fff" opacity=".45"/>
+    <rect x="75"  y="126" width="8" height="8" fill="#fff" opacity=".45"/>
+    <rect x="90"  y="126" width="8" height="8" fill="#fff" opacity=".45"/>
+    <rect x="60"  y="143" width="8" height="8" fill="#fff" opacity=".45"/>
+    <rect x="90"  y="143" width="8" height="8" fill="#fff" opacity=".45"/>
+    <rect x="118" y="85"  width="82"  height="175" fill="#1A4A8A"/>
+    <rect x="128" y="65"  width="62"  height="22"  fill="#1A4A8A"/>
+    <rect x="154" y="46"  width="10"  height="21"  fill="#1A4A8A"/>
+    <rect x="126" y="96"  width="9" height="9" fill="#fff" opacity=".4"/>
+    <rect x="141" y="96"  width="9" height="9" fill="#fff" opacity=".4"/>
+    <rect x="156" y="96"  width="9" height="9" fill="#fff" opacity=".55"/>
+    <rect x="171" y="96"  width="9" height="9" fill="#fff" opacity=".4"/>
+    <rect x="126" y="114" width="9" height="9" fill="#fff" opacity=".55"/>
+    <rect x="171" y="114" width="9" height="9" fill="#fff" opacity=".4"/>
+    <rect x="204" y="138" width="54"  height="122" fill="#1A4A8A"/>
+    <rect x="213" y="118" width="36"  height="22"  fill="#1A4A8A"/>
+    <rect x="285" y="182" width="72"  height="78"  fill="#2E6DD4"/>
+    <polygon points="285,182 357,182 321,142" fill="#2E6DD4"/>
+    <rect x="312" y="212" width="18"  height="48"  fill="#1A4A8A"/>
+    <rect x="290" y="192" width="14" height="14"   fill="#fff" opacity=".5"/>
+    <rect x="338" y="192" width="14" height="14"   fill="#fff" opacity=".5"/>
+    <rect x="376" y="105" width="72"  height="155" fill="#1A4A8A"/>
+    <rect x="386" y="85"  width="52"  height="22"  fill="#1A4A8A"/>
+    <rect x="409" y="66"  width="8"   height="21"  fill="#1A4A8A"/>
+    <rect x="384" y="116" width="9" height="9" fill="#fff" opacity=".4"/>
+    <rect x="399" y="116" width="9" height="9" fill="#fff" opacity=".55"/>
+    <rect x="414" y="116" width="9" height="9" fill="#fff" opacity=".4"/>
+    <rect x="429" y="116" width="9" height="9" fill="#fff" opacity=".4"/>
+    <rect x="452" y="148" width="52"  height="112" fill="#1A4A8A"/>
+    <rect x="460" y="128" width="36"  height="22"  fill="#1A4A8A"/>
+    <rect x="526" y="178" width="82"  height="82"  fill="#2E6DD4"/>
+    <polygon points="526,178 608,178 567,136" fill="#2E6DD4"/>
+    <rect x="558" y="210" width="22"  height="50"  fill="#1A4A8A"/>
+    <rect x="531" y="190" width="16" height="16"   fill="#fff" opacity=".5"/>
+    <rect x="587" y="190" width="16" height="16"   fill="#fff" opacity=".5"/>
+    <rect x="616" y="96"  width="76"  height="164" fill="#1A4A8A"/>
+    <rect x="626" y="76"  width="56"  height="22"  fill="#1A4A8A"/>
+    <rect x="650" y="56"  width="8"   height="22"  fill="#1A4A8A"/>
+    <rect x="624" y="108" width="9" height="9" fill="#fff" opacity=".5"/>
+    <rect x="639" y="108" width="9" height="9" fill="#fff" opacity=".4"/>
+    <rect x="654" y="108" width="9" height="9" fill="#fff" opacity=".55"/>
+    <rect x="669" y="108" width="9" height="9" fill="#fff" opacity=".4"/>
+    <rect x="697" y="140" width="56"  height="120" fill="#1A4A8A"/>
+    <rect x="705" y="120" width="40"  height="22"  fill="#1A4A8A"/>
+    <rect x="758" y="75"  width="66"  height="185" fill="#1A4A8A"/>
+    <rect x="766" y="55"  width="50"  height="22"  fill="#1A4A8A"/>
+    <rect x="788" y="36"  width="8"   height="21"  fill="#1A4A8A"/>
+    <rect x="766" y="86"  width="9"  height="9"    fill="#fff" opacity=".5"/>
+    <rect x="781" y="86"  width="9"  height="9"    fill="#fff" opacity=".4"/>
+    <rect x="796" y="86"  width="9"  height="9"    fill="#fff" opacity=".55"/>
+    <rect x="811" y="86"  width="9"  height="9"    fill="#fff" opacity=".4"/>
+    <rect x="832" y="150" width="54"  height="110" fill="#1A4A8A"/>
+    <rect x="840" y="130" width="38"  height="22"  fill="#1A4A8A"/>
+    <rect x="894" y="185" width="76"  height="75"  fill="#2E6DD4"/>
+    <polygon points="894,185 970,185 932,145" fill="#2E6DD4"/>
+    <rect x="924" y="215" width="20"  height="45"  fill="#1A4A8A"/>
+    <rect x="899" y="196" width="14" height="14"   fill="#fff" opacity=".5"/>
+    <rect x="952" y="196" width="14" height="14"   fill="#fff" opacity=".5"/>
+    <rect x="978" y="115" width="66"  height="145" fill="#1A4A8A"/>
+    <rect x="988" y="95"  width="46"  height="22"  fill="#1A4A8A"/>
+    <rect x="1008" y="75" width="8"   height="22"  fill="#1A4A8A"/>
+    <rect x="1050" y="155" width="54" height="105" fill="#1A4A8A"/>
+    <rect x="1058" y="135" width="38" height="22"  fill="#1A4A8A"/>
+    <rect x="1110" y="95"  width="90" height="165" fill="#1A4A8A"/>
+    <rect x="1120" y="74"  width="70" height="23"  fill="#1A4A8A"/>
+    <rect x="1150" y="54"  width="10" height="22"  fill="#1A4A8A"/>
+    <rect x="1118" y="105" width="9" height="9" fill="#fff" opacity=".5"/>
+    <rect x="1133" y="105" width="9" height="9" fill="#fff" opacity=".4"/>
+    <rect x="1148" y="105" width="9" height="9" fill="#fff" opacity=".55"/>
+    <rect x="1163" y="105" width="9" height="9" fill="#fff" opacity=".4"/>
+    <rect x="0" y="257" width="1200" height="5" fill="#1A4A8A"/>
+  </svg>
+
+  <div class="ft-inner">
+
+    <div class="ft-top">
+
+      <!-- BRAND -->
+      <div>
+        <div class="ft-logo">Urban<em>Tenants</em><span class="ft-dot"></span></div>
+        <p class="ft-tagline">Find verified rooms, PGs and flats near you — zero brokerage, zero stress.</p>
+
+        <!-- inline house SVG -->
+        <svg class="ft-housesvg" width="60" height="52" viewBox="0 0 60 52" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="8" y="26" width="44" height="26" rx="2" fill="#DDEAFF"/>
+          <polygon points="4,26 30,4 56,26" fill="#4F8EF7"/>
+          <rect x="23" y="34" width="14" height="18" fill="#2E6DD4"/>
+          <rect x="10" y="30" width="10" height="10" rx="1" fill="#fff" opacity=".7"/>
+          <rect x="40" y="30" width="10" height="10" rx="1" fill="#fff" opacity=".7"/>
+          <rect x="28" y="10" width="4"  height="4"  fill="#fff" opacity=".6"/>
+        </svg>
+
+        <div class="ft-trust"><i class="fa-solid fa-shield-halved"></i>Trusted in Lucknow</div>
+      </div>
+
+      <!-- NAV COLUMNS -->
+      <div class="ft-cols">
+
+        <div class="ft-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="{% url 'aboutus' %}"><i class="fa-regular fa-building"></i>About Us</a></li>
+            <li><a href="/partner/register"><i class="fa-regular fa-handshake"></i>Partner With Us</a></li>
+            <li><a href="{% url 'aboutus' %}"><i class="fa-regular fa-star"></i>Why UrbanTenants</a></li>
+          </ul>
+        </div>
+
+        <div class="ft-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="/2bhk"><i class="fa-regular fa-building"></i>2 BHK Flats</a></li>
+            <li><a href="/3bhk"><i class="fa-regular fa-building"></i>3 BHK Flats</a></li>
+            <li><a href="/pg"><i class="fa-solid fa-bed"></i>PG / Hostel</a></li>
+            <li><span><i class="fa-regular fa-circle-check"></i>Verified Listings</span></li>
+          </ul>
+        </div>
+
+        <div class="ft-col">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="{% url 'aboutus' %}"><i class="fa-regular fa-circle-question"></i>About Us</a></li>
+            <li><a href="{% url 'Terms-condition' %}"><i class="fa-regular fa-file-lines"></i>Terms & Conditions</a></li>
+            <li><a href="{% url 'privacy-policy' %}"><i class="fa-solid fa-shield-halved"></i>Refund & Cancellation</a></li>
+          </ul>
+        </div>
+
+        <div class="ft-col">
+          <h4>Contact</h4>
+          <div class="ft-ci">
+            <div class="ft-cicon"><i class="fa-solid fa-phone"></i></div>
+            <div class="ft-ctext"><a href="tel:+918303970186">+91 83039 70186</a></div>
+          </div>
+          <div class="ft-ci">
+            <div class="ft-cicon"><i class="fa-solid fa-envelope"></i></div>
+            <div class="ft-ctext"><a href="mailto:suryanshshukla82@gmail.com">suryanshshukla82@gmail.com</a></div>
+          </div>
+          <div class="ft-ci">
+            <div class="ft-cicon"><i class="fa-brands fa-instagram"></i></div>
+            <div class="ft-ctext"><a href="https://www.instagram.com/_housify_?igsh=MW1kajR0NDA0cHVveg==" target="_blank" rel="noopener">@_housify_</a></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- STATS STRIP -->
+    <div class="ft-stats">
+      <div class="ft-stat">
+        <div class="ft-sicon"><i class="fa-solid fa-house"></i></div>
+        <div><div class="ft-snum">500+</div><div class="ft-slabel">Verified Listings</div></div>
+      </div>
+      <div class="ft-stat">
+        <div class="ft-sicon"><i class="fa-solid fa-users"></i></div>
+        <div><div class="ft-snum">2,000+</div><div class="ft-slabel">Happy Tenants</div></div>
+      </div>
+      <div class="ft-stat">
+        <div class="ft-sicon"><i class="fa-solid fa-ban"></i></div>
+        <div><div class="ft-snum">₹0</div><div class="ft-slabel">Brokerage Charged</div></div>
+      </div>
+      <div class="ft-stat">
+        <div class="ft-sicon"><i class="fa-solid fa-location-dot"></i></div>
+        <div><div class="ft-snum">Lucknow</div><div class="ft-slabel">Currently Serving</div></div>
+      </div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="ft-bottom">
+      <p class="ft-copy">© 2026 UrbanTenants. All rights reserved.</p>
+      <div class="ft-legal">
+        <a href="{% url 'aboutus' %}">About Us</a>
+        <span class="sep"></span>
+        <a href="{% url 'Terms-condition' %}">Terms & Conditions</a>
+        <span class="sep"></span>
+        <a href="{% url 'privacy-policy' %}">Refund & Cancellation</a>
+      </div>
+      <div class="ft-socials">
+        <a href="https://www.instagram.com/_housify_?igsh=MW1kajR0NDA0cHVveg==" class="ft-sbtn" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="https://www.linkedin.com/in/suryansh-shukla-52273a390" class="ft-sbtn" target="_blank" rel="noopener" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="https://wa.me/918303970186" class="ft-sbtn" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        <a href="#" class="ft-sbtn" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+</body>
+</html>

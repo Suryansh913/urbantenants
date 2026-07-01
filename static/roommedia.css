@@ -1,0 +1,132 @@
+/* ============================================
+   ROOM DETAIL PAGE — roommedia.css
+   Responsive breakpoints
+   ============================================ */
+
+/* ===== TABLET: below 960px ===== */
+@media (max-width: 960px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-panel {
+        position: static;
+        /* Panel moves below left col on tablet */
+    }
+
+    /* Move booking panel above more-rooms on tablet */
+    .left-col {
+        order: 2;
+    }
+
+    .booking-panel {
+        order: 1;
+    }
+
+    .content-grid {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .booking-panel {
+        order: -1;
+        /* Show panel at top on mobile */
+    }
+}
+
+/* ===== TABLET LANDSCAPE: gallery fix ===== */
+@media (max-width: 860px) {
+    .gallery {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 200px 100px;
+    }
+
+    .gslot-main {
+        grid-column: 1 / 3;
+        grid-row: 1 / 2;
+    }
+}
+
+/* ===== MOBILE: below 640px ===== */
+@media (max-width: 640px) {
+    .rf-main {
+        padding: 16px 0 48px;
+    }
+
+    .rf-wrap {
+        padding: 0 14px;
+    }
+
+    .gallery {
+        grid-template-columns: 1fr;
+        grid-template-rows: 220px 110px 110px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+
+    .gslot-main {
+        grid-column: auto;
+        grid-row: auto;
+    }
+
+    .room-title {
+        font-size: 20px;
+    }
+
+    .stat-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .stat:last-child {
+        grid-column: 1 / 3;
+    }
+
+    .amenity-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+
+    .amen-icon {
+        width: 34px;
+        height: 34px;
+    }
+
+    .amen-name {
+        font-size: 10px;
+    }
+
+    .amen-status {
+        display: none;
+    }
+
+    .panel-price-num {
+        font-size: 28px;
+    }
+
+    .card {
+        padding: 18px;
+        border-radius: 12px;
+    }
+
+    .booking-panel {
+        padding: 20px;
+        border-radius: 12px;
+    }
+}
+
+/* ===== SMALL MOBILE: below 400px ===== */
+@media (max-width: 400px) {
+    .amenity-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+    }
+
+    .amenity {
+        padding: 10px 6px;
+    }
+
+    .stat-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}

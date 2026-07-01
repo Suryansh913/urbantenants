@@ -1,0 +1,1043 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help & Support | UrbanTenants</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+<style>
+:root{
+    --navy:#0b1f3a;
+    --navy-deep:#071427;
+    --blue:#2563eb;
+    --blue-light:#5b9bff;
+    --cream:#f3f6fc;
+    --paper:#ffffff;
+    --ink:#1b2433;
+    --muted:#5c6b7c;
+    --line:#e3e9f5;
+    --radius:18px;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html{scroll-behavior:smooth;}
+
+body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+}
+
+h1,h2,h3{
+    font-family:'Fraunces',serif;
+    letter-spacing:-0.01em;
+}
+
+.container{
+    width:92%;
+    max-width:1180px;
+    margin:auto;
+}
+
+/* ===================== HERO ===================== */
+.hero{
+    position:relative;
+    background:linear-gradient(160deg,#071427 0%,#0b1f3a 55%,#123a73 100%);
+    color:white;
+    text-align:center;
+    padding:90px 20px 70px;
+    overflow:hidden;
+}
+
+.hero::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size:46px 46px;
+    mask-image:radial-gradient(circle at 50% 30%, black, transparent 70%);
+}
+
+.hero-glow{
+    position:absolute;
+    width:520px; height:520px;
+    background:radial-gradient(circle, rgba(91,155,255,0.25), transparent 70%);
+    top:-220px; left:50%;
+    transform:translateX(-50%);
+}
+
+.hero-content{
+    position:relative;
+    z-index:2;
+    max-width:680px;
+    margin:auto;
+}
+
+.hero-eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    color:var(--blue-light);
+    font-size:13px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    font-weight:600;
+    margin-bottom:18px;
+}
+
+.hero-eyebrow::before,
+.hero-eyebrow::after{
+    content:"";
+    width:22px;
+    height:1px;
+    background:var(--blue-light);
+    opacity:.6;
+}
+
+.hero h1{
+    font-size:clamp(32px,5vw,50px);
+    font-weight:600;
+    margin-bottom:14px;
+}
+
+.hero p{
+    font-size:clamp(15px,1.8vw,18px);
+    color:rgba(255,255,255,0.72);
+    line-height:1.6;
+}
+
+.search-box{
+    max-width:600px;
+    margin:36px auto 0;
+    position:relative;
+    z-index:2;
+}
+
+.search-box input{
+    width:100%;
+    padding:18px 56px 18px 24px;
+    border:none;
+    border-radius:50px;
+    font-size:15.5px;
+    outline:none;
+    background:rgba(255,255,255,0.96);
+    box-shadow:0 18px 40px -10px rgba(0,0,0,0.35);
+}
+
+.search-box input:focus{
+    box-shadow:0 0 0 3px var(--blue-light), 0 18px 40px -10px rgba(0,0,0,0.35);
+}
+
+.search-box i{
+    position:absolute;
+    right:22px;
+    top:50%;
+    transform:translateY(-50%);
+    color:var(--blue);
+    font-size:18px;
+}
+
+/* ===================== QUICK LINK CARDS ===================== */
+.cards-section{
+    position:relative;
+    z-index:3;
+    padding:70px 0 90px;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+}
+
+.card{
+    background:var(--paper);
+    padding:30px 24px;
+    border-radius:16px;
+    text-align:center;
+    box-shadow:0 1px 2px rgba(11,31,58,0.04), 0 20px 40px -20px rgba(11,31,58,0.18);
+    transition:transform .3s ease, box-shadow .3s ease;
+}
+
+.card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 24px 45px -18px rgba(37,99,235,0.3);
+}
+
+.card .icon{
+    width:54px;
+    height:54px;
+    margin:0 auto 18px;
+    border-radius:14px;
+    background:linear-gradient(135deg,var(--blue),var(--blue-light));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:22px;
+}
+
+.card h3{
+    font-size:17px;
+    margin-bottom:8px;
+    font-weight:600;
+    font-family:'Inter',sans-serif;
+    color:var(--navy);
+}
+
+.card p{
+    font-size:14px;
+    color:var(--muted);
+    line-height:1.6;
+}
+
+/* ===================== SECTION HEAD ===================== */
+.section-head{
+    text-align:center;
+    max-width:600px;
+    margin:0 auto 50px;
+}
+
+.section-head .tag{
+    color:var(--blue);
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    display:block;
+    margin-bottom:10px;
+}
+
+.section-head h2{
+    font-size:clamp(26px,3.6vw,36px);
+    color:var(--navy);
+    font-weight:600;
+}
+
+/* ===================== FAQ ===================== */
+.faq-section{
+    padding-bottom:90px;
+}
+
+/* ===================== GUIDES ===================== */
+.guides-section{
+    padding-bottom:90px;
+}
+
+.guides-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:18px;
+}
+
+.guide{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:16px;
+    overflow:hidden;
+}
+
+.guide-head{
+    padding:22px 24px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:16px;
+}
+
+.guide-head .num{
+    width:38px;
+    height:38px;
+    flex:0 0 38px;
+    border-radius:10px;
+    background:rgba(37,99,235,0.1);
+    color:var(--blue);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:14px;
+    font-family:'Fraunces',serif;
+}
+
+.guide-head .title{
+    flex:1;
+}
+
+.guide-head h4{
+    font-size:15.5px;
+    font-weight:600;
+    color:var(--navy);
+    margin-bottom:2px;
+}
+
+.guide-head span{
+    font-size:13px;
+    color:var(--muted);
+}
+
+.guide-head i{
+    color:var(--blue);
+    font-size:13px;
+    transition:transform .35s ease;
+}
+
+.guide.active .guide-head i{
+    transform:rotate(180deg);
+}
+
+.guide-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .35s ease;
+}
+
+.guide.active .guide-body{
+    max-height:500px;
+}
+
+.guide-body ol{
+    list-style:none;
+    padding:0 24px 22px 78px;
+    counter-reset:step;
+}
+
+.guide-body ol li{
+    position:relative;
+    padding-bottom:14px;
+    font-size:14.5px;
+    color:var(--ink);
+    line-height:1.6;
+    counter-increment:step;
+}
+
+.guide-body ol li::before{
+    content:counter(step);
+    position:absolute;
+    left:-32px;
+    top:0;
+    width:20px;
+    height:20px;
+    border-radius:50%;
+    background:var(--blue);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.guide-body ol li:last-child{ padding-bottom:0; }
+
+.faq-container{
+    max-width:840px;
+    margin:auto;
+}
+
+.faq{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    margin-bottom:14px;
+    overflow:hidden;
+    transition:opacity .25s ease, transform .25s ease;
+}
+
+.faq-question{
+    padding:21px 24px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:15.5px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    color:var(--navy);
+    gap:16px;
+}
+
+.faq-question i{
+    color:var(--blue);
+    font-size:14px;
+    transition:transform .35s ease;
+    flex:0 0 auto;
+}
+
+.faq.active .faq-question i{
+    transform:rotate(180deg);
+}
+
+.faq-answer{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .35s ease;
+}
+
+.faq.active .faq-answer{
+    max-height:260px;
+}
+
+.faq-answer p{
+    padding:0 24px 21px;
+    color:var(--muted);
+    font-size:14.5px;
+    line-height:1.7;
+}
+
+.no-results{
+    text-align:center;
+    color:var(--muted);
+    padding:30px;
+    display:none;
+}
+
+/* ===================== CONTACT ===================== */
+.contact-section{
+    padding-bottom:90px;
+}
+
+.contact-box{
+    background:var(--paper);
+    border-radius:var(--radius);
+    box-shadow:0 1px 2px rgba(11,31,58,0.04), 0 20px 50px -25px rgba(11,31,58,0.2);
+    overflow:hidden;
+    display:grid;
+    grid-template-columns:1fr 1.1fr;
+}
+
+.contact-info{
+    background:linear-gradient(160deg,var(--navy-deep),var(--navy));
+    color:#fff;
+    padding:48px 40px;
+}
+
+.contact-info h3{
+    font-size:24px;
+    font-weight:600;
+    margin-bottom:10px;
+}
+
+.contact-info > p{
+    color:rgba(255,255,255,0.65);
+    font-size:14.5px;
+    line-height:1.7;
+    margin-bottom:36px;
+}
+
+.contact-item{
+    display:flex;
+    align-items:flex-start;
+    gap:16px;
+    margin-bottom:26px;
+}
+
+.contact-item .ico{
+    width:42px;
+    height:42px;
+    flex:0 0 42px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.08);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--blue-light);
+    font-size:17px;
+}
+
+.contact-item h4{
+    font-size:13px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:rgba(255,255,255,0.5);
+    margin-bottom:4px;
+}
+
+.contact-item a, .contact-item span{
+    color:#fff;
+    font-size:15.5px;
+    font-weight:500;
+    text-decoration:none;
+}
+
+.contact-item a:hover{
+    color:var(--blue-light);
+}
+
+.contact-form{
+    padding:48px 40px;
+}
+
+.contact-form h3{
+    font-size:22px;
+    color:var(--navy);
+    font-weight:600;
+    margin-bottom:6px;
+}
+
+.contact-form > p{
+    color:var(--muted);
+    font-size:14.5px;
+    margin-bottom:28px;
+}
+
+form{
+    display:grid;
+    gap:16px;
+}
+
+.form-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
+
+label{
+    font-size:13px;
+    font-weight:600;
+    color:var(--navy);
+    margin-bottom:6px;
+    display:block;
+}
+
+input, textarea{
+    width:100%;
+    padding:13px 15px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    outline:none;
+    font-size:14.5px;
+    font-family:'Inter',sans-serif;
+    background:#fafbfe;
+    transition:border-color .2s ease, box-shadow .2s ease;
+}
+
+input:focus, textarea:focus{
+    border-color:var(--blue);
+    box-shadow:0 0 0 3px rgba(37,99,235,0.12);
+    background:#fff;
+}
+
+textarea{
+    min-height:110px;
+    resize:vertical;
+}
+
+button{
+    background:var(--blue);
+    color:white;
+    border:none;
+    padding:15px;
+    border-radius:9px;
+    cursor:pointer;
+    font-size:15.5px;
+    font-weight:600;
+    transition:background .25s ease, transform .2s ease;
+}
+
+button:hover{
+    background:#1e40af;
+    transform:translateY(-1px);
+}
+
+.form-note{
+    font-size:12.5px;
+    color:var(--muted);
+    text-align:center;
+}
+
+.form-success{
+    display:none;
+    align-items:center;
+    gap:10px;
+    background:#ecfdf5;
+    color:#047857;
+    padding:14px 16px;
+    border-radius:9px;
+    font-size:14px;
+    font-weight:500;
+}
+
+/* ===================== SAFETY ===================== */
+.safety{
+    padding-bottom:100px;
+}
+
+.safety-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    max-width:900px;
+    margin:auto;
+}
+
+.safety-item{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:20px 22px;
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+}
+
+.safety-item .ico{
+    width:36px;
+    height:36px;
+    flex:0 0 36px;
+    border-radius:10px;
+    background:rgba(37,99,235,0.1);
+    color:var(--blue);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+}
+
+.safety-item p{
+    font-size:14.5px;
+    color:var(--ink);
+    line-height:1.6;
+    padding-top:8px;
+}
+
+/* ===================== FOOTER ===================== */
+footer{
+    background:var(--navy-deep);
+    color:rgba(255,255,255,0.55);
+    text-align:center;
+    padding:28px;
+    font-size:13.5px;
+}
+
+footer span{ color:var(--blue-light); }
+
+/* ===================== RESPONSIVE ===================== */
+@media(max-width:900px){
+    .cards{ grid-template-columns:repeat(2,1fr); }
+    .contact-box{ grid-template-columns:1fr; }
+    .safety-grid{ grid-template-columns:1fr; }
+    .guides-grid{ grid-template-columns:1fr; }
+}
+
+@media(max-width:600px){
+    .hero{ padding:70px 18px 50px; }
+    .cards{ grid-template-columns:1fr; }
+    .cards-section{ padding-top:40px; }
+    .form-row{ grid-template-columns:1fr; }
+    .contact-info, .contact-form{ padding:34px 26px; }
+}
+</style>
+</head>
+<body>
+{% include 'header.html' %}
+<section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+        <span class="hero-eyebrow">Help Center</span>
+        <h1>How can we help you today?</h1>
+        <p>Answers about room rentals, listings, bookings and your account — all in one place.</p>
+    </div>
+
+    <div class="search-box">
+        <input type="text" id="searchFAQ" placeholder="Search FAQs... e.g. booking, refund, listing">
+        <i class="fas fa-search"></i>
+    </div>
+</section>
+
+<section class="cards-section">
+    <div class="container">
+        <div class="cards">
+            <div class="card">
+                <div class="icon"><i class="fas fa-house"></i></div>
+                <h3>Find rooms</h3>
+                <p>Browse verified room listings in your preferred location.</p>
+            </div>
+            <div class="card">
+                <div class="icon"><i class="fas fa-phone"></i></div>
+                <h3>Contact owners</h3>
+                <p>Connect directly with property owners.</p>
+            </div>
+            <div class="card">
+                <div class="icon"><i class="fas fa-triangle-exclamation"></i></div>
+                <h3>Report issues</h3>
+                <p>Flag fake or misleading property listings.</p>
+            </div>
+            <div class="card">
+                <div class="icon"><i class="fas fa-headset"></i></div>
+                <h3>Support team</h3>
+                <p>Get help from the UrbanTenants support team.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="guides-section">
+    <div class="container">
+        <div class="section-head">
+            <span class="tag">Step-by-step</span>
+            <h2>Quick guides</h2>
+        </div>
+
+        <div class="guides-grid">
+
+            <div class="guide">
+                <div class="guide-head">
+                    <div class="num">01</div>
+                    <div class="title">
+                        <h4>How to book a room</h4>
+                        <span>5 steps · 2 min read</span>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="guide-body">
+                    <ol>
+                        <li>Search for rooms by location, budget and room type on the homepage.</li>
+                        <li>Open a listing and review rent, deposit, amenities and owner verification.</li>
+                        <li>Pay the booking amount using any UPI app or the QR code on the listing page.</li>
+                        <li>Fill the booking form with your details and upload the payment screenshot.</li>
+                        <li>Track your booking status anytime from the My Booking section.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="guide">
+                <div class="guide-head">
+                    <div class="num">02</div>
+                    <div class="title">
+                        <h4>How to list your property</h4>
+                        <span>4 steps · 2 min read</span>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="guide-body">
+                    <ol>
+                        <li>Create an UrbanTenants account or log in to your dashboard.</li>
+                        <li>Click "Add Property" and fill in rent, deposit, amenities and room type.</li>
+                        <li>Upload clear photos and your UPI ID or QR code for receiving payments.</li>
+                        <li>Submit for review — your listing goes live once verified.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="guide">
+                <div class="guide-head">
+                    <div class="num">03</div>
+                    <div class="title">
+                        <h4>How to verify an owner before paying</h4>
+                        <span>3 steps · 1 min read</span>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="guide-body">
+                    <ol>
+                        <li>Check the "Verified" badge on the owner's profile and property listing.</li>
+                        <li>Message the owner on WhatsApp and ask for a live video or in-person visit.</li>
+                        <li>Confirm the property address matches the listing before transferring any money.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="guide">
+                <div class="guide-head">
+                    <div class="num">04</div>
+                    <div class="title">
+                        <h4>What to do if a payment fails</h4>
+                        <span>3 steps · 1 min read</span>
+                    </div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="guide-body">
+                    <ol>
+                        <li>Check your bank SMS or UPI app to confirm whether the amount was actually debited.</li>
+                        <li>If debited but the booking didn't confirm, note the transaction ID and UTR number.</li>
+                        <li>Email support@urbantenants.com with the transaction ID — failed payments are refunded within 5–7 working days.</li>
+                    </ol>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section class="faq-section">
+    <div class="container">
+        <div class="section-head">
+            <span class="tag">Common questions</span>
+            <h2>Frequently asked questions</h2>
+        </div>
+
+        <div class="faq-container">
+
+            <div class="faq">
+                <div class="faq-question">
+                    <span>How can I find a room?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Use the search bar on the homepage and browse available listings by location, budget and room type.</p>
+                </div>
+            </div>
+
+            <div class="faq">
+                <div class="faq-question">
+                    <span>Is room booking available online?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Yes — you can pay the booking amount via UPI directly on the property page and confirm your booking online.</p>
+                </div>
+            </div>
+
+            <div class="faq">
+                <div class="faq-question">
+                    <span>How can I list my property?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Create an account and submit your property details, photos and pricing from your dashboard.</p>
+                </div>
+            </div>
+
+            <div class="faq">
+                <div class="faq-question">
+                    <span>What should I do if a listing looks suspicious?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Please report the listing immediately using the report feature, or email us at support@urbantenants.com.</p>
+                </div>
+            </div>
+
+            <div class="faq">
+                <div class="faq-question">
+                    <span>Are listings verified?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>We review listings before they go live, but you should still personally verify details before making any payment.</p>
+                </div>
+            </div>
+
+            <div class="faq">
+                <div class="faq-question">
+                    <span>How do I cancel or get a refund on a booking?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Refund terms are set by the property owner. Check the listing page for the cancellation policy, or contact support for help.</p>
+                </div>
+            </div>
+
+            <div class="no-results">No matching questions found. Try a different search term.</div>
+
+        </div>
+    </div>
+</section>
+
+<section class="contact-section">
+    <div class="container">
+        <div class="section-head">
+            <span class="tag">Still need help</span>
+            <h2>Contact support</h2>
+        </div>
+
+        <div class="contact-box">
+            <div class="contact-info">
+                <h3>We usually reply within a day</h3>
+                <p>Reach out for anything related to bookings, listings, payments or account issues.</p>
+
+                <div class="contact-item">
+                    <div class="ico"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <h4>Email</h4>
+                        <a href="mailto:support@urbantenants.com">support@urbantenants.com</a>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="ico"><i class="fas fa-globe"></i></div>
+                    <div>
+                        <h4>Website</h4>
+                        <span>www.urbantenants.com</span>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="ico"><i class="fas fa-clock"></i></div>
+                    <div>
+                        <h4>Support hours</h4>
+                        <span>Mon – Sat, 9 AM – 7 PM</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-form">
+                <h3>Send us a message</h3>
+                <p>Have a question for any query? Drop us a note and we'll get back to you.</p>
+
+                <form id="supportForm">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div>
+                            <label for="name">Your name</label>
+                            <input type="text" id="name" name="name" placeholder="Enter your name" required>
+                        </div>
+                        <div>
+                            <label for="email">Your email</label>
+                            <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" name="subject" placeholder="What's this about?" required>
+                    </div>
+
+                    <div>
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" placeholder="Describe your issue or question..." required></textarea>
+                    </div>
+
+                    <button type="submit">Submit request</button>
+
+                    <div class="form-success" id="formSuccess">
+                        <i class="fas fa-circle-check"></i>
+                        <span>Your request has been submitted. We'll email you at support@urbantenants.com shortly.</span>
+                    </div>
+
+                    <div class="form-error" id="formError" style="display:none;color:#b91c1c;font-size:13.5px;text-align:center;"></div>
+
+                    <p class="form-note">For urgent queries, email us directly at support@urbantenants.com</p>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="safety">
+    <div class="container">
+        <div class="section-head">
+            <span class="tag">Stay protected</span>
+            <h2>Safety tips</h2>
+        </div>
+
+        <div class="safety-grid">
+            <div class="safety-item">
+                <div class="ico"><i class="fas fa-check"></i></div>
+                <p>Never pay before visiting the property in person.</p>
+            </div>
+            <div class="safety-item">
+                <div class="ico"><i class="fas fa-check"></i></div>
+                <p>Verify owner details before making any transaction.</p>
+            </div>
+            <div class="safety-item">
+                <div class="ico"><i class="fas fa-check"></i></div>
+                <p>Read rental agreements carefully before signing.</p>
+            </div>
+            <div class="safety-item">
+                <div class="ico"><i class="fas fa-check"></i></div>
+                <p>Report suspicious listings immediately to our team.</p>
+            </div>
+            <div class="safety-item">
+                <div class="ico"><i class="fas fa-check"></i></div>
+                <p>Keep payment receipts and booking records safe.</p>
+            </div>
+            <div class="safety-item">
+                <div class="ico"><i class="fas fa-check"></i></div>
+                <p>Email support@urbantenants.com if anything feels off.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    © 2026 UrbanTenants. All Rights Reserved. &nbsp;|&nbsp; <span>support@urbantenants.com</span>
+</footer>
+
+<script>
+// FAQ accordion (CSS-driven, class toggle only)
+document.querySelectorAll(".faq-question").forEach(item => {
+    item.addEventListener("click", () => {
+        item.parentElement.classList.toggle("active");
+    });
+});
+
+// Guides accordion
+document.querySelectorAll(".guide-head").forEach(item => {
+    item.addEventListener("click", () => {
+        item.parentElement.classList.toggle("active");
+    });
+});
+
+// FAQ live search
+const searchInput = document.getElementById("searchFAQ");
+const faqItems = document.querySelectorAll(".faq");
+const noResults = document.querySelector(".no-results");
+
+searchInput.addEventListener("keyup", function(){
+    const value = this.value.toLowerCase().trim();
+    let visibleCount = 0;
+
+    faqItems.forEach(faq => {
+        const text = faq.innerText.toLowerCase();
+        if(text.includes(value)){
+            faq.style.display = "block";
+            visibleCount++;
+        }else{
+            faq.style.display = "none";
+        }
+    });
+
+    noResults.style.display = visibleCount === 0 ? "block" : "none";
+});
+
+// Support form submit - posts to Django backend
+const form = document.getElementById("supportForm");
+const formSuccess = document.getElementById("formSuccess");
+const formError = document.getElementById("formError");
+
+form.addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const formData = new FormData(form);
+
+    fetch("/support/submit/", {
+        method: "POST",
+        body: formData,
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success){
+            formError.style.display = "none";
+            formSuccess.style.display = "flex";
+            form.reset();
+            setTimeout(()=>{ formSuccess.style.display = "none"; }, 5000);
+        }else{
+            formSuccess.style.display = "none";
+            formError.style.display = "block";
+            formError.textContent = data.error || "Something went wrong. Please try again.";
+        }
+    })
+    .catch(() => {
+        formSuccess.style.display = "none";
+        formError.style.display = "block";
+        formError.textContent = "Could not submit your request. Please check your connection and try again.";
+    });
+});
+</script>
+{% include 'footer.html' %}
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Room Booking — UrbnaTenants</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-50:  #E6F1FB;
+      --blue-100: #B5D4F4;
+      --blue-300: #5BA3E8;
+      --blue-500: #2579D4;
+      --blue-600: #185FA5;
+      --blue-700: #0E4A84;
+      --blue-900: #042C53;
+      --neutral-50:  #F7F9FC;
+      --neutral-100: #EEF2F8;
+      --neutral-200: #D8E1EF;
+      --neutral-400: #8FA5C4;
+      --neutral-600: #506180;
+      --neutral-700: #374B65;
+      --neutral-900: #111827;
+      --white: #ffffff;
+      --green-50:  #F0FDF4;
+      --green-100: #BBF7D0;
+      --green-500: #22C55E;
+      --green-600: #16A34A;
+      --amber-50:  #FFFBEB;
+      --amber-100: #FDE68A;
+      --amber-400: #FBBF24;
+      --amber-500: #F59E0B;
+      --amber-600: #D97706;
+      --amber-700: #92400E;
+      --amber-800: #78350F;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --shadow-sm: 0 2px 8px rgba(24,95,165,0.07);
+      --shadow-md: 0 6px 24px rgba(24,95,165,0.13);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--neutral-50);
+      color: var(--neutral-900);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ══ ALERT BANNER ══ */
+    .warn-banner {
+      background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+      border-bottom: 2px solid var(--amber-400);
+      width: 100%;
+      position: relative;
+      z-index: 100;
+      animation: bannerSlide 0.4s ease both;
+    }
+    .warn-banner-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .warn-icon-wrap {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: #FDE68A;
+      border: 1.5px solid var(--amber-400);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .warn-icon-wrap svg { width: 18px; height: 18px; color: var(--amber-600); }
+    .warn-text { flex: 1; min-width: 0; }
+    .warn-text strong {
+      font-family: 'Sora', sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--amber-700);
+      display: block;
+      margin-bottom: 3px;
+    }
+    .warn-text p {
+      font-size: 13px;
+      color: var(--amber-800);
+      line-height: 1.55;
+    }
+    .warn-text p em {
+      font-style: normal;
+      font-weight: 700;
+      color: var(--amber-600);
+      background: rgba(245,158,11,0.12);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    .warn-close {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(217,119,6,0.12);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .warn-close:hover { background: rgba(217,119,6,0.22); }
+    .warn-close svg { width: 13px; height: 13px; color: var(--amber-700); }
+    .warn-progress {
+      height: 3px;
+      background: linear-gradient(90deg, var(--amber-500), var(--amber-400));
+      animation: shrink 8s linear forwards;
+      transform-origin: left;
+    }
+
+    /* ══ HERO ══ */
+    .hero {
+      background: linear-gradient(145deg, var(--blue-900) 0%, var(--blue-700) 55%, var(--blue-500) 100%);
+      position: relative; overflow: hidden;
+      padding: 64px 24px 56px; text-align: center;
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px; pointer-events: none;
+    }
+    .hero-glow {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 30%, rgba(91,163,232,0.2) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 70%, rgba(255,255,255,0.06) 0%, transparent 45%);
+      pointer-events: none;
+    }
+    .hero-inner { max-width: 620px; margin: 0 auto; position: relative; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 100px; padding: 6px 18px;
+      font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.88);
+      margin-bottom: 22px;
+      animation: fadeUp 0.4s ease both;
+    }
+    .hero h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: clamp(28px, 5vw, 46px); font-weight: 700;
+      color: #fff; letter-spacing: -1px; line-height: 1.12;
+      margin-bottom: 14px;
+      animation: fadeUp 0.45s ease 0.07s both;
+    }
+    .hero h1 em { font-style: normal; color: var(--blue-100); }
+    .hero-sub {
+      font-size: clamp(14px, 2vw, 16px); color: rgba(255,255,255,0.68);
+      font-weight: 300; line-height: 1.65; margin-bottom: 32px;
+      animation: fadeUp 0.45s ease 0.13s both;
+    }
+    .hero-trust {
+      display: flex; justify-content: center; align-items: center;
+      gap: 0; flex-wrap: wrap;
+      animation: fadeUp 0.45s ease 0.19s both;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; color: rgba(255,255,255,0.78); padding: 0 18px;
+    }
+    .trust-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(34,197,94,0.2); border: 1px solid rgba(34,197,94,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: var(--green-500); flex-shrink: 0;
+    }
+    .trust-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.18); }
+
+    /* ══ LAYOUT ══ */
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 48px 24px 72px; }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: start;
+      animation: fadeUp 0.45s ease 0.1s both;
+    }
+
+    /* ══ PANEL ══ */
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .panel-header {
+      background: linear-gradient(135deg, var(--blue-900), var(--blue-700));
+      padding: 22px 28px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .panel-header-icon {
+      width: 42px; height: 42px;
+      border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .panel-header-icon svg { width: 20px; height: 20px; color: #fff; }
+    .panel-header-title {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 3px;
+    }
+    .panel-header-sub { font-size: 12px; color: rgba(255,255,255,0.6); }
+    .panel-body { padding: 28px; }
+
+    /* ══ PAYMENT PANEL ══ */
+    .upi-block { margin-bottom: 28px; }
+    .upi-block-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--neutral-400); margin-bottom: 10px;
+    }
+    .upi-id-row {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--neutral-50);
+      border: 1.5px dashed var(--blue-300);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+    .upi-id-val {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px; font-weight: 600;
+      color: var(--blue-700); flex: 1; word-break: break-all;
+    }
+    .btn-copy {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--blue-600); color: #fff; border: none;
+      border-radius: var(--radius-sm); padding: 8px 14px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      white-space: nowrap; transition: background 0.18s;
+      font-family: 'DM Sans', sans-serif; flex-shrink: 0;
+    }
+    .btn-copy:hover { background: var(--blue-700); }
+    .btn-copy svg { width: 13px; height: 13px; }
+    .upi-steps { margin-top: 14px; display: flex; flex-direction: column; gap: 9px; }
+    .upi-step { display: flex; align-items: flex-start; gap: 10px; }
+    .upi-step-dot {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--blue-50); border: 1px solid var(--blue-100);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: var(--blue-700);
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .upi-step span { font-size: 13px; color: var(--neutral-600); line-height: 1.55; }
+    .pay-divider {
+      display: flex; align-items: center; gap: 12px; margin: 24px 0;
+    }
+    .pay-divider-line { flex: 1; height: 1px; background: var(--neutral-200); }
+    .pay-divider-text {
+      font-size: 11px; font-weight: 600; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--neutral-400); white-space: nowrap;
+    }
+    .qr-block { display: flex; flex-direction: column; align-items: center; }
+    .qr-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--neutral-400);
+      margin-bottom: 16px; align-self: flex-start;
+    }
+    .qr-frame {
+      background: var(--white);
+      border: 2px solid var(--neutral-200);
+      border-radius: var(--radius-md);
+      padding: 14px; display: inline-flex;
+      margin-bottom: 14px; box-shadow: var(--shadow-sm);
+    }
+    .qr-frame img { width: 160px; height: 160px; display: block; }
+    .qr-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--green-50); border: 1px solid var(--green-100);
+      border-radius: 100px; padding: 5px 14px;
+      font-size: 12px; font-weight: 600; color: var(--green-600);
+    }
+    .qr-badge-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--green-500);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    /* ══ EMAIL NOTICE (above email field) ══ */
+    .email-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--amber-50);
+      border: 1px solid var(--amber-400);
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      margin-bottom: 6px;
+    }
+    .email-notice svg { width: 15px; height: 15px; color: var(--amber-600); flex-shrink: 0; margin-top: 1px; }
+    .email-notice span {
+      font-size: 12.5px;
+      color: var(--amber-700);
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .email-notice strong { color: var(--amber-600); font-weight: 700; }
+
+    /* ══ BOOKING FORM ══ */
+    .booking-form p { margin-bottom: 18px; }
+    .booking-form label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: var(--neutral-700); margin-bottom: 6px; letter-spacing: 0.2px;
+    }
+    .booking-form input[type="text"],
+    .booking-form input[type="email"],
+    .booking-form input[type="number"],
+    .booking-form input[type="tel"],
+    .booking-form input[type="date"],
+    .booking-form input[type="file"],
+    .booking-form select,
+    .booking-form textarea {
+      width: 100%; padding: 11px 14px;
+      border: 1.5px solid var(--neutral-200);
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; color: var(--neutral-900);
+      background: var(--white);
+      transition: border-color 0.18s, box-shadow 0.18s;
+      outline: none;
+    }
+    .booking-form input:focus,
+    .booking-form select:focus,
+    .booking-form textarea:focus {
+      border-color: var(--blue-500);
+      box-shadow: 0 0 0 3px rgba(37,121,212,0.1);
+    }
+    /* highlight email field */
+    .booking-form input[type="email"] {
+      border-color: var(--amber-400);
+    }
+    .booking-form input[type="email"]:focus {
+      border-color: var(--amber-500);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.12);
+    }
+    .booking-form textarea { resize: vertical; min-height: 90px; }
+    .booking-form select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238FA5C4' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px;
+    }
+    .booking-form ul.errorlist { list-style: none; margin: 4px 0 0; }
+    .booking-form ul.errorlist li { font-size: 12px; color: #DC2626; }
+
+    .btn-confirm {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 14px;
+      border-radius: var(--radius-sm);
+      background: var(--blue-600); color: #fff;
+      font-family: 'Sora', sans-serif;
+      font-size: 15px; font-weight: 700;
+      border: none; cursor: pointer; margin-top: 8px;
+      transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-confirm:hover { background: var(--blue-700); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .btn-confirm svg { width: 18px; height: 18px; }
+    .form-trust {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: 12px; color: var(--neutral-400); margin-top: 14px;
+    }
+    .form-trust svg { width: 13px; height: 13px; color: var(--blue-500); }
+
+    /* ══ KEYFRAMES ══ */
+    @keyframes fadeUp    { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes pulse     { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    @keyframes bannerSlide { from{opacity:0;transform:translateY(-100%)} to{opacity:1;transform:translateY(0)} }
+    @keyframes bannerOut   { from{opacity:1;max-height:100px} to{opacity:0;max-height:0;padding:0} }
+    @keyframes shrink    { from{width:100%} to{width:0%} }
+
+    /* ══ RESPONSIVE ══ */
+    @media (max-width: 800px) { .two-col { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) {
+      .hero { padding: 52px 20px 44px; }
+      .page-wrap { padding: 28px 16px 56px; }
+      .panel-body { padding: 20px 16px; }
+      .trust-divider { display: none; }
+      .trust-item { padding: 4px 10px; }
+      .qr-frame img { width: 140px; height: 140px; }
+      .warn-banner-inner { padding: 12px 16px; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+{% include 'header.html' %}
+
+<!-- ══ ALERT BANNER (inline, not fixed) ══ -->
+<div class="warn-banner" id="warnBanner">
+  <div class="warn-banner-inner">
+    <div class="warn-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </div>
+    <div class="warn-text">
+      <strong>Important — Please Read Before Booking</strong>
+      <p>Use the <em>same email address</em> you used to log in to UrbnaTenants. Bookings are linked to your login email and can only be accessed through that account.</p>
+    </div>
+    <button class="warn-close" onclick="dismissBanner()" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+  <div class="warn-progress"></div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">UrbnaTenants</div>
+    <h1>Secure Your <em>Perfect Space</em></h1>
+    <p class="hero-sub">Pay first, then fill your details. Zero brokerage, instant confirmation.</p>
+    <div class="hero-trust">
+      <div class="trust-item"><span class="trust-icon">✓</span><span>Verified Properties</span></div>
+      <div class="trust-divider"></div>
+      <div class="trust-item"><span class="trust-icon">✓</span><span>Zero Brokerage</span></div>
+      <div class="trust-divider"></div>
+      <div class="trust-item"><span class="trust-icon">✓</span><span>Secure Payment</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="page-wrap">
+  <div class="two-col">
+
+    <!-- LEFT — PAYMENT -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <div>
+          <div class="panel-header-title">Step 1 — Complete Payment</div>
+          <div class="panel-header-sub">Pay via UPI ID or scan the QR code below</div>
+        </div>
+      </div>
+      <div class="panel-body">
+
+        <div class="upi-block">
+          <div class="upi-block-label">UPI ID</div>
+          <div class="upi-id-row">
+            <span class="upi-id-val" id="upiIdText">{{ upi_id }}</span>
+            <button class="btn-copy" onclick="copyUPI()" id="copyBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+          <div class="upi-steps">
+            <div class="upi-step"><span class="upi-step-dot">1</span><span>Open PhonePe, GPay, Paytm or any UPI app</span></div>
+            <div class="upi-step"><span class="upi-step-dot">2</span><span>Go to "Send Money" → "Pay by UPI ID"</span></div>
+            <div class="upi-step"><span class="upi-step-dot">3</span><span>Paste the UPI ID above and enter the amount</span></div>
+            <div class="upi-step"><span class="upi-step-dot">4</span><span>Complete payment and save your screenshot</span></div>
+          </div>
+        </div>
+
+        <div class="pay-divider">
+          <div class="pay-divider-line"></div>
+          <span class="pay-divider-text">or scan QR code</span>
+          <div class="pay-divider-line"></div>
+        </div>
+
+        <div class="qr-block">
+          <div class="qr-label">Scan &amp; Pay</div>
+          <div class="qr-frame">
+            <img src="data:image/png;base64,{{ qr_code }}" alt="UPI QR Code" />
+          </div>
+          <span class="qr-badge">
+            <span class="qr-badge-dot"></span>
+            UPI QR · Works with all apps
+          </span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT — BOOKING FORM -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
+        <div>
+          <div class="panel-header-title">Step 2 — Fill Booking Details</div>
+          <div class="panel-header-sub">Submit your information after payment</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <form method="POST" action="{% url 'bookingform' room.id %}" class="booking-form" enctype="multipart/form-data" id="bookingForm">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit" class="btn-confirm">
+            <span>Confirm Booking</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+        <div class="form-trust">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Secure booking · No hidden charges
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* ── Copy UPI ── */
+  function copyUPI() {
+    const upiText = document.getElementById('upiIdText').innerText.trim();
+    const btn = document.getElementById('copyBtn');
+    navigator.clipboard.writeText(upiText).then(() => {
+      btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+      btn.style.background = 'var(--green-600)';
+      setTimeout(() => {
+        btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`;
+        btn.style.background = 'var(--blue-600)';
+      }, 2000);
+    }).catch(() => {
+      const el = document.createElement('textarea');
+      el.value = upiText; document.body.appendChild(el);
+      el.select(); document.execCommand('copy'); document.body.removeChild(el);
+      btn.textContent = 'Copied!'; btn.style.background = 'var(--green-600)';
+      setTimeout(() => { btn.textContent = 'Copy'; btn.style.background = 'var(--blue-600)'; }, 2000);
+    });
+  }
+
+  /* ── Dismiss banner ── */
+  var warnTimer = setTimeout(dismissBanner, 8000);
+  function dismissBanner() {
+    clearTimeout(warnTimer);
+    const el = document.getElementById('warnBanner');
+    if (!el) return;
+    el.style.animation = 'bannerOut 0.35s ease forwards';
+    setTimeout(() => el.remove(), 360);
+  }
+
+  /* ── Inject email notice ABOVE the email label ── */
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('bookingForm');
+    if (!form) return;
+
+    /* Find the <p> that wraps the email input */
+    const emailInput = form.querySelector('input[type="email"], input[name*="email"], input[id*="email"]');
+    if (!emailInput) return;
+
+    const wrapper = emailInput.closest('p') || emailInput.parentElement;
+
+    const notice = document.createElement('div');
+    notice.className = 'email-notice';
+    notice.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <span>Please enter the <strong>same email address</strong> you used to log in to UrbnaTenants.</span>
+    `;
+
+    /* Insert notice just before the wrapper paragraph */
+    wrapper.parentNode.insertBefore(notice, wrapper);
+  });
+</script>
+{% include 'chat_widget.html' %}
+{% include 'footer.html' %}
+</body>
+</html>

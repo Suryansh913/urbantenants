@@ -1,0 +1,358 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Dashboard | UrbanTenants</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+<style>
+:root{
+    --navy:#0b1f3a;
+    --navy-deep:#071427;
+    --blue:#2563eb;
+    --blue-light:#5b9bff;
+    --cream:#f3f6fc;
+    --paper:#ffffff;
+    --ink:#1b2433;
+    --muted:#5c6b7c;
+    --line:#e3e9f5;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+}
+
+h1,h2{ font-family:'Fraunces',serif; letter-spacing:-0.01em; }
+
+.topbar{
+    background:var(--navy-deep);
+    color:#fff;
+    padding:18px 30px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.topbar .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-weight:600;
+    font-size:16px;
+}
+
+.topbar .brand .badge{
+    width:34px;
+    height:34px;
+    border-radius:9px;
+    background:linear-gradient(135deg,var(--blue),var(--blue-light));
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:15px;
+}
+
+.topbar .user{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    font-size:14px;
+    color:rgba(255,255,255,0.7);
+}
+
+.logout-btn{
+    background:rgba(255,255,255,0.08);
+    color:#fff;
+    border:1px solid rgba(255,255,255,0.15);
+    padding:8px 16px;
+    border-radius:8px;
+    font-size:13.5px;
+    text-decoration:none;
+    transition:background .2s ease;
+}
+
+.logout-btn:hover{ background:rgba(255,255,255,0.16); }
+
+.container{
+    max-width:1100px;
+    margin:auto;
+    padding:40px 24px 80px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+    margin-bottom:34px;
+}
+
+.stat-card{
+    background:var(--paper);
+    border-radius:14px;
+    padding:22px 24px;
+    box-shadow:0 1px 2px rgba(11,31,58,0.04), 0 16px 35px -20px rgba(11,31,58,0.18);
+}
+
+.stat-card .label{
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:8px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    font-weight:600;
+}
+
+.stat-card .value{
+    font-size:30px;
+    font-weight:700;
+    color:var(--navy);
+    font-family:'Fraunces',serif;
+}
+
+.toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:20px;
+    flex-wrap:wrap;
+    gap:12px;
+}
+
+.tabs{
+    display:flex;
+    gap:8px;
+}
+
+.tab{
+    padding:9px 18px;
+    border-radius:30px;
+    font-size:13.5px;
+    font-weight:600;
+    text-decoration:none;
+    color:var(--muted);
+    background:var(--paper);
+    border:1px solid var(--line);
+    transition:all .2s ease;
+}
+
+.tab.active{
+    background:var(--blue);
+    color:#fff;
+    border-color:var(--blue);
+}
+
+.query-list{
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+}
+
+.query-card{
+    background:var(--paper);
+    border-radius:14px;
+    padding:22px 24px;
+    box-shadow:0 1px 2px rgba(11,31,58,0.04), 0 16px 35px -20px rgba(11,31,58,0.15);
+    border-left:4px solid var(--blue);
+}
+
+.query-card.resolved{
+    border-left-color:#22c55e;
+    opacity:0.7;
+}
+
+.query-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    margin-bottom:10px;
+}
+
+.query-top h3{
+    font-size:16px;
+    font-weight:600;
+    color:var(--navy);
+    font-family:'Inter',sans-serif;
+    margin-bottom:4px;
+}
+
+.query-meta{
+    font-size:13px;
+    color:var(--muted);
+}
+
+.query-meta i{ margin-right:5px; color:var(--blue); }
+
+.query-meta span{ margin-right:16px; }
+
+.status-pill{
+    flex:0 0 auto;
+    font-size:12px;
+    font-weight:700;
+    padding:5px 12px;
+    border-radius:30px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+}
+
+.status-pill.open{ background:rgba(37,99,235,0.1); color:var(--blue); }
+.status-pill.resolved{ background:rgba(34,197,94,0.12); color:#16a34a; }
+
+.query-message{
+    font-size:14.5px;
+    color:var(--ink);
+    line-height:1.6;
+    background:#f8fafc;
+    padding:14px 16px;
+    border-radius:10px;
+    margin-top:6px;
+}
+
+.query-actions{
+    margin-top:14px;
+    display:flex;
+    gap:10px;
+}
+
+.btn-toggle{
+    font-size:13px;
+    font-weight:600;
+    padding:8px 16px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--navy);
+    cursor:pointer;
+    transition:all .2s ease;
+}
+
+.btn-toggle:hover{ background:var(--cream); }
+
+.empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--muted);
+}
+
+.empty-state i{
+    font-size:36px;
+    color:var(--blue-light);
+    margin-bottom:14px;
+}
+
+@media(max-width:700px){
+    .stats{ grid-template-columns:1fr; }
+    .topbar{ padding:16px 18px; }
+    .query-top{ flex-direction:column; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="brand">
+        <div class="badge"><i class="fas fa-headset"></i></div>
+        UrbanTenants Support
+    </div>
+    <div class="user">
+        <span><i class="fas fa-user-circle"></i> {{ request.user.username }}</span>
+        <a class="logout-btn" href="{% url 'support_logout' %}">Log out</a>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="stats">
+        <div class="stat-card">
+            <div class="label">Total queries</div>
+            <div class="value">{{ total_count }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Open</div>
+            <div class="value">{{ open_count }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Resolved</div>
+            <div class="value">{{ resolved_count }}</div>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <div class="tabs">
+            <a href="?status=all" class="tab {% if status == 'all' %}active{% endif %}">All</a>
+            <a href="?status=open" class="tab {% if status == 'open' %}active{% endif %}">Open</a>
+            <a href="?status=resolved" class="tab {% if status == 'resolved' %}active{% endif %}">Resolved</a>
+        </div>
+    </div>
+
+    <div class="query-list">
+        {% for q in queries %}
+        <div class="query-card {% if q.resolved %}resolved{% endif %}" id="query-{{ q.id }}">
+            <div class="query-top">
+                <div>
+                    <h3>{{ q.subject }}</h3>
+                    <div class="query-meta">
+                        <span><i class="fas fa-user"></i>{{ q.name }}</span>
+                        <span><i class="fas fa-envelope"></i>{{ q.email }}</span>
+                        <span><i class="fas fa-clock"></i>{{ q.created_at|date:"d M Y, h:i A" }}</span>
+                    </div>
+                </div>
+                <span class="status-pill {% if q.resolved %}resolved{% else %}open{% endif %}">
+                    {% if q.resolved %}Resolved{% else %}Open{% endif %}
+                </span>
+            </div>
+
+            <div class="query-message">{{ q.message }}</div>
+
+            <div class="query-actions">
+                <button class="btn-toggle" onclick="toggleResolved({{ q.id }}, this)">
+                    {% if q.resolved %}Mark as open{% else %}Mark as resolved{% endif %}
+                </button>
+                <a class="btn-toggle" href="mailto:{{ q.email }}?subject=Re: {{ q.subject }}">Reply by email</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>No queries found for this filter.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<script>
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+function toggleResolved(id, btn){
+    fetch(`/support/query/${id}/toggle/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success){
+            location.reload();
+        }
+    });
+}
+</script>
+
+</body>
+</html>

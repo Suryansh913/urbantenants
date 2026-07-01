@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ room.Room_title }} — UrbnaTenants</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue-50:  #E6F1FB;
+      --blue-100: #B5D4F4;
+      --blue-300: #5BA3E8;
+      --blue-500: #2579D4;
+      --blue-600: #185FA5;
+      --blue-700: #0E4A84;
+      --blue-900: #042C53;
+      --neutral-50:  #F7F9FC;
+      --neutral-100: #EEF2F8;
+      --neutral-200: #D8E1EF;
+      --neutral-400: #8FA5C4;
+      --neutral-600: #506180;
+      --neutral-900: #111827;
+      --white: #ffffff;
+      --green-500: #22C55E;
+      --green-50:  #F0FDF4;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 22px;
+      --shadow-sm: 0 2px 8px rgba(24,95,165,0.07);
+      --shadow-md: 0 6px 24px rgba(24,95,165,0.13);
+      --shadow-lg: 0 16px 48px rgba(24,95,165,0.18);
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--neutral-50);
+      color: var(--neutral-900);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    .breadcrumb {
+      max-width: 1200px; margin: 0 auto; padding: 18px 24px 0;
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--neutral-400); flex-wrap: wrap;
+    }
+    .breadcrumb a { color: var(--blue-600); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .bc-sep { color: var(--neutral-300); }
+    .breadcrumb span { color: var(--neutral-600); }
+
+    .rf-main { padding-bottom: 60px; }
+    .rf-wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* GALLERY */
+    .gallery {
+      margin: 20px 0 32px; position: relative;
+      display: grid; grid-template-columns: 1fr 1fr;
+      grid-template-rows: 280px 180px; gap: 8px;
+      border-radius: var(--radius-lg); overflow: hidden;
+    }
+    .gslot { overflow: hidden; cursor: pointer; background: var(--neutral-200); position: relative; }
+    .gslot-main { grid-column: 1; grid-row: 1 / 3; }
+    .gslot:nth-child(2) { grid-column: 2; grid-row: 1; }
+    .gslot:nth-child(3) { grid-column: 2; grid-row: 2; }
+    .gslot:nth-child(n+4) { display: none; }
+    .gimg { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; display: block; }
+    .gslot:hover .gimg { transform: scale(1.04); }
+    .photo-pill {
+      position: absolute; bottom: 16px; right: 16px;
+      background: rgba(4,44,83,0.78); backdrop-filter: blur(8px);
+      color: #fff; font-size: 13px; font-weight: 500;
+      padding: 6px 14px; border-radius: 100px;
+      border: 1px solid rgba(255,255,255,0.15); pointer-events: none; z-index: 2;
+    }
+    .gslot-overlay {
+      position: absolute; inset: 0; background: rgba(4,44,83,0.55);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-family: 'Sora', sans-serif; font-size: 22px;
+      font-weight: 700; pointer-events: none;
+    }
+
+    /* LIGHTBOX */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: rgba(4,44,83,0.95); backdrop-filter: blur(6px);
+      flex-direction: column; align-items: center; justify-content: center;
+    }
+    .lightbox.active { display: flex; }
+    .lb-top {
+      position: absolute; top: 0; left: 0; right: 0;
+      padding: 16px 20px; display: flex; align-items: center;
+      justify-content: space-between; z-index: 2;
+    }
+    .lb-counter { font-family: 'Sora', sans-serif; font-size: 14px; color: rgba(255,255,255,0.7); font-weight: 600; }
+    .lb-close {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.18s;
+    }
+    .lb-close:hover { background: rgba(255,255,255,0.22); }
+    .lb-close svg { width: 18px; height: 18px; }
+    .lb-stage { position: absolute; top: 56px; bottom: 100px; left: 0; right: 0; overflow: hidden; }
+    .lb-img-wrap {
+      display: flex; flex-direction: row; width: 100%; height: 100%;
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1); will-change: transform;
+    }
+    .lb-slide {
+      flex: 0 0 100%; width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center; padding: 8px 56px;
+    }
+    .lb-slide img {
+      max-width: 100%; max-height: 100%; object-fit: contain;
+      border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
+      user-select: none; -webkit-user-drag: none; pointer-events: none;
+    }
+    .lb-btn {
+      position: fixed; top: 50%; transform: translateY(-50%);
+      width: 48px; height: 48px; border-radius: 50%;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; z-index: 10001; transition: background 0.18s;
+    }
+    .lb-btn:hover { background: rgba(255,255,255,0.22); }
+    .lb-btn.prev { left: 16px; }
+    .lb-btn.next { right: 16px; }
+    .lb-btn svg { width: 20px; height: 20px; }
+    .lb-dots {
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 8px; z-index: 3;
+    }
+    .lb-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.35); cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .lb-dot.active { background: #fff; transform: scale(1.25); }
+    .lb-thumbnails {
+      position: absolute; bottom: 44px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 8px; z-index: 3;
+      max-width: calc(100vw - 40px); overflow-x: auto; padding: 4px; scrollbar-width: none;
+    }
+    .lb-thumbnails::-webkit-scrollbar { display: none; }
+    .lb-thumb {
+      width: 56px; height: 40px; border-radius: 6px; object-fit: cover;
+      opacity: 0.5; cursor: pointer; border: 2px solid transparent;
+      transition: opacity 0.2s, border-color 0.2s; flex-shrink: 0;
+    }
+    .lb-thumb.active { opacity: 1; border-color: #fff; }
+
+    /* CONTENT GRID */
+    .content-grid { display: grid; grid-template-columns: 1fr 360px; gap: 28px; align-items: start; }
+
+    .card {
+      background: var(--white); border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg); padding: 28px; margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+    .card:last-child { margin-bottom: 0; }
+
+    .tag-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .tag { font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 100px; letter-spacing: 0.3px; }
+    .tag-avail { background: var(--green-50); color: var(--green-500); border: 1px solid #bbf7d0; }
+    .tag-type  { background: var(--blue-50); color: var(--blue-700); border: 1px solid var(--blue-100); }
+
+    .room-title {
+      font-family: 'Sora', sans-serif; font-size: clamp(20px, 3vw, 28px);
+      font-weight: 700; color: var(--neutral-900); letter-spacing: -0.5px;
+      line-height: 1.25; margin-bottom: 10px;
+    }
+
+    .offer-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg, #FEF3E2, #FDE9C8);
+      color: #B45309; border: 1px solid #FBD38D;
+      font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700;
+      padding: 6px 14px; border-radius: 100px; margin-bottom: 16px;
+    }
+
+    .room-loc { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--neutral-600); margin-bottom: 24px; }
+    .room-loc svg { flex-shrink: 0; color: var(--blue-500); }
+
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .stat { background: var(--neutral-50); border: 1px solid var(--neutral-200); border-radius: var(--radius-md); padding: 16px; }
+    .stat-lbl { font-size: 11px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; color: var(--neutral-400); margin-bottom: 6px; }
+    .stat-val { font-family: 'Sora', sans-serif; font-size: 18px; font-weight: 700; color: var(--neutral-900); }
+    .stat-unit { font-size: 12px; font-weight: 400; color: var(--neutral-400); }
+    .stat-type { font-size: 14px; }
+    .stat-old-price { text-decoration: line-through; color: var(--neutral-400); font-size: 12px; font-weight: 500; }
+    .stat-discount-pill { color: #16a34a; font-weight: 700; font-size: 12px; margin-left: 6px; }
+
+    .card-heading { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 600; color: var(--neutral-900); margin-bottom: 20px; letter-spacing: -0.2px; }
+
+    /* AMENITIES */
+    .amenity-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .amenity { border-radius: var(--radius-md); padding: 16px 12px; text-align: center; border: 1px solid var(--neutral-200); background: var(--neutral-50); transition: border-color 0.18s, box-shadow 0.18s; }
+    .amenity.on  { background: var(--blue-50); border-color: var(--blue-100); }
+    .amenity.off { opacity: 0.48; }
+    .amen-icon { width: 44px; height: 44px; border-radius: var(--radius-sm); margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; }
+    .amenity.on  .amen-icon { background: var(--blue-100); color: var(--blue-700); }
+    .amenity.off .amen-icon { background: var(--neutral-200); color: var(--neutral-400); }
+    .amen-name   { font-size: 13px; font-weight: 600; color: var(--neutral-900); display: block; margin-bottom: 4px; }
+    .amen-status { font-size: 11px; color: var(--neutral-400); display: block; }
+    .amenity.on  .amen-status { color: var(--blue-600); }
+
+    /* BOOKING PANEL */
+    .booking-panel {
+      position: sticky; top: 24px; background: var(--white);
+      border: 1px solid var(--neutral-200); border-radius: var(--radius-lg);
+      padding: 28px; box-shadow: var(--shadow-md);
+    }
+    .panel-price-block { margin-bottom: 4px; }
+    .panel-price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
+    .panel-price-num { font-family: 'Sora', sans-serif; font-size: 34px; font-weight: 700; color: var(--neutral-900); letter-spacing: -1px; }
+    .panel-price-mo { font-size: 15px; color: var(--neutral-400); font-weight: 400; }
+    .panel-price-compare { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 10px; }
+    .panel-price-old { text-decoration: line-through; color: var(--neutral-400); }
+    .panel-price-off {
+      color: #16a34a; font-weight: 700; background: #F0FDF4;
+      border: 1px solid #bbf7d0; padding: 2px 8px; border-radius: 100px; font-size: 12px;
+    }
+    .panel-deposit  { font-size: 13px; color: var(--neutral-600); margin-bottom: 10px; }
+    .panel-avail    { font-size: 13px; color: var(--green-500); font-weight: 600; }
+    .panel-divider  { border: none; border-top: 1px solid var(--neutral-200); margin: 20px 0; }
+    .panel-info-list { display: flex; flex-direction: column; gap: 14px; }
+    .panel-info-row  { display: flex; align-items: flex-start; gap: 12px; }
+    .panel-info-icon { width: 34px; height: 34px; border-radius: var(--radius-sm); background: var(--blue-50); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--blue-600); }
+    .panel-info-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--neutral-400); font-weight: 600; margin-bottom: 3px; }
+    .panel-info-val { font-size: 14px; font-weight: 500; color: var(--neutral-900); }
+
+    .btn-whatsapp {
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      width: 100%; padding: 13px; border-radius: var(--radius-sm);
+      background: #22C55E; color: #fff; font-family: 'Sora', sans-serif;
+      font-size: 15px; font-weight: 600; text-decoration: none;
+      margin-bottom: 10px; transition: background 0.18s, transform 0.12s;
+    }
+    .btn-whatsapp:hover { background: #16a34a; transform: translateY(-1px); }
+
+    .btn-book {
+      display: flex; align-items: center; justify-content: center;
+      width: 100%; padding: 13px; border-radius: var(--radius-sm);
+      background: var(--blue-600); color: #fff; font-family: 'Sora', sans-serif;
+      font-size: 15px; font-weight: 600; text-decoration: none;
+      margin-bottom: 16px; transition: background 0.18s, transform 0.12s;
+    }
+    .btn-book:hover { background: var(--blue-700); transform: translateY(-1px); }
+
+    .trust-note { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--neutral-400); justify-content: center; }
+
+    /* RATING CARD */
+    .rating-card {
+      background: var(--neutral-50); border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-md); padding: 18px 16px;
+      display: flex; align-items: center; gap: 1.5rem;
+      flex-wrap: wrap; margin: 16px 0;
+    }
+    .rating-big { font-family: 'Sora', sans-serif; font-size: 42px; font-weight: 700; line-height: 1; color: var(--neutral-900); }
+    .stars-row { display: flex; gap: 3px; margin: 6px 0; }
+    .star-filled { color: #BA7517; font-size: 20px; }
+    .star-empty  { color: #D3D1C7; font-size: 20px; }
+    .rating-label { font-size: 12px; color: var(--neutral-400); margin-top: 4px; }
+    .bar-section { flex: 1; min-width: 140px; }
+    .bar-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; font-size: 12px; color: var(--neutral-600); }
+    .bar-track { flex: 1; height: 5px; background: var(--neutral-200); border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; background: #BA7517; border-radius: 3px; }
+    .bar-count { min-width: 18px; text-align: right; font-size: 11px; color: var(--neutral-400); }
+
+
+
+    /* MAP */
+    .map-section { max-width: 1200px; margin: 28px auto 0; padding: 0 24px; }
+    .map-label { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 600; color: var(--neutral-900); margin-bottom: 14px; letter-spacing: -0.2px; }
+    #userMap { height: 360px; width: 100%; border-radius: var(--radius-lg); border: 1px solid var(--neutral-200); box-shadow: var(--shadow-sm); overflow: hidden; }
+    .feet { height: 40px; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .content-grid { grid-template-columns: 1fr; }
+      .booking-panel { position: static; order: -1; }
+      .gallery { grid-template-rows: 240px 160px; }
+      .amenity-grid { grid-template-columns: repeat(4, 1fr); }
+      .stat-row { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .rf-wrap { padding: 0 16px; }
+      .breadcrumb { padding: 14px 16px 0; }
+      .map-section { padding: 0 16px; }
+      .gallery {
+        display: flex; flex-direction: row; overflow-x: auto;
+        scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+        grid-template-columns: unset; grid-template-rows: unset;
+        height: 230px; border-radius: var(--radius-lg); gap: 0; scrollbar-width: none;
+      }
+      .gallery::-webkit-scrollbar { display: none; }
+      .gslot, .gslot:nth-child(n+4) {
+        display: block !important; min-width: 100%; width: 100%; height: 230px;
+        scroll-snap-align: start; flex-shrink: 0; border-radius: 0;
+        grid-column: unset; grid-row: unset;
+      }
+      .gslot-main { grid-column: unset; grid-row: unset; }
+      .card { padding: 20px 16px; }
+      .booking-panel { padding: 20px 16px; }
+      .stat-row { grid-template-columns: 1fr 1fr; }
+      .stat:last-child { grid-column: 1 / -1; }
+      .amenity-grid { grid-template-columns: repeat(2, 1fr); }
+      #userMap { height: 260px; }
+      .lb-btn.prev { left: 8px; }
+      .lb-btn.next { right: 8px; }
+      .lb-thumbnails { bottom: 36px; }
+    }
+    @media (max-width: 400px) {
+      .amenity-grid { grid-template-columns: repeat(2, 1fr); }
+      .panel-price-num { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+{% load static %}
+{% include "header.html" %}
+
+<main class="rf-main">
+  <div class="rf-wrap">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a href="/">Home</a>
+      <span class="bc-sep">›</span>
+      <a href="/">Rooms</a>
+      <span class="bc-sep">›</span>
+      <span>{{ room.Room_title }}</span>
+    </nav>
+
+    <!-- Gallery -->
+    <div class="gallery" id="gallery">
+      {% for img in images %}
+        {% if img %}
+          <div class="gslot {% if forloop.first %}gslot-main{% endif %}" data-index="{{ forloop.counter0 }}">
+            <img src="{{ img.url }}" alt="Room image {{ forloop.counter }}" class="gimg" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}" />
+            {% if forloop.counter == 3 and images|length > 3 %}
+              <div class="gslot-overlay">+{{ images|length|add:"-3" }} more</div>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+      <div class="photo-pill">&#128247; {{ images|length }} Photos</div>
+    </div>
+
+    <!-- Content grid -->
+    <div class="content-grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="left-col">
+
+        <!-- Room overview -->
+        <div class="card">
+          <div class="tag-row">
+            {% if room.Room_available %}
+              <span class="tag tag-avail">&#10004; Available</span>
+            {% else %}
+              <span class="tag" style="background:#fef2f2; color:#ef4444; border:1px solid #fecaca;">&#10007; Not Available</span>
+            {% endif %}
+            <span class="tag tag-type">Only For: {{ room.Room_type }}</span>
+            <span class="tag" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0;">📅 Listed: {{ room.date }}</span>
+          </div>
+          <h1 class="room-title">{{ room.Room_title }}</h1>
+
+          {% if room.offer.discount_percent %}
+            <span class="offer-badge">🔥 {{ room.offer.discount_percent }}% OFF — Limited Time Offer</span>
+          {% endif %}
+
+          <p class="room-loc">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            {{ room.location_name }}
+          </p>
+          <div class="stat-row">
+            <div class="stat">
+              <div class="stat-lbl">Monthly Rent</div>
+              {% if room.offer.discount_percent %}
+                <div class="stat-val">&#8377;{{ final_price }}<span class="stat-unit">/mo</span></div>
+                <div style="margin-top:4px;">
+                  <span class="stat-old-price">&#8377;{{ room.Room_rent }}</span>
+                  <span class="stat-discount-pill">{{ room.offer.discount_percent }}% OFF</span>
+                </div>
+              {% else %}
+                <div class="stat-val">&#8377;{{ room.Room_rent }}<span class="stat-unit">/mo</span></div>
+              {% endif %}
+            </div>
+            <div class="stat">
+              <div class="stat-lbl">Security Deposit</div>
+              <div class="stat-val">&#8377;{{ room.Room_security }}</div>
+            </div>
+            <div class="stat">
+              <div class="stat-lbl">Room Type</div>
+              <div class="stat-val stat-type">{{ room.Room_type }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amenities -->
+        <div class="card">
+          <h2 class="card-heading">Amenities &amp; Furnishings</h2>
+          <div class="amenity-grid">
+
+            <div class="amenity {% if room.wifi %}on{% else %}off{% endif %}">
+              <div class="amen-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+              </div>
+              <span class="amen-name">Wi-Fi</span>
+              <span class="amen-status">{% if room.wifi %}Available{% else %}Not available{% endif %}</span>
+            </div>
+
+            <div class="amenity {% if room.bed %}on{% else %}off{% endif %}">
+              <div class="amen-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>
+              </div>
+              <span class="amen-name">Bed</span>
+              <span class="amen-status">{% if room.bed %}Included{% else %}Not included{% endif %}</span>
+            </div>
+
+            <div class="amenity {% if room.chair %}on{% else %}off{% endif %}">
+              <div class="amen-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v4"/><path d="M18 2v4"/><rect x="4" y="6" width="16" height="6" rx="2"/><path d="M4 12v8"/><path d="M20 12v8"/><path d="M4 20h16"/></svg>
+              </div>
+              <span class="amen-name">Chair</span>
+              <span class="amen-status">{% if room.chair %}Included{% else %}Not included{% endif %}</span>
+            </div>
+
+            <div class="amenity {% if room.table %}on{% else %}off{% endif %}">
+              <div class="amen-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="3" rx="1"/><path d="M5 10v9"/><path d="M19 10v9"/></svg>
+              </div>
+              <span class="amen-name">Table</span>
+              <span class="amen-status">{% if room.table %}Included{% else %}Not included{% endif %}</span>
+            </div>
+
+            <div class="amenity {% if room.mattres %}on{% else %}off{% endif %}">
+              <div class="amen-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="8" width="20" height="10" rx="2"/><path d="M2 13h20"/><path d="M6 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/></svg>
+              </div>
+              <span class="amen-name">Mattress</span>
+              <span class="amen-status">{% if room.mattres %}Included{% else %}Not included{% endif %}</span>
+            </div>
+
+            <div class="amenity {% if room.fan %}on{% else %}off{% endif %}">
+              <div class="amen-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"/><path d="M12 9c-1 -2 -3 -5 -2 -7c1 -1 4 0 5 3"/><path d="M15 12c2 1 5 2 5 4c0 2 -3 3 -6 1"/><path d="M9 12c-2 -1 -5 -2 -5 -4c0 -2 3 -3 6 -1"/><path d="M12 15c1 2 2 5 0 6c-2 1 -4 -1 -5 -4"/></svg>
+              </div>
+              <span class="amen-name">Fan</span>
+              <span class="amen-status">{% if room.fan %}Included{% else %}Not included{% endif %}</span>
+            </div>
+
+            <div class="amenity {% if room.Ac %}on{% else %}off{% endif %}">
+              <div class="amen-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16l-2 2"/><path d="M16 16l2 2"/><path d="M12 20v-8"/><rect x="2" y="6" width="20" height="8" rx="2"/><path d="M8 10h8"/></svg>
+              </div>
+              <span class="amen-name">AC</span>
+              <span class="amen-status">{% if room.Ac %}Available{% else %}Not available{% endif %}</span>
+            </div>
+
+            <div class="amenity {% if room.ro %}on{% else %}off{% endif %}">
+              <div class="amen-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              </div>
+              <span class="amen-name">RO Water</span>
+              <span class="amen-status">{% if room.ro %}Available{% else %}Not available{% endif %}</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Room Details -->
+        {% if room.Room_details %}
+        <div class="card">
+          <h2 class="card-heading">Room Details</h2>
+          <p style="font-size: 15px; color: var(--neutral-600); line-height: 1.7;">{{ room.Room_details }}</p>
+        </div>
+        {% endif %}
+
+      </div><!-- end left-col -->
+
+      <!-- RIGHT PANEL -->
+      <div class="booking-panel">
+        <div class="panel-price-block">
+          <div class="panel-price-row">
+            <span class="panel-price-num">&#8377;{{ final_price|default:room.Room_rent }}</span>
+            <span class="panel-price-mo">/ month</span>
+          </div>
+          {% if room.offer.discount_percent %}
+            <div class="panel-price-compare">
+              <span class="panel-price-old">&#8377;{{ room.Room_rent }}</span>
+              <span class="panel-price-off">{{ room.offer.discount_percent }}% OFF</span>
+            </div>
+          {% endif %}
+          <p class="panel-deposit">Security deposit: &#8377;{{ room.Room_security }}</p>
+          <span class="panel-avail">&#10004; Available</span>
+        </div>
+
+        <hr class="panel-divider" />
+
+        <div class="panel-info-list">
+          <div class="panel-info-row">
+            <div class="panel-info-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <div class="panel-info-lbl">Location</div>
+              <div class="panel-info-val">{{ room.location_name }}</div>
+            </div>
+          </div>
+          <div class="panel-info-row">
+            <div class="panel-info-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div>
+              <div class="panel-info-lbl">Landmark</div>
+              <div class="panel-info-val">As per listing</div>
+            </div>
+          </div>
+          <div class="panel-info-row">
+            <div class="panel-info-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <div class="panel-info-lbl">Owner Reference</div>
+              <div class="panel-info-val">Verified Owner</div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="panel-divider" />
+
+        {% if room.partner and room.partner.phone %}
+          <a href="https://wa.me/91{{ room.partner.phone }}?text=Hello%20I%20want%20to%20contact%20you" target="_blank" class="btn-whatsapp">
+        {% else %}
+          <a href="https://wa.me/918303970186?text=Hello%20I%20want%20to%20contact%20you" target="_blank" class="btn-whatsapp">
+        {% endif %}
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+          Chat on WhatsApp
+        </a>
+
+        <a href="{% url 'bookingform' room.id %}" class="btn-book">Pay &amp; Book</a>
+
+        <!-- Rating Summary -->
+        <div class="rating-card">
+          <div style="text-align:center">
+            <label>Average Rating</label>
+            <div class="rating-big">{{ room.average_rating|floatformat:1 }}</div>
+            <div class="stars-row" style="justify-content:center">
+              {% with avg=room.average_rating %}
+                {% for i in "12345" %}
+                  {% if forloop.counter <= avg %}
+                    <span class="star-filled">★</span>
+                  {% else %}
+                    <span class="star-empty">★</span>
+                  {% endif %}
+                {% endfor %}
+              {% endwith %}
+            </div>
+            <div class="rating-label">{{ room.total_reviews }} reviews</div>
+          </div>
+          <div class="bar-section">
+            {% for bar in star_bars %}
+            <div class="bar-row">
+              <span>{{ bar.star }}</span>
+              <span style="color:#BA7517;font-size:12px;">★</span>
+              <div class="bar-track">
+                <div class="bar-fill" style="width:{{ bar.pct }}%"></div>
+              </div>
+              <span class="bar-count">{{ bar.count }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <p class="trust-note">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Secure booking &middot; No hidden charges
+        </p>
+      </div><!-- end booking-panel -->
+
+    </div><!-- end content-grid -->
+  </div><!-- end rf-wrap -->
+
+  <!-- MAP -->
+  {% if room.latitude and room.longitude %}
+  <div class="map-section">
+    <p class="map-label">Property Location</p>
+    <div id="userMap"></div>
+  </div>
+  {% endif %}
+
+  <div class="feet"></div>
+
+</main>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <div class="lb-top">
+    <span class="lb-counter" id="lbCounter">1 / 1</span>
+    <button class="lb-close" id="lbClose" aria-label="Close">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="lb-stage">
+    <div class="lb-img-wrap" id="lbImgWrap"></div>
+  </div>
+  <button class="lb-btn prev" id="lbPrev" aria-label="Previous image">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <button class="lb-btn next" id="lbNext" aria-label="Next image">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+  <div class="lb-thumbnails" id="lbThumbs"></div>
+  <div class="lb-dots" id="lbDots"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+(function () {
+  const gallery = document.getElementById('gallery');
+  const allImgs = gallery ? Array.from(gallery.querySelectorAll('.gslot img')) : [];
+  const imgURLs = allImgs.map(img => img.getAttribute('src') || img.src).filter(Boolean);
+  const total   = imgURLs.length;
+  if (!total) return;
+
+  const wrap   = document.getElementById('lbImgWrap');
+  const thumbC = document.getElementById('lbThumbs');
+  const dotsC  = document.getElementById('lbDots');
+
+  imgURLs.forEach((url, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'lb-slide';
+    const img = document.createElement('img');
+    img.src = url; img.alt = 'Room image ' + (i + 1); img.draggable = false;
+    slide.appendChild(img); wrap.appendChild(slide);
+    const th = document.createElement('img');
+    th.src = url; th.className = 'lb-thumb' + (i === 0 ? ' active' : '');
+    th.addEventListener('click', () => goTo(i)); thumbC.appendChild(th);
+    if (total <= 10) {
+      const dot = document.createElement('div');
+      dot.className = 'lb-dot' + (i === 0 ? ' active' : '');
+      dot.addEventListener('click', () => goTo(i)); dotsC.appendChild(dot);
+    }
+  });
+
+  function updateDotVis() {
+    dotsC.style.display  = window.innerWidth < 480 ? 'flex'  : 'none';
+    thumbC.style.display = window.innerWidth < 480 ? 'none' : 'flex';
+  }
+  updateDotVis(); window.addEventListener('resize', updateDotVis);
+
+  let current = 0;
+  const lightbox = document.getElementById('lightbox');
+  const counter  = document.getElementById('lbCounter');
+
+  function goTo(idx) {
+    current = (idx + total) % total;
+    wrap.style.transform = `translateX(-${current * 100}%)`;
+    counter.textContent  = `${current + 1} / ${total}`;
+    thumbC.querySelectorAll('.lb-thumb').forEach((t, i) => t.classList.toggle('active', i === current));
+    dotsC.querySelectorAll('.lb-dot').forEach((d, i) => d.classList.toggle('active', i === current));
+    const th = thumbC.querySelectorAll('.lb-thumb')[current];
+    if (th) th.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+
+  function open(idx) { lightbox.classList.add('active'); document.body.style.overflow = 'hidden'; goTo(idx); }
+  function close()   { lightbox.classList.remove('active'); document.body.style.overflow = ''; }
+
+  if (gallery) {
+    const pill = gallery.querySelector('.photo-pill');
+    gallery.addEventListener('scroll', () => {
+      const idx = Math.round(gallery.scrollLeft / gallery.offsetWidth);
+      if (pill) pill.textContent = `📷 ${idx + 1} / ${total}`;
+    }, { passive: true });
+  }
+
+  gallery.querySelectorAll('.gslot').forEach(slot => {
+    const idx = parseInt(slot.getAttribute('data-index') || '0', 10);
+    slot.addEventListener('click', () => open(idx));
+  });
+
+  document.getElementById('lbClose').addEventListener('click', close);
+  document.getElementById('lbPrev').addEventListener('click', () => goTo(current - 1));
+  document.getElementById('lbNext').addEventListener('click', () => goTo(current + 1));
+  lightbox.addEventListener('click', e => { if (e.target === lightbox) close(); });
+  document.addEventListener('keydown', e => {
+    if (!lightbox.classList.contains('active')) return;
+    if (e.key === 'ArrowRight') goTo(current + 1);
+    if (e.key === 'ArrowLeft')  goTo(current - 1);
+    if (e.key === 'Escape')     close();
+  });
+
+  let touchStartX = 0, touchStartY = 0;
+  lightbox.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }, { passive: true });
+  lightbox.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) { dx < 0 ? goTo(current + 1) : goTo(current - 1); }
+  }, { passive: true });
+
+  {% if room.latitude and room.longitude %}
+  var lat = {{ room.latitude }};
+  var lng = {{ room.longitude }};
+  var map = L.map('userMap').setView([lat, lng], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
+  L.marker([lat, lng]).addTo(map).bindPopup("{{ room.Room_title|escapejs }}").openPopup();
+  setTimeout(function() { map.invalidateSize(); }, 300);
+  {% endif %}
+})();
+</script>
+
+
+
+{% include 'chat_widget.html' %}
+{% include "footer.html" %}
+</body>
+</html>
