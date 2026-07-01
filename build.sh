@@ -13,4 +13,4 @@ python manage.py migrate --noinput
 
 echo "Build completed successfully!"
 
-echo "DATABASE_URL is: $DATABASE_URL"
+echo "DATABASE_URL is set: ${DATABASE_URL:+yes}"

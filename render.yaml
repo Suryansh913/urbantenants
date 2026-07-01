@@ -4,6 +4,7 @@ services:
     env: python
     plan: free
     rootDir: .
+    workingDirectory: .
 
     buildCommand: bash build.sh
     startCommand: gunicorn zameen.wsgi:application --bind 0.0.0.0:$PORT
