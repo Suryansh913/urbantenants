@@ -88,7 +88,6 @@ import dj_database_url
 
 if os.getenv("DATABASE_URL"):
     DATABASES = {
-        'ENGINE': 'django.db.backends.postgresql',
         "default": dj_database_url.parse(
             os.environ["DATABASE_URL"],
             conn_max_age=600,
@@ -101,8 +100,6 @@ else:
             "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-
-
 print("USING SQLITE DATABASE")
 
 # ── PASSWORD VALIDATION ────────────────────────────────
