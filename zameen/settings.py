@@ -83,12 +83,25 @@ WSGI_APPLICATION = 'zameen.wsgi.application'
 from django.conf import settings
 # ── DATABASE ───────────────────────────────────────────
 # SQLite for everything (local + production)
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+import os
+import dj_database_url
+
+if os.getenv("DATABASE_URL"):
+    DATABASES = {
+        'ENGINE': 'django.db.backends.postgresql',
+        "default": dj_database_url.parse(
+            os.environ["DATABASE_URL"],
+            conn_max_age=600,
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+
 
 print("USING SQLITE DATABASE")
 
