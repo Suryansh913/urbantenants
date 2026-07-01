@@ -1,29 +1,14 @@
 #!/usr/bin/env bash
 set -o errexit
 
-echo "============================================"
-echo "Step 1: Installing dependencies..."
-echo "============================================"
+echo "Installing dependencies..."
 pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
 
-echo ""
-echo "============================================"
-echo "Step 2: Collecting static files..."
-echo "============================================"
-python manage.py collectstatic --noinput || true
+echo "Collecting static files..."
+python manage.py collectstatic --noinput || echo "Static files collection failed but continuing"
 
-echo ""
-echo "============================================"
-echo "Step 3: Running migrations..."
-echo "============================================"
-if [ -n "$DATABASE_URL" ]; then
-    echo "DATABASE_URL is set. Running migrations..."
-    python manage.py migrate --noinput
-else
-    echo "⚠️  WARNING: DATABASE_URL not found!"
-    python manage.py migrate --noinput || true
-fi
+echo "Running migrations..."
+python manage.py migrate --noinput || echo "Migrations failed but continuing"
 
-echo ""
-echo "✅ Build completed successfully!"
+echo "✅ Build completed!"

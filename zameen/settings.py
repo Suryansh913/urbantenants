@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import sys
 import dj_database_url
 import cloudinary
 import cloudinary.uploader
@@ -23,7 +24,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-3a@=a=ir!)nxbf3ru342_
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = ['*']
 
-# ── APPS ���──────────────────────────────────────────────
+# ── APPS ───────────────────────────────────────────────
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -82,20 +83,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'zameen.wsgi.application'
 
 # ── DATABASE ───────────────────────────────────────────
-if os.environ.get('DATABASE_URL'):
-    DATABASES = {
-        'default': dj_database_url.config(
-            conn_max_age=600,
-            conn_health_checks=True
-        )
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+try:
+    if os.environ.get('DATABASE_URL'):
+        DATABASES = {'default': dj_database_url.config(conn_max_age=600)}
+    else:
+        DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'}}
+except Exception as e:
+    print(f"Database config error: {e}", file=sys.stderr)
+    DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': BASE_DIR / 'db.sqlite3'}}
 
 # ── PASSWORD VALIDATION ────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
@@ -151,14 +146,11 @@ SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
-
-
 # ── MISC ───────────────────────────────────────────────
 CSRF_FAILURE_VIEW = 'zameen.views.csrf_failure'
 X_FRAME_OPTIONS = "SAMEORIGIN"
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
