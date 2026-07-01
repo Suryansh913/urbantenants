@@ -81,14 +81,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'zameen.wsgi.application'
 
 # ── DATABASE ───────────────────────────────────────────
-database_url = os.environ.get('DATABASE_URL')
-
 import dj_database_url
 
 # Check if DATABASE_URL exists in environment
 if os.environ.get('DATABASE_URL'):
     DATABASES = {
-        'default': dj_database_url.config(conn_max_age=600)
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
 else:
     # Fallback for local development
