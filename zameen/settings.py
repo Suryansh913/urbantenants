@@ -88,6 +88,7 @@ import dj_database_url
 
 import dj_database_url
 
+# ── DATABASE ───────────────────────────────────────────
 raw_db_url = os.environ.get("DATABASE_URL")
 print("RAW DATABASE_URL REPR:", repr(raw_db_url))
 
@@ -101,9 +102,10 @@ DATABASES = {
     "default": dj_database_url.parse(
         raw_db_url.strip(),
         conn_max_age=600,
-        ssl_require=True,
     )
 }
+
+print("FINAL DATABASES:", {k: v for k, v in DATABASES["default"].items() if k != "PASSWORD"})
 print("USING SQLITE DATABASE")
 
 # ── PASSWORD VALIDATION ────────────────────────────────
