@@ -97,7 +97,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'housifydb',
+            'NAME': BASE_DIR / 'db.sqlite3',
             'USER': 'postgres',
             'PASSWORD': 'suryan4898',
             'HOST': 'localhost',
