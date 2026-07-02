@@ -5,7 +5,7 @@ import cloudinary
 import cloudinary.uploader
 from urllib.parse import urlparse
 import cloudinary.api
-print("🔥🔥🔥 MARKER_TEST_12345 - YE NAYA CODE HAI hello 🔥🔥🔥")
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 from dotenv import load_dotenv
 load_dotenv()
@@ -81,30 +81,28 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'zameen.wsgi.application'
-from django.conf import settings
+
 # ── DATABASE ───────────────────────────────────────────
-# SQLite for everything (local + production)
-import os
-import os
+# Uses DATABASE_URL if set (Render/production). Falls back to local
+# SQLite automatically so local dev works without any env var.
 import dj_database_url
 
-from urllib.parse import urlparse
-import os
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-url = urlparse(os.environ["DATABASE_URL"])
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": url.path[1:],
-        "USER": url.username,
-        "PASSWORD": url.password,
-        "HOST": url.hostname,
-        "PORT": url.port,
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+        )
     }
-}
-
-print(DATABASES)
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # ── PASSWORD VALIDATION ────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
@@ -179,8 +177,3 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 SITE_ID = int(os.environ.get('SITE_ID', 1))
-print("FINAL DATABASES:", DATABASES)
-print("hi")
-print("DATABASE =", DATABASES)
-print("ENGINE =", DATABASES["default"].get("ENGINE"))
-raise Exception("STOP HERE") 
