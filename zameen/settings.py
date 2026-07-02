@@ -106,33 +106,6 @@ DATABASES = {
 
 print(DATABASES)
 
-# import dj_database_url
-# DATABASES = {
-#         "default": {
-#             "ENGINE": "django.db.backends.sqlite3",
-#             "NAME": BASE_DIR / "db.sqlite3",
-#         }
-#     }
-# ── DATABASE ───────────────────────────────────────────
-# raw_db_url = os.environ.get("DATABASE_URL")
-# print("RAW DATABASE_URL REPR:", repr(raw_db_url))
-
-# if not raw_db_url or not raw_db_url.strip():
-#     raise Exception(
-#         "DATABASE_URL env variable Render dashboard pe set nahi hai ya khaali hai! "
-#         "Environment tab mein jaake add karo."
-#     )
-
-# DATABASES = {
-#     "default": dj_database_url.parse(
-#         raw_db_url.strip(),
-#         conn_max_age=600,
-#     )
-# }
-
-# print("FINAL DATABASES:", {k: v for k, v in DATABASES["default"].items() if k != "PASSWORD"})
-# print("USING SQLITE DATABASE")
-
 # ── PASSWORD VALIDATION ────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
