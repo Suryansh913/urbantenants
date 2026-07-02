@@ -7,8 +7,16 @@ from urllib.parse import urlparse
 import cloudinary.api
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-from dotenv import load_dotenv
-load_dotenv()
+
+# .env sirf local development ke liye — agar package installed nahi hai
+# (jaise production/Render pe agar requirements update na ho), to
+# silently skip kar do, crash mat karo. Render env vars already
+# system environment se milte hain.
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 # ── EMAIL ──────────────────────────────────────────────
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
