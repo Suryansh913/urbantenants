@@ -5,7 +5,7 @@ import cloudinary
 import cloudinary.uploader
 from urllib.parse import urlparse
 import cloudinary.api
-print("🔥🔥🔥 MARKER_TEST_12345 - YE NAYA CODE HAI 🔥🔥🔥")
+print("🔥🔥🔥 MARKER_TEST_12345 - YE NAYA CODE HAI hello 🔥🔥🔥")
 BASE_DIR = Path(__file__).resolve().parent.parent
 from dotenv import load_dotenv
 load_dotenv()
@@ -208,3 +208,6 @@ SOCIALACCOUNT_PROVIDERS = {
 SITE_ID = int(os.environ.get('SITE_ID', 1))
 print("FINAL DATABASES:", DATABASES)
 print("hi")
+print("DATABASE =", DATABASES)
+print("ENGINE =", DATABASES["default"].get("ENGINE"))
+raise Exception("STOP HERE") 
