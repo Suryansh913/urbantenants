@@ -3,6 +3,7 @@ import os
 import sys
 import cloudinary
 import cloudinary.uploader
+from urllib.parse import urlparse
 import cloudinary.api
 print("🔥🔥🔥 MARKER_TEST_12345 - YE NAYA CODE HAI 🔥🔥🔥")
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -85,28 +86,45 @@ from django.conf import settings
 # SQLite for everything (local + production)
 import os
 import dj_database_url
-
-import dj_database_url
-
+if os.environ.get("DATABASE_URL"):
+    DATABASES = {
+        "default": dj_database_url.parse(
+            os.environ.get("DATABASE_URL")
+        )
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+# import dj_database_url
+# DATABASES = {
+#         "default": {
+#             "ENGINE": "django.db.backends.sqlite3",
+#             "NAME": BASE_DIR / "db.sqlite3",
+#         }
+#     }
 # ── DATABASE ───────────────────────────────────────────
-raw_db_url = os.environ.get("DATABASE_URL")
-print("RAW DATABASE_URL REPR:", repr(raw_db_url))
+# raw_db_url = os.environ.get("DATABASE_URL")
+# print("RAW DATABASE_URL REPR:", repr(raw_db_url))
 
-if not raw_db_url or not raw_db_url.strip():
-    raise Exception(
-        "DATABASE_URL env variable Render dashboard pe set nahi hai ya khaali hai! "
-        "Environment tab mein jaake add karo."
-    )
+# if not raw_db_url or not raw_db_url.strip():
+#     raise Exception(
+#         "DATABASE_URL env variable Render dashboard pe set nahi hai ya khaali hai! "
+#         "Environment tab mein jaake add karo."
+#     )
 
-DATABASES = {
-    "default": dj_database_url.parse(
-        raw_db_url.strip(),
-        conn_max_age=600,
-    )
-}
+# DATABASES = {
+#     "default": dj_database_url.parse(
+#         raw_db_url.strip(),
+#         conn_max_age=600,
+#     )
+# }
 
-print("FINAL DATABASES:", {k: v for k, v in DATABASES["default"].items() if k != "PASSWORD"})
-print("USING SQLITE DATABASE")
+# print("FINAL DATABASES:", {k: v for k, v in DATABASES["default"].items() if k != "PASSWORD"})
+# print("USING SQLITE DATABASE")
 
 # ── PASSWORD VALIDATION ────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
