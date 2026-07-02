@@ -88,20 +88,24 @@ import os
 import os
 import dj_database_url
 
-import pprint
+from urllib.parse import urlparse
+import os
 
-print("DATABASE_URL =", os.environ.get("DATABASE_URL"))
+url = urlparse(os.environ["DATABASE_URL"])
 
 DATABASES = {
-    "default": dj_database_url.parse(os.environ["DATABASE_URL"])
-} if os.environ.get("DATABASE_URL") else {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": url.path[1:],
+        "USER": url.username,
+        "PASSWORD": url.password,
+        "HOST": url.hostname,
+        "PORT": url.port,
     }
 }
 
-pprint.pprint(DATABASES)
+print(DATABASES)
+
 # import dj_database_url
 # DATABASES = {
 #         "default": {
