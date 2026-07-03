@@ -1,3 +1,4 @@
+{% load socialaccount %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -740,7 +741,15 @@
     <!-- REGISTER FORM -->
     <form method="POST" novalidate id="registerForm">
       {% csrf_token %}
-
+      {% if messages %}
+        {% for message in messages %}
+          {% if message.tags != 'success' %}
+            <div class="form-error" style="background: rgba(37,121,212,0.1); border-color: rgba(37,121,212,0.3); color: #2579D4;">
+              {{ message }}
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
       {% if form.non_field_errors %}
         {% for error in form.non_field_errors %}
           <div class="form-error">{{ error }}</div>
@@ -880,6 +889,7 @@
     <form method="POST" class="mini-login-form">
       {% csrf_token %}
       {% if login_error %}<div class="form-error">{{ login_error }}</div>{% endif %}
+      
       <div class="field">
         <label for="login_email">Email address</label>
         <input type="email" name="login_email" id="login_email" placeholder="Enter your email" autocomplete="email">
@@ -888,6 +898,20 @@
         <label for="login_password">Password</label>
         <input type="password" name="login_password" id="login_password" placeholder="Enter your password" autocomplete="current-password">
       </div>
+      <a href="{% provider_login_url 'google' next='/partner/google-complete/' %}" 
+        style="display:flex;align-items:center;justify-content:center;gap:10px;
+                width:100%;padding:13px;border-radius:8px;background:#fff;
+                border:1.5px solid #D8E4F4;color:#0E2D5A;font-family:'Sora',sans-serif;
+                font-size:14px;font-weight:600;text-decoration:none;margin-bottom:14px;">
+        <svg width="18" height="18" viewBox="0 0 48 48">
+          <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-3.5z"/>
+          <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.1 18.9 12 24 12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3c-7.7 0-14.3 4.4-17.7 10.7z"/>
+          <path fill="#4CAF50" d="M24 45c5.4 0 10.3-1.8 14-5l-6.5-5.3c-2 1.4-4.6 2.3-7.5 2.3-5.2 0-9.6-3.3-11.3-8l-6.6 5.1C9.6 40.6 16.2 45 24 45z"/>
+          <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.3-4.1 5.7l6.5 5.3C41.6 35.6 45 30.3 45 24c0-1.4-.1-2.7-.4-3.5z"/>
+        </svg>
+        Continue with Google
+      </a>
+      <div class="divider" style="margin:0 0 14px;"><hr><span>or</span><hr></div>
       <button type="submit" name="login_submit" class="btn secondary-btn">Login as Partner</button>
     </form>
 

@@ -5,10 +5,14 @@ from .form import AddListingForm
 from .models import Partner
 from django.contrib import messages
 from listings.models import listings, RoomBooking
-
+from django.contrib.auth.decorators import login_required
 def partner_register(request):
     register_form = PartnerRegisterForm()
     login_error = None
+    # 👇 NEW: agar Google se aaya hai to email prefill karo
+    prefill_email = request.session.pop('google_prefill_email', None)
+    if prefill_email:
+        register_form = PartnerRegisterForm(initial={'email': prefill_email})
 
     if request.method == 'POST':
         # Register form submit
@@ -393,3 +397,21 @@ def remove_offer(request, listing_id):
         listing.offer.delete()
 
     return redirect("partner_dashboard")
+
+@login_required
+def partner_google_complete(request):
+    """
+    Google se login hone ke baad yahan aata hai.
+    Check karta hai ki is email se koi Partner already registered hai ya nahi.
+    """
+    email = request.user.email
+
+    try:
+        partner = Partner.objects.get(email__iexact=email)
+        # Existing partner mil gaya — seedha login kara do
+        request.session['partner_id'] = partner.id
+        return redirect('partner_dashboard')
+    except Partner.DoesNotExist:
+        messages.info(request, "You are not a partner yet. Please register first to become a partner, then you can login.")
+        request.session['google_prefill_email'] = email
+        return redirect('partner_register')
