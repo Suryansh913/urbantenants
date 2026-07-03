@@ -39,6 +39,10 @@ class AddListingForm(forms.ModelForm):
             'Room_images3',
             'Room_images4',
             'Room_images5',
+            'Room_video1',
+            'Room_video2',
+            'Room_video3',
+            'Room_video4',
             'Room_details',
             'Room_available',
             'Room_type',
@@ -68,6 +72,10 @@ class AddListingForm(forms.ModelForm):
             'Room_security': forms.NumberInput(attrs={'placeholder': 'Enter security amount'}),
             'Room_images1': forms.FileInput(attrs={'required': True}),
             'Room_images2': forms.FileInput(attrs={'required': True}),
+            'Room_video1': forms.FileInput(attrs={'required': True, 'accept': 'video/*'}),
+            'Room_video2': forms.FileInput(attrs={'accept': 'video/*'}),
+            'Room_video3': forms.FileInput(attrs={'accept': 'video/*'}),
+            'Room_video4': forms.FileInput(attrs={'accept': 'video/*'}),
             'location_name': forms.TextInput(
                 attrs={
                     'placeholder': 'Enter location',
@@ -83,8 +91,35 @@ class AddListingForm(forms.ModelForm):
 
         img1 = cleaned_data.get("Room_images1")
         img2 = cleaned_data.get("Room_images2")
+        video1 = cleaned_data.get("Room_video1")
 
-        if not img1 or not img2:
-            raise forms.ValidationError("First 2 images are required")
+        is_edit = self.instance.pk is not None
+
+        # ── IMAGES CHECK ──
+        if is_edit:
+            # Edit mode: naya upload nahi kiya to purana wala already hai to chalega
+            if not img1 and not self.instance.Room_images1:
+                raise forms.ValidationError("First image is required")
+            if not img2 and not self.instance.Room_images2:
+                raise forms.ValidationError("Second image is required")
+        else:
+            # New listing: dono images zaroori
+            if not img1 or not img2:
+                raise forms.ValidationError("First 2 images are required")
+
+        # ── VIDEO CHECK ──
+        if is_edit:
+            if not video1 and not self.instance.Room_video1:
+                raise forms.ValidationError("At least 1 video is required")
+        else:
+            if not video1:
+                raise forms.ValidationError("At least 1 video is required")
+
+        # ── SIZE CHECK ──
+        max_video_size = 100 * 1024 * 1024  # 100MB
+        for field_name in ['Room_video1', 'Room_video2', 'Room_video3', 'Room_video4']:
+            video = cleaned_data.get(field_name)
+            if video and hasattr(video, 'size') and video.size > max_video_size:
+                raise forms.ValidationError(f"{field_name.replace('_', ' ')} exceeds 100MB limit")
 
         return cleaned_data
