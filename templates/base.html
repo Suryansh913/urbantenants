@@ -68,7 +68,7 @@
             background: #0a1628;
             position: relative;
             overflow: hidden;
-            min-height: 420px;
+            min-height: 460px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -102,7 +102,18 @@
         .cloud-1 { left:-120px; animation: moveClouds 28s linear infinite; }
         .cloud-2 { left:30%; top:55px; animation: moveClouds 38s 12s linear infinite; }
 
-        .hero-content { position:relative; z-index:2; max-width:480px; }
+        /* Row that holds the left copy/search and the right trust panel */
+        .hero-flex {
+            display:flex;
+            align-items:flex-start;
+            justify-content:space-between;
+            gap:2.5rem;
+            width:100%;
+            max-width:1150px;
+            position:relative; z-index:2;
+        }
+
+        .hero-content { max-width:480px; flex-shrink:0; width: 100%; }
 
         .hero-badge {
             display: inline-flex; align-items: center; gap: 6px;
@@ -132,28 +143,72 @@
             opacity:0; animation-fill-mode:forwards;
         }
 
+        /* ===== SEARCH BAR ===== */
         .hero-search {
-            display:flex; width:100%; max-width:480px;
+            display:flex;
+            align-items: stretch;
+            width:100%; max-width:480px;
             animation: rise 0.6s 0.3s ease both;
             opacity:0; animation-fill-mode:forwards;
         }
         .search-input {
-            flex:1; height:48px;
+            -webkit-appearance: none;
+            appearance: none;
+            flex:1 1 auto; min-width: 0;
+            height:56px; line-height: 56px;
             background:rgba(255,255,255,0.09);
             border:0.5px solid rgba(255,255,255,0.18);
             border-right:none; border-radius:10px 0 0 10px;
-            color:#fff; font-size:14px; padding:0 18px;
+            color:#fff; font-size:14px; padding:0 20px;
             outline:none; transition:background 0.2s;
         }
         .search-input::placeholder { color:rgba(255,255,255,0.32); }
         .search-input:focus { background:rgba(255,255,255,0.13); }
         .search-btn {
-            height:48px; padding:0 22px; background:#e8a020;
+            -webkit-appearance: none;
+            appearance: none;
+            flex: 0 0 auto;
+            height:56px; line-height: 56px;
+            padding:0 26px; background:#e8a020;
             color:#0a1628; border:none; border-radius:0 10px 10px 0;
-            font-size:14px; font-weight:500; cursor:pointer;
+            font-size:14px; font-weight:600; cursor:pointer;
             transition:background 0.2s; white-space:nowrap;
         }
         .search-btn:hover { background:#f5b830; }
+
+        /* Right-side trust / USP panel */
+        .trust-panel {
+            display:flex; flex-direction:column; gap:12px;
+            min-width:270px; max-width:300px;
+            padding-top:0.4rem;
+            animation: rise 0.6s 0.35s ease both;
+            opacity:0; animation-fill-mode:forwards;
+        }
+        .trust-item {
+            display:flex; align-items:center; gap:12px;
+            background:rgba(255,255,255,0.06);
+            border:0.5px solid rgba(255,255,255,0.14);
+            border-radius:10px; padding:11px 14px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .trust-item:hover {
+            background:rgba(232,160,32,0.08);
+            border-color:rgba(232,160,32,0.3);
+        }
+        .trust-icon {
+            width:34px; height:34px; flex-shrink:0;
+            border-radius:8px;
+            background:rgba(232,160,32,0.15);
+            display:flex; align-items:center; justify-content:center;
+            color:#e8a020;
+        }
+        .trust-text strong {
+            display:block; font-size:13px; font-weight:600;
+            color:#fff; margin-bottom:1px;
+        }
+        .trust-text span {
+            font-size:11px; color:rgba(255,255,255,0.45);
+        }
 
         .skyline {
             position:absolute; bottom:0; left:0; right:0;
@@ -289,28 +344,60 @@
         @media (max-width: 1024px) {
             .listings-grid { grid-template-columns: repeat(3, 1fr); }
         }
+        @media (max-width: 900px) {
+            .hero-flex { flex-direction:column; }
+            .trust-panel { flex-direction:row; flex-wrap:wrap; max-width:100%; width:100%; }
+            .trust-item { flex:1; min-width:200px; }
+        }
         @media (max-width: 768px) {
             .listings-grid { grid-template-columns: repeat(2, 1fr); }
             .hero { padding: 2.5rem 1.5rem 0; }
             .hero h1 { font-size: 26px; }
-            .search-input { font-size: 13px; }
-            .search-btn { padding: 0 16px; font-size: 13px; }
-            .moon { right: 80px; }
-            .stats-bar { flex-wrap: wrap; }
-            .stat { min-width: 50%; border-bottom: 0.5px solid rgba(255,255,255,0.06); }
         }
+
+        /* ===== MOBILE SEARCH BAR FIX (forced with !important to beat any external CSS) ===== */
         @media (max-width: 480px) {
             .listings-grid { grid-template-columns: 1fr; }
-            .hero h1 { font-size: 22px; }
-            .hero { min-height: 360px; }
-            .hero-search { flex-direction: column; }
-            .search-input {
-                border-right: 0.5px solid rgba(255,255,255,0.18);
-                border-radius: 10px; margin-bottom: 8px;
+            .hero h1 { font-size: 22px !important; }
+            .hero { min-height: 400px; padding: 2rem 1.25rem 0 !important; }
+
+            .hero-search {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 10px !important;
+                width: 100% !important;
+                max-width: 100% !important;
             }
-            .search-btn { border-radius: 10px; width: 100%; }
+            .search-input {
+                flex: none !important;
+                width: 100% !important;
+                height: 48px !important;
+                line-height: 48px !important;
+                border-right: 0.5px solid rgba(255,255,255,0.18) !important;
+                border-radius: 10px !important;
+                font-size: 13px !important;
+                padding: 0 16px !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+            }
+            .search-btn {
+                flex: none !important;
+                width: 100% !important;
+                height: 48px !important;
+                line-height: 48px !important;
+                min-height: 48px !important;
+                max-height: 48px !important;
+                border-radius: 10px !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                font-size: 13px !important;
+                box-sizing: border-box !important;
+            }
+
             .listings-header { flex-direction: column; align-items: flex-start; gap: 4px; }
             .moon { display: none; }
+            .trust-panel { flex-direction:column !important; }
+            .trust-item { min-width:100% !important; }
         }
     </style>
 </head>
@@ -339,18 +426,59 @@
         <ellipse cx="54" cy="14" rx="15" ry="11" fill="#fff"/>
     </svg>
 
-    <div class="hero-content">
-        <div class="hero-badge">
-            <span class="badge-dot"></span>
-            1,200+ verified rooms available
-        </div>
-        <h1>Find a room you'll<br>love calling <em>home.</em></h1>
-        <p>Browse furnished &amp; unfurnished rooms, PGs, and flats across Lucknow.<br>No brokerage. No hassle.</p>
+    <div class="hero-flex">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                1,200+ verified rooms available
+            </div>
+            <h1>Find a room you'll<br>love calling <em>home.</em></h1>
+            <p>Browse furnished &amp; unfurnished rooms, PGs, and flats across Lucknow.<br>No brokerage. No hassle.</p>
 
-        <form method="get" action="{% url 'base' %}" class="hero-search">
-            <input type="search" name="search" placeholder="Try 'Gomti Nagar' or '2BHK under ₹10,000'…" class="search-input">
-            <button type="submit" class="search-btn">Search rooms</button>
-        </form>
+            <form method="get" action="{% url 'base' %}" class="hero-search">
+                <input type="search" name="search" placeholder="Try 'Gomti Nagar' or '2BHK under ₹10,000'…" class="search-input">
+                <button type="submit" class="search-btn">Search rooms</button>
+            </form>
+        </div>
+
+        <div class="trust-panel">
+            <div class="trust-item">
+                <div class="trust-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                </div>
+                <div class="trust-text">
+                    <strong>Zero brokerage</strong>
+                    <span>Talk directly to owners, no middlemen</span>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/></svg>
+                </div>
+                <div class="trust-text">
+                    <strong>100% verified rooms</strong>
+                    <span>Every listing checked before it goes live</span>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                </div>
+                <div class="trust-text">
+                    <strong>No platform fee</strong>
+                    <span>What you see is what you pay</span>
+                </div>
+            </div>
+            <div class="trust-item">
+                <div class="trust-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                </div>
+                <div class="trust-text">
+                    <strong>No hidden charges</strong>
+                    <span>Rent shown upfront, no surprises</span>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="skyline" aria-hidden="true">
