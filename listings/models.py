@@ -29,6 +29,28 @@ class listings(models.Model):
     fan = models.BooleanField(default=False)
     Ac = models.BooleanField(default=False)
     ro = models.BooleanField(default=False)
+    BATHROOM_TYPE_CHOICES = [
+        ('none', 'No Bathroom'),
+        ('attached', 'Attached'),
+        ('shared', 'Shared'),
+    ]
+    bathroom_count = models.PositiveIntegerField(default=0)
+    bathroom_type = models.CharField(max_length=10, choices=BATHROOM_TYPE_CHOICES, default='none')
+
+    KITCHEN_TYPE_CHOICES = [
+        ('none', 'No Kitchen'),
+        ('private', 'Private'),
+        ('shared', 'Shared'),
+    ]
+    kitchen_count = models.PositiveIntegerField(default=0)
+    kitchen_type = models.CharField(max_length=10, choices=KITCHEN_TYPE_CHOICES, default='none')
+
+    has_hall = models.BooleanField(default=False)
+    hall_count = models.PositiveIntegerField(default=0)
+
+    has_dining_hall = models.BooleanField(default=False)
+
+    room_count = models.PositiveIntegerField(default=1) 
     location_name = models.CharField(max_length=255, blank=True, null=True)
     latitude  = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True)
     longitude = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True)

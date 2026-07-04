@@ -58,6 +58,11 @@ class AddListingForm(forms.ModelForm):
             'location_name',
             'latitude',
             'longitude',
+            'bathroom_count', 'bathroom_type',
+            'kitchen_count', 'kitchen_type',
+            'has_hall', 'hall_count',
+            'has_dining_hall',
+            'room_count',
 
         ]
 

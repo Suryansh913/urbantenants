@@ -243,6 +243,7 @@
 
     input[type="text"],
     input[type="number"],
+    select,
     textarea {
       width: 100%;
       padding: 11px 14px;
@@ -255,7 +256,16 @@
       outline: none;
       transition: border-color 0.18s, box-shadow 0.18s;
     }
+    select {
+      appearance: none;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238FA5C4' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
     input:focus,
+    select:focus,
     textarea:focus {
       border-color: var(--blue-500);
       box-shadow: 0 0 0 3px rgba(37,121,212,0.12);
@@ -363,6 +373,7 @@
       height: 18px;
       cursor: pointer;
       accent-color: var(--blue-600);
+      flex-shrink: 0;
     }
     .amenity-item:has(input:checked) {
       border-color: var(--blue-500);
@@ -370,6 +381,9 @@
     }
     .amenity-label {
       font-size: 13px;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
       color: var(--n-700);
       display: flex;
       align-items: center;
@@ -469,6 +483,9 @@
       .amenity-grid { grid-template-columns: 1fr 1fr; }
       .submit-row { flex-direction: column; }
       .btn-draft { width: 100%; }
+    }
+    @media (max-width: 480px) {
+      .amenity-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -611,7 +628,61 @@
           <div class="section-head-sub">Select all available amenities</div>
         </div>
       </div>
+
       <div class="form-body">
+
+        <!-- Room Configuration -->
+        <div class="field-row trio">
+          <div class="field">
+            <label>Rooms <span class="req">*</span></label>
+            <input type="number" name="room_count" min="1" value="1" placeholder="e.g. 2">
+          </div>
+          <div class="field">
+            <label>Bathroom Type</label>
+            <select name="bathroom_type">
+              <option value="none">No Bathroom</option>
+              <option value="attached">Attached</option>
+              <option value="shared">Shared</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Bathroom Count</label>
+            <input type="number" name="bathroom_count" min="0" placeholder="e.g. 2">
+          </div>
+        </div>
+
+        <div class="field-row trio">
+          <div class="field">
+            <label>Kitchen Type</label>
+            <select name="kitchen_type">
+              <option value="none">No Kitchen</option>
+              <option value="private">Private</option>
+              <option value="shared">Shared</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Kitchen Count</label>
+            <input type="number" name="kitchen_count" min="0" placeholder="e.g. 1">
+          </div>
+          <div class="field">
+            <label>Hall Count</label>
+            <input type="number" name="hall_count" min="0" placeholder="e.g. 1">
+          </div>
+        </div>
+
+        <hr class="form-divider">
+
+        <div class="amenity-grid" style="margin-bottom:24px;">
+          <label class="amenity-item">
+            <input type="checkbox" name="has_hall">
+            <span class="amenity-label"><i class="ti ti-sofa" aria-hidden="true"></i> Hall Available</span>
+          </label>
+          <label class="amenity-item">
+            <input type="checkbox" name="has_dining_hall">
+            <span class="amenity-label"><i class="ti ti-tools-kitchen-2" aria-hidden="true"></i> Dining Hall</span>
+          </label>
+        </div>
+
         <div class="amenity-grid">
 
           <label class="amenity-item">
