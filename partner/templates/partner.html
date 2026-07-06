@@ -602,6 +602,7 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 900px) {
+      html, body { height: auto; }
       body { flex-direction: column; }
       .left {
         width: 100%;
@@ -610,13 +611,19 @@
         border-right: none;
         border-bottom: 1px solid var(--line);
         justify-content: flex-start;
+        height: 60vh;
         max-height: 60vh;
-        overflow-y: auto;
+        overflow-y: scroll;
         overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        touch-action: pan-y;
       }
       .building { position: relative; height: 160px; margin-top: 24px; opacity: 0.5; }
-      .right { padding: 36px 20px 56px; }
+      .right {
+        padding: 36px 20px 56px;
+        overflow-y: visible;
+      }
     }
     @media (max-width: 500px) {
       .row2 { grid-template-columns: 1fr; }
