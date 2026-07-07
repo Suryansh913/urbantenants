@@ -4,6 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{ room.Room_title }} — UrbnaTenants</title>
+
+  <!-- Open Graph / WhatsApp / Facebook link preview -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="UrbnaTenants" />
+  <meta property="og:title" content="{{ room.Room_title }} — UrbnaTenants" />
+  <meta property="og:description" content="Find Your Perfect Room — {{ room.location_name }} · ₹{{ final_price|default:room.Room_rent }}/month · {{ room.Room_type }}" />
+  {% if images.0 %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ images.0.url }}" />{% endif %}
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{ room.Room_title }} — UrbnaTenants" />
+  <meta name="twitter:description" content="Find Your Perfect Room — {{ room.location_name }} · ₹{{ final_price|default:room.Room_rent }}/month" />
+  {% if images.0 %}<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{{ images.0.url }}" />{% endif %}
+
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
@@ -1011,9 +1028,25 @@
     document.body.style.overflow = '';
   }
 
+  const firstImageUrl = {% if images.0 %}"{{ images.0.url|escapejs }}"{% else %}null{% endif %};
+
   async function nativeShareOrOpen() {
     if (navigator.share) {
       try {
+        // Try sharing with the actual image file (supported on many mobile browsers)
+        if (firstImageUrl && navigator.canShare) {
+          try {
+            const resp = await fetch(firstImageUrl);
+            const blob = await resp.blob();
+            const file = new File([blob], 'room.jpg', { type: blob.type || 'image/jpeg' });
+            if (navigator.canShare({ files: [file] })) {
+              await navigator.share({ title: shareTitle, text: shareText, url: shareUrl, files: [file] });
+              return;
+            }
+          } catch (imgErr) {
+            // image fetch/share failed, fall through to text+link share
+          }
+        }
         await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
         return;
       } catch (err) {
