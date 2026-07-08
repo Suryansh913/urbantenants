@@ -29,7 +29,11 @@ from django.contrib.sitemaps.views import sitemap
 from .sitemaps import StaticViewSitemap
 from .views import submit_support_query
 from zameen.views import user_list
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import ListingSitemap, StaticViewSitemap
+
 sitemaps = {
+    'listings': ListingSitemap,
     'static': StaticViewSitemap,
 }
 urlpatterns = [
