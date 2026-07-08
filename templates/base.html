@@ -4,7 +4,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Urban Tenants — Find Your Perfect Room</title>
+
+    <!-- ===== SEO: Title & Meta (multi-city + room-type keywords) ===== -->
+    <title>Rooms & PG for Rent in Lucknow, Kanpur, Unnao, Nawabganj | 1BHK, 2BHK, 3BHK Near Chandigarh University | UrbanTenants</title>
+    <meta name="description" content="Find verified rooms, PGs, 1BHK, 2BHK & 3BHK flats for rent in Lucknow, Kanpur, Unnao, Nawabganj and near Chandigarh University. Zero brokerage, zero platform fee. Book online with UrbanTenants.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+    <meta name="keywords" content="rooms for rent Lucknow, PG in Kanpur, rooms in Nawabganj, flats for rent Unnao, rooms near Chandigarh University, 2BHK Lucknow, 3BHK Kanpur, student PG Uttar Pradesh, zero brokerage rooms">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="UrbanTenants">
+    <meta property="og:title" content="Rooms & PG for Rent — Lucknow, Kanpur, Unnao, Nawabganj & Near Chandigarh University">
+    <meta property="og:description" content="Verified 1BHK, 2BHK, 3BHK rooms & PGs. Zero brokerage. Zero platform fee. Book online.">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:locale" content="en_IN">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Rooms & PG for Rent — Lucknow, Kanpur, Unnao, Nawabganj & Chandigarh University">
+    <meta name="twitter:description" content="Verified rooms & PGs. Zero brokerage. Book online with UrbanTenants.">
+
+    <!-- ===== SEO: WebSite schema with SearchAction (enables Google sitelinks searchbox) ===== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "UrbanTenants",
+      "url": "{{ request.scheme }}://{{ request.get_host }}/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "{{ request.scheme }}://{{ request.get_host }}{% url 'base' %}?search={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- ===== SEO: Organization schema with areas served ===== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "RealEstateAgent",
+      "name": "UrbanTenants",
+      "url": "{{ request.scheme }}://{{ request.get_host }}/",
+      "areaServed": [
+        {"@type": "City", "name": "Lucknow"},
+        {"@type": "City", "name": "Kanpur"},
+        {"@type": "City", "name": "Unnao"},
+        {"@type": "Place", "name": "Nawabganj"},
+        {"@type": "Place", "name": "Chandigarh University area"}
+      ],
+      "priceRange": "₹₹"
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'basemedia.css' %}">
@@ -236,6 +288,23 @@
         .hi-bubble2 { animation: popIn 0.5s 0.9s ease both; opacity:0; }
         .hi-bubble3 { animation: popIn 0.5s 1.3s ease both; opacity:0; }
 
+        /* ===== SEO: Popular Locations strip ===== */
+        .seo-locations {
+            max-width:1180px; margin:0 auto; padding:1.8rem 1.5rem 0.6rem;
+        }
+        .seo-locations h2 {
+            font-size:14px; font-weight:600; color:var(--ink3);
+            text-transform:uppercase; letter-spacing:0.06em; margin-bottom:12px;
+        }
+        .loc-chip-row { display:flex; flex-wrap:wrap; gap:10px; }
+        .loc-chip {
+            display:inline-flex; align-items:center; gap:6px;
+            background:var(--cream2); border:1px solid var(--cream3);
+            border-radius:20px; padding:8px 16px;
+            font-size:13px; font-weight:600; color:var(--ink2);
+            text-decoration:none; cursor:default;
+        }
+
         @media (max-width: 1024px) {
             .listings-grid { grid-template-columns: repeat(3, 1fr); }
         }
@@ -400,6 +469,54 @@
         .card-cta:hover { background:var(--brand-dark); border-color:var(--brand-dark); }
         .card-cta svg { transition: transform var(--tr); }
         .card-cta:hover svg { transform: translateX(3px); }
+
+        /* ===== SEO: footer content block ===== */
+        .seo-content-block {
+            max-width:1180px; margin:3rem auto; padding:0 1.5rem;
+        }
+        .seo-content-inner {
+            background: #ffffff;
+            border: 1px solid var(--cream3);
+            border-radius: var(--radius-lg);
+            padding: 2.6rem 2.8rem;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+        .seo-content-inner::before {
+            content:"";
+            position:absolute; top:0; left:0; right:0; height:4px;
+            background: linear-gradient(90deg, var(--h-blue), var(--h-yellow));
+        }
+        .seo-icon-badge {
+            width:44px; height:44px; border-radius:12px;
+            background: var(--h-lav);
+            display:flex; align-items:center; justify-content:center;
+            margin-bottom:18px;
+        }
+        .seo-icon-badge svg { width:22px; height:22px; color:var(--h-blue); }
+        .seo-content-block h2 {
+            font-family: var(--font-head);
+            font-size:23px; font-weight:700; color:var(--h-ink);
+            margin-bottom:14px; letter-spacing:-0.3px;
+        }
+        .seo-content-block p {
+            font-size:14.5px; color:var(--ink2); line-height:1.85;
+            margin-bottom:16px; max-width:820px;
+        }
+        .seo-content-block p:last-of-type { margin-bottom:20px; }
+        .seo-tag-row { display:flex; flex-wrap:wrap; gap:8px; border-top:1px solid var(--cream2); margin-top:4px; padding-top:18px; }
+        .seo-tag {
+            display:inline-flex; align-items:center;
+            background: var(--cream2); color:var(--ink2);
+            font-size:12px; font-weight:600;
+            padding:6px 13px; border-radius:8px;
+            border: 1px solid var(--cream3);
+        }
+        @media (max-width: 600px) {
+            .seo-content-inner { padding:1.8rem 1.5rem; }
+            .seo-content-block h2 { font-size:19px; }
+        }
     </style>
 </head>
 <body>
@@ -418,9 +535,9 @@
                 Limited period · Up to 50% off first month
             </div>
 
-            <h1>Find a room,<br><span class="hl-yellow">make some</span> <span class="hl-blue">memories.</span></h1>
+            <h1>Rooms &amp; PGs for rent in <span class="hl-yellow">Lucknow, Kanpur</span> &amp; <span class="hl-blue">near Chandigarh University</span></h1>
 
-            <p class="hero-sub">A room is just four walls — it's the people next door who make it home. Verified rooms, genuine flatmates, zero brokerage across Lucknow.</p>
+            <p class="hero-sub">Verified 1BHK, 2BHK and 3BHK rooms in Lucknow, Kanpur, Unnao, Nawabganj, and student housing near Chandigarh University. Zero brokerage, zero platform fee — book online with UrbanTenants.</p>
 
             <div class="feature-chips">
                 <span class="chip">
@@ -546,6 +663,21 @@
     </div>
 </section>
 
+<!-- ===== SEO: Popular Locations — real visible links, helps Google understand geographic coverage ===== -->
+<nav class="seo-locations" aria-label="Popular locations">
+    <h2>Popular Locations</h2>
+    <div class="loc-chip-row">
+        <span class="loc-chip">Rooms in Lucknow</span>
+        <span class="loc-chip">PG in Kanpur</span>
+        <span class="loc-chip">Flats in Unnao</span>
+        <span class="loc-chip">Rooms in Nawabganj</span>
+        <span class="loc-chip">Near Chandigarh University</span>
+        <span class="loc-chip">2BHK Flats</span>
+        <span class="loc-chip">3BHK Flats</span>
+        <span class="loc-chip">PG Accommodation</span>
+    </div>
+</nav>
+
 <div class="stats-bar">
     <div class="stat"><strong>1.2k<em>+</em></strong><span>Rooms listed</span></div>
     <div class="stat"><strong>Zero<em> ₹</em></strong><span>Brokerage</span></div>
@@ -561,7 +693,7 @@
     {% for n in listingdata %}
     <article class="card">
         <div class="card-img-wrap">
-            <img src="{{ n.Room_images1.url }}" alt="{{ n.Room_title }}" class="card-img" loading="lazy">
+            <img src="{{ n.Room_images1.url }}" alt="{{ n.Room_title }} - room for rent in {{ n.location_name }}" class="card-img" loading="lazy">
             <div class="badge-row">
                 {% if forloop.first %}
                     <span class="badge-avail">Popular</span>
@@ -625,6 +757,29 @@
         </a>
     {% endif %}
 </div>
+
+<!-- ===== SEO: Real content block for search intent (helps rank for city/room-type queries) ===== -->
+<section class="seo-content-block">
+    <div class="seo-content-inner">
+        <div class="seo-icon-badge">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M14 9h1"/><path d="M14 13h1"/><path d="M9 21v-6h6v6"/></svg>
+        </div>
+        <h2>Rooms &amp; PG Accommodation Across Uttar Pradesh</h2>
+        <p>UrbanTenants helps students and young professionals find verified rooms, PGs, and flats for rent in Lucknow, Kanpur, Unnao, and Nawabganj, along with dedicated listings for students near Chandigarh University. Whether you're looking for a single room, a shared PG, or a full 2BHK or 3BHK flat, every listing on UrbanTenants is verified, with zero brokerage and zero platform fees.</p>
+        <p>Popular searches on UrbanTenants include rooms for rent in Lucknow, PG accommodation in Kanpur, budget flats in Unnao, shared rooms in Nawabganj, and student housing options near Chandigarh University — all bookable online with transparent pricing and no hidden charges.</p>
+        <div class="seo-tag-row">
+            <span class="seo-tag">Lucknow</span>
+            <span class="seo-tag">Kanpur</span>
+            <span class="seo-tag">Unnao</span>
+            <span class="seo-tag">Nawabganj</span>
+            <span class="seo-tag">Chandigarh University</span>
+            <span class="seo-tag">2BHK</span>
+            <span class="seo-tag">3BHK</span>
+            <span class="seo-tag">PG</span>
+        </div>
+    </div>
+</section>
+
 {% include 'chat_widget.html' %}
 
 {% include "footer.html" %}
