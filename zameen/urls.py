@@ -31,6 +31,7 @@ from .views import submit_support_query
 from zameen.views import user_list
 from django.contrib.sitemaps.views import sitemap
 from .sitemaps import ListingSitemap, StaticViewSitemap
+from .views import AboutFounderView
 
 sitemaps = {
     'listings': ListingSitemap,
@@ -82,6 +83,8 @@ urlpatterns = [
     
     path('accounts/', include('allauth.urls')),  # yeh last mein
     path('admin-dashboard/users/', views.user_list, name='user_list'),
+    path("about/founder/", AboutFounderView.as_view(), name="about_founder"),
+    path('reviews/submit/', views.create_review, name='create_review'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -137,6 +137,7 @@ def room(request, id):
 
 def base(request):
     from django.db.models import Avg, Count
+    from listings.models import Review          # <-- NEW: import your Review model
 
     User = get_user_model()
     if not User.objects.filter(username='admin').exists():
@@ -145,21 +146,16 @@ def base(request):
             email='your@email.com',
             password='StrongPassword123'
         )
-
     title = request.GET.get('search')
-
     listingdata = listings.objects.filter(Room_available=True).order_by('-date').annotate(
         avg_rating=Avg('ratings__rating'),
         review_count=Count('ratings')
     )
-
     if title:
         listingdata = listingdata.filter(Room_title__icontains=title)
-
     paginator = Paginator(listingdata, 30)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-
     for listing in page_obj:
         avg = listing.avg_rating or 0
         listing.filled_stars = range(1, round(avg) + 1)
@@ -169,10 +165,20 @@ def base(request):
             listing.final_price = round(listing.Room_rent - discount)
         else:
             listing.final_price = listing.Room_rent
+
+    # === NEW: fetch site reviews for the homepage marquee ===
+    site_reviews = Review.objects.filter(is_approved=True)[:30]
+    site_review_count = Review.objects.filter(is_approved=True).count()
+    site_avg_rating = Review.objects.filter(is_approved=True).aggregate(Avg('rating'))['rating__avg'] or 0
+
     return render(request, "base.html", {
         'listingdata': page_obj,
         'page_obj': page_obj,
         'title': title,
+        # === NEW: pass reviews to template ===
+        'reviews': site_reviews,
+        'review_count': site_review_count,
+        'avg_rating': site_avg_rating,
     })
 def bhk2(request):
     listingdata = listings.objects.filter(
@@ -680,3 +686,24 @@ from django.contrib.admin.views.decorators import staff_member_required
 def user_list(request):
     users = User.objects.all().order_by('-date_joined')
     return render(request, 'user_list.html', {'users': users})
+
+from django.views.generic import TemplateView
+
+class AboutFounderView(TemplateView):
+    template_name = "about-founder.html"   # space hata diya, zameen/ folder hata diya
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.db.models import Avg
+from listings.models import Review
+from listings.forms import ReviewForm
+ 
+ 
+# === New view: handles the AJAX form submit from the modal popup ===
+@require_POST
+def create_review(request):
+    form = ReviewForm(request.POST)
+    if form.is_valid():
+        form.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'errors': form.errors}, status=400)

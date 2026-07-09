@@ -6,22 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- ===== SEO: Title & Meta (multi-city + room-type keywords) ===== -->
-    <title>Rooms & PG for Rent in Lucknow, Kanpur, Unnao, Nawabganj | 1BHK, 2BHK, 3BHK Near Chandigarh University | UrbanTenants</title>
-    <meta name="description" content="Find verified rooms, PGs, 1BHK, 2BHK & 3BHK flats for rent in Lucknow, Kanpur, Unnao, Nawabganj and near Chandigarh University. Zero brokerage, zero platform fee. Book online with UrbanTenants.">
+    <title>Rooms & PG for Rent in Kanpur, Unnao, Nawabganj | 1BHK, 2BHK, 3BHK Near Chandigarh University | UrbanTenants</title>
+    <meta name="description" content="Find verified rooms, PGs, 1BHK, 2BHK & 3BHK flats for rent in Kanpur, Unnao, Nawabganj and near Chandigarh University. Zero brokerage, zero platform fee. Book online with UrbanTenants.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
-    <meta name="keywords" content="rooms for rent Lucknow, PG in Kanpur, rooms in Nawabganj, flats for rent Unnao, rooms near Chandigarh University, 2BHK Lucknow, 3BHK Kanpur, student PG Uttar Pradesh, zero brokerage rooms">
+    <meta name="keywords" content="PG in Kanpur, rooms in Nawabganj, flats for rent Unnao, rooms near Chandigarh University, 2BHK Kanpur, 3BHK Kanpur, student PG Uttar Pradesh, zero brokerage rooms">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="UrbanTenants">
-    <meta property="og:title" content="Rooms & PG for Rent — Lucknow, Kanpur, Unnao, Nawabganj & Near Chandigarh University">
+    <meta property="og:title" content="Rooms & PG for Rent — Kanpur, Unnao, Nawabganj & Near Chandigarh University">
     <meta property="og:description" content="Verified 1BHK, 2BHK, 3BHK rooms & PGs. Zero brokerage. Zero platform fee. Book online.">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:locale" content="en_IN">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Rooms & PG for Rent — Lucknow, Kanpur, Unnao, Nawabganj & Chandigarh University">
+    <meta name="twitter:title" content="Rooms & PG for Rent — Kanpur, Unnao, Nawabganj & Chandigarh University">
     <meta name="twitter:description" content="Verified rooms & PGs. Zero brokerage. Book online with UrbanTenants.">
 
     <!-- ===== SEO: WebSite schema with SearchAction (enables Google sitelinks searchbox) ===== -->
@@ -47,7 +47,6 @@
       "name": "UrbanTenants",
       "url": "{{ request.scheme }}://{{ request.get_host }}/",
       "areaServed": [
-        {"@type": "City", "name": "Lucknow"},
         {"@type": "City", "name": "Kanpur"},
         {"@type": "City", "name": "Unnao"},
         {"@type": "Place", "name": "Nawabganj"},
@@ -58,7 +57,7 @@
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Outfit:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'basemedia.css' %}">
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
@@ -517,6 +516,226 @@
             .seo-content-inner { padding:1.8rem 1.5rem; }
             .seo-content-block h2 { font-size:19px; }
         }
+
+        /* ===================== REVIEW WIDGET ===================== */
+
+        /* floating icon button */
+        .review-fab {
+            position: fixed;
+            right: 24px;
+            bottom: 92px;
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            background: var(--h-ink);
+            border: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(28,28,46,0.28), 0 2px 6px rgba(28,28,46,0.15);
+            z-index: 999;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+        }
+        .review-fab:hover {
+            transform: translateY(-2px);
+            background: #2d2d45;
+            box-shadow: 0 12px 28px rgba(28,28,46,0.32), 0 3px 8px rgba(28,28,46,0.18);
+        }
+        .review-fab svg { width: 21px; height: 21px; color: var(--h-yellow); }
+
+        /* modal overlay */
+        .review-modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(15,15,25,0.5);
+            backdrop-filter: blur(3px);
+            display: none;
+            align-items: center; justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .review-modal-overlay.open { display: flex; }
+
+        .review-modal {
+            background: #fff;
+            width: 100%; max-width: 420px;
+            border-radius: 16px;
+            padding: 32px 30px 28px;
+            position: relative;
+            box-shadow: 0 24px 60px rgba(15,15,25,0.22);
+            border: 1px solid var(--cream3);
+            animation: popIn 0.22s ease both;
+        }
+        .review-modal-close {
+            position: absolute; top: 16px; right: 16px;
+            width: 30px; height: 30px; border-radius: 8px;
+            background: transparent; border: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--ink3);
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .review-modal-close:hover { background: var(--cream2); color: var(--ink); }
+
+        .review-modal-eyebrow {
+            font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--h-blue); margin-bottom: 8px;
+        }
+        .review-modal h3 {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 20px; color: var(--h-ink); margin-bottom: 5px;
+            letter-spacing: -0.2px;
+        }
+        .review-modal .rm-sub { font-size: 13px; color: var(--ink3); margin-bottom: 22px; line-height: 1.5; }
+
+        .rm-row { margin-bottom: 16px; }
+        .rm-row label {
+            display: block; font-size: 12px; font-weight: 600;
+            color: var(--ink2); margin-bottom: 7px;
+            letter-spacing: 0.02em;
+        }
+        .rm-row input[type=text], .rm-row textarea {
+            width: 100%; border: 1px solid var(--cream3);
+            border-radius: 8px; padding: 10px 13px;
+            font-size: 14px; font-family: var(--font-sans);
+            background: #fff; color: var(--ink);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .rm-row textarea { resize: vertical; min-height: 76px; line-height: 1.5; }
+        .rm-row input:focus, .rm-row textarea:focus {
+            outline: none; border-color: var(--h-blue);
+            box-shadow: 0 0 0 3px rgba(76,95,215,0.1);
+        }
+
+        .rm-stars { display: flex; gap: 4px; font-size: 20px; cursor: pointer; user-select: none; }
+        .rm-stars span { color: #E3E1EE; transition: color 0.15s; }
+        .rm-stars span.active { color: #E0A527; }
+
+        .rm-submit {
+            width: 100%;
+            background: var(--h-ink); color: #fff;
+            border: none; border-radius: 9px;
+            padding: 12px; font-family: var(--font-sans);
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            margin-top: 6px;
+            letter-spacing: 0.01em;
+            transition: background 0.15s ease;
+        }
+        .rm-submit:hover { background: #2d2d45; }
+        .rm-submit:disabled { opacity: 0.65; cursor: default; }
+        .rm-success {
+            display: none; margin-top: 12px; font-size: 13px;
+            font-weight: 600; color: #16a34a; text-align: center;
+        }
+
+        /* reviews marquee band (below hero) */
+        .reviews-band-wrap {
+            max-width: 1180px; margin: 2.6rem auto 0; padding: 0 1.5rem;
+        }
+        .reviews-band-head {
+            display: flex; align-items: baseline; justify-content: space-between;
+            margin-bottom: 18px; flex-wrap: wrap; gap: 8px;
+        }
+        .reviews-band-head h2 {
+            font-family: var(--font-sans); font-size: 17px;
+            font-weight: 600; color: var(--h-ink); letter-spacing: -0.2px;
+        }
+        .reviews-band-head .rb-avg {
+            font-size: 13px; color: var(--ink3); font-weight: 500;
+        }
+        .reviews-band-head .rb-avg strong { color: var(--h-ink); font-weight: 700; }
+
+        .reviews-band {
+            position: relative; overflow: hidden;
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            padding: 28px 0;
+        }
+        .reviews-band::before, .reviews-band::after {
+            content: ""; position: absolute; top: 0; bottom: 0; width: 64px; z-index: 2;
+        }
+        .reviews-band::before { left: 0; background: linear-gradient(90deg, #ffffff, transparent); }
+        .reviews-band::after  { right: 0; background: linear-gradient(270deg, #ffffff, transparent); }
+
+        .reviews-track {
+            display: flex; gap: 22px; width: max-content;
+            animation: reviews-scroll 38s linear infinite;
+        }
+        .reviews-band:hover .reviews-track { animation-play-state: paused; }
+        @keyframes reviews-scroll {
+            from { transform: translateX(0); }
+            to   { transform: translateX(-50%); }
+        }
+
+        .review-card {
+            position: relative;
+            background: linear-gradient(155deg, #1e2133 0%, #14151f 100%);
+            border-radius: 16px;
+            padding: 22px 22px 20px;
+            width: 270px; flex: 0 0 auto;
+            color: #EDEBF7;
+            box-shadow: 0 14px 30px rgba(20,21,31,0.28), 0 3px 8px rgba(20,21,31,0.15);
+            overflow: hidden;
+        }
+        .review-card::before {
+            /* corner screw / rivet accent, echoes the reference card */
+            content: "";
+            position: absolute; top: 14px; right: 14px;
+            width: 7px; height: 7px; border-radius: 50%;
+            background: rgba(255,255,255,0.18);
+            box-shadow: inset 0 1px 1px rgba(0,0,0,0.4);
+        }
+        .review-card .rc-quote {
+            position: absolute; top: 2px; right: 26px;
+            font-family: Georgia, 'Playfair Display', serif;
+            font-size: 54px; line-height: 1;
+            color: rgba(224,165,39,0.3);
+            font-weight: 700;
+            pointer-events: none;
+            user-select: none;
+        }
+        .review-card .rc-head {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 10px;
+        }
+        .review-card .rc-avatar {
+            width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.14);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 700; font-family: var(--font-sans);
+            color: #EDEBF7;
+        }
+        .review-card .rc-name-wrap { min-width: 0; }
+        .review-card .rc-who {
+            font-size: 19px; font-weight: 800; color: #F5F4FA;
+            line-height: 1.2; letter-spacing: -0.3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .review-card .rc-handle {
+            font-size: 11px; color: #8E8BA3; font-weight: 500;
+        }
+        .review-card .rc-stars {
+            display: block;
+            color: #E0A527; font-size: 13px; letter-spacing: 2px;
+            margin-bottom: 14px;
+        }
+        .review-card .rc-script {
+            font-family: 'Caveat', cursive;
+            font-size: 20px; font-weight: 700;
+            color: rgba(224,165,39,0.8);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .review-card p {
+            font-size: 13px; line-height: 1.65; margin: 0;
+            color: #C6C3D8;
+            font-style: italic;
+        }
+
+        .reviews-empty-note { color: var(--ink3); font-size: 13px; padding: 0 22px; }
+
+        @media (max-width: 480px) {
+            .review-fab { right: 16px; bottom: 80px; width: 48px; height: 48px; }
+            .review-modal { padding: 26px 20px 22px; }
+        }
     </style>
 </head>
 <body>
@@ -535,9 +754,9 @@
                 Limited period · Up to 50% off first month
             </div>
 
-            <h1>Rooms &amp; PGs for rent in <span class="hl-yellow">Lucknow, Kanpur</span> &amp; <span class="hl-blue">near Chandigarh University</span></h1>
+            <h1>Rooms &amp; PGs for rent in <span class="hl-yellow">Kanpur</span> &amp; <span class="hl-blue">near Chandigarh University</span></h1>
 
-            <p class="hero-sub">Verified 1BHK, 2BHK and 3BHK rooms in Lucknow, Kanpur, Unnao, Nawabganj, and student housing near Chandigarh University. Zero brokerage, zero platform fee — book online with UrbanTenants.</p>
+            <p class="hero-sub">Verified 1BHK, 2BHK and 3BHK rooms in Kanpur, Unnao, Nawabganj, and student housing near Chandigarh University. Zero brokerage, zero platform fee — book online with UrbanTenants.</p>
 
             <div class="feature-chips">
                 <span class="chip">
@@ -663,11 +882,62 @@
     </div>
 </section>
 
+<!-- ===== REVIEWS MARQUEE — scrolls like ads, right below hero ===== -->
+<div class="reviews-band-wrap">
+    <div class="reviews-band-head">
+        <h2>Testimonials from Our Tenants</h2>
+        {% if review_count %}
+        <span class="rb-avg"><strong>{{ avg_rating|floatformat:1 }} ★</strong> from {{ review_count }} review{{ review_count|pluralize }}</span>
+        {% endif %}
+    </div>
+    <div class="reviews-band">
+        <div class="reviews-track" id="reviewsTrack">
+            {% if reviews %}
+                {% for r in reviews %}
+                <div class="review-card">
+                    <span class="rc-quote">&rdquo;</span>
+                    <div class="rc-head">
+                        <div class="rc-avatar">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+                        </div>
+                        <div class="rc-name-wrap">
+                            <div class="rc-who">{{ r.name }}</div>
+                            <div class="rc-handle">@{{ r.name|slugify }}</div>
+                        </div>
+                    </div>
+                    <span class="rc-stars">{% for i in "12345" %}{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+                    <div class="rc-script">Feedback</div>
+                    <p>{{ r.text }}</p>
+                </div>
+                {% endfor %}
+                {% for r in reviews %}
+                <div class="review-card" aria-hidden="true">
+                    <span class="rc-quote">&rdquo;</span>
+                    <div class="rc-head">
+                        <div class="rc-avatar">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+                        </div>
+                        <div class="rc-name-wrap">
+                            <div class="rc-who">{{ r.name }}</div>
+                            <div class="rc-handle">@{{ r.name|slugify }}</div>
+                        </div>
+                    </div>
+                    <span class="rc-stars">{% for i in "12345" %}{% if forloop.counter <= r.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+                    <div class="rc-script">Feedback</div>
+                    <p>{{ r.text }}</p>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="reviews-empty-note">No reviews yet — be the first to share your experience using the review icon.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 <!-- ===== SEO: Popular Locations — real visible links, helps Google understand geographic coverage ===== -->
 <nav class="seo-locations" aria-label="Popular locations">
     <h2>Popular Locations</h2>
     <div class="loc-chip-row">
-        <span class="loc-chip">Rooms in Lucknow</span>
         <span class="loc-chip">PG in Kanpur</span>
         <span class="loc-chip">Flats in Unnao</span>
         <span class="loc-chip">Rooms in Nawabganj</span>
@@ -765,10 +1035,9 @@
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 9h1"/><path d="M9 13h1"/><path d="M14 9h1"/><path d="M14 13h1"/><path d="M9 21v-6h6v6"/></svg>
         </div>
         <h2>Rooms &amp; PG Accommodation Across Uttar Pradesh</h2>
-        <p>UrbanTenants helps students and young professionals find verified rooms, PGs, and flats for rent in Lucknow, Kanpur, Unnao, and Nawabganj, along with dedicated listings for students near Chandigarh University. Whether you're looking for a single room, a shared PG, or a full 2BHK or 3BHK flat, every listing on UrbanTenants is verified, with zero brokerage and zero platform fees.</p>
-        <p>Popular searches on UrbanTenants include rooms for rent in Lucknow, PG accommodation in Kanpur, budget flats in Unnao, shared rooms in Nawabganj, and student housing options near Chandigarh University — all bookable online with transparent pricing and no hidden charges.</p>
+        <p>UrbanTenants helps students and young professionals find verified rooms, PGs, and flats for rent in Kanpur, Unnao, and Nawabganj, along with dedicated listings for students near Chandigarh University. Whether you're looking for a single room, a shared PG, or a full 2BHK or 3BHK flat, every listing on UrbanTenants is verified, with zero brokerage and zero platform fees.</p>
+        <p>Popular searches on UrbanTenants include PG accommodation in Kanpur, budget flats in Unnao, shared rooms in Nawabganj, and student housing options near Chandigarh University — all bookable online with transparent pricing and no hidden charges.</p>
         <div class="seo-tag-row">
-            <span class="seo-tag">Lucknow</span>
             <span class="seo-tag">Kanpur</span>
             <span class="seo-tag">Unnao</span>
             <span class="seo-tag">Nawabganj</span>
@@ -783,5 +1052,200 @@
 {% include 'chat_widget.html' %}
 
 {% include "footer.html" %}
+
+<!-- ===== REVIEW FAB (floating icon) ===== -->
+<button class="review-fab" id="reviewFab" aria-label="Write a review" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69z"/>
+    </svg>
+</button>
+
+<!-- ===== REVIEW MODAL ===== -->
+<div class="review-modal-overlay" id="reviewOverlay">
+    <div class="review-modal">
+        <div class="review-modal-eyebrow">Customer Feedback</div>
+        <h3>Share your experience</h3>
+        <div class="rm-sub">Your feedback helps us improve and will be published on our homepage.</div>
+
+
+        {% csrf_token %}
+
+        <div class="rm-row">
+            <label for="rmName">Your name</label>
+            <input type="text" id="rmName" placeholder="e.g. Riya Sharma" maxlength="40">
+        </div>
+
+        <div class="rm-row">
+            <label>Rating</label>
+            <div class="rm-stars" id="rmStarPicker">
+                <span data-v="1">&#9733;</span>
+                <span data-v="2">&#9733;</span>
+                <span data-v="3">&#9733;</span>
+                <span data-v="4">&#9733;</span>
+                <span data-v="5">&#9733;</span>
+            </div>
+        </div>
+
+        <div class="rm-row">
+            <label for="rmText">Your review</label>
+            <textarea id="rmText" placeholder="Tell us about your experience..." maxlength="220"></textarea>
+        </div>
+
+        <button class="rm-submit" id="rmSubmit" type="button">Submit review</button>
+        <div class="rm-success" id="rmSuccess">Thank you! Your review has been posted.</div>
+    </div>
+</div>
+
+
+<script>
+(function () {
+    var STORAGE_FLAG = 'ut_review_submitted';
+    var alreadySubmitted = localStorage.getItem(STORAGE_FLAG) === '1';
+
+    var selectedRating = 0;
+    var inactivityTimer = null;
+    var hasInteracted = false;
+
+    var fab        = document.getElementById('reviewFab');
+    var overlay     = document.getElementById('reviewOverlay');
+    var modalBox    = overlay.querySelector('.review-modal');
+    var starPicker  = document.getElementById('rmStarPicker');
+    var stars       = Array.prototype.slice.call(starPicker.querySelectorAll('span'));
+    var nameInput   = document.getElementById('rmName');
+    var textInput   = document.getElementById('rmText');
+    var submitBtn   = document.getElementById('rmSubmit');
+    var successMsg  = document.getElementById('rmSuccess');
+    var csrfInput   = document.querySelector('.review-modal input[name=csrfmiddlewaretoken]');
+
+    // this device already submitted a review — hide the entry point
+    // entirely and skip all auto-open logic, refresh included.
+    if (alreadySubmitted) {
+        fab.style.display = 'none';
+        return;
+    }
+
+    function openModal() {
+        overlay.classList.add('open');
+        startInactivityTimer();
+    }
+    function closeModal() {
+        overlay.classList.remove('open');
+        clearInactivityTimer();
+    }
+
+    // popup is mandatory: no close button, no click-outside-to-dismiss.
+    // it only closes on: (a) successful submit, or (b) 10s of user inactivity.
+    function startInactivityTimer() {
+        clearInactivityTimer();
+        inactivityTimer = setTimeout(function () {
+            if (!hasInteracted) closeModal();
+        }, 10000);
+    }
+    function clearInactivityTimer() {
+        if (inactivityTimer) { clearTimeout(inactivityTimer); inactivityTimer = null; }
+    }
+    function markInteracted() {
+        hasInteracted = true;
+        clearInactivityTimer();
+    }
+
+    // any interaction inside the modal cancels the auto-close
+    modalBox.addEventListener('click', markInteracted);
+    modalBox.addEventListener('keydown', markInteracted);
+    modalBox.addEventListener('input', markInteracted);
+
+    fab.addEventListener('click', function () {
+        clearInterval(openWatcher);
+        openModal();
+    });
+
+    // auto-open 30 seconds of active time on the page — the timer only
+    // counts while the tab is actually visible/focused (pauses if the
+    // user switches away, so it truly waits for 30s of the user "being
+    // on the page").
+    var OPEN_DELAY = 30000;
+    var activeElapsed = 0;
+    var lastTick = Date.now();
+    var openWatcher = setInterval(function () {
+        if (!document.hidden) {
+            activeElapsed += Date.now() - lastTick;
+        }
+        lastTick = Date.now();
+        if (activeElapsed >= OPEN_DELAY) {
+            clearInterval(openWatcher);
+            if (!overlay.classList.contains('open')) openModal();
+        }
+    }, 500);
+
+    stars.forEach(function (star) {
+        star.addEventListener('click', function () {
+            selectedRating = parseInt(star.dataset.v, 10);
+            paintStars(selectedRating);
+        });
+        star.addEventListener('mouseenter', function () {
+            paintStars(parseInt(star.dataset.v, 10));
+        });
+    });
+    starPicker.addEventListener('mouseleave', function () { paintStars(selectedRating); });
+
+    function paintStars(n) {
+        stars.forEach(function (s) {
+            s.classList.toggle('active', parseInt(s.dataset.v, 10) <= n);
+        });
+    }
+
+    submitBtn.addEventListener('click', function () {
+        var name = nameInput.value.trim() || 'Anonymous';
+        var text = textInput.value.trim();
+
+        if (selectedRating === 0) { alert('Please select a rating.'); return; }
+        if (text.length === 0) { alert('Please write your review.'); return; }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        var formData = new FormData();
+        formData.append('name', name);
+        formData.append('rating', selectedRating);
+        formData.append('text', text);
+        formData.append('csrfmiddlewaretoken', csrfInput.value);
+
+        fetch("{% url 'create_review' %}", {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: formData
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit review';
+
+            if (data.success) {
+                localStorage.setItem(STORAGE_FLAG, '1');
+
+                nameInput.value = '';
+                textInput.value = '';
+                selectedRating = 0;
+                paintStars(0);
+
+                successMsg.style.display = 'block';
+                setTimeout(function () {
+                    // reload so the marquee (server-rendered) and average
+                    // rating reflect the new review for every visitor
+                    window.location.reload();
+                }, 1200);
+            } else {
+                alert('Something went wrong. Please check your review and try again.');
+            }
+        })
+        .catch(function () {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit review';
+            alert('Network error — please try again.');
+        });
+    });
+})();
+</script>
+
 </body>
 </html>

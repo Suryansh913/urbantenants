@@ -223,3 +223,21 @@ class Offer(models.Model):
             return False
 
         return True
+    
+
+class Review(models.Model):
+    name = models.CharField(max_length=60)
+    rating = models.PositiveSmallIntegerField()  # 1 to 5
+    text = models.CharField(max_length=220)
+    created_at = models.DateTimeField(auto_now_add=True)
+ 
+    # Keep True by default so reviews show instantly.
+    # Set to False if you want to manually approve reviews from /admin/ before they go live.
+    is_approved = models.BooleanField(default=True)
+ 
+    class Meta:
+        ordering = ['-created_at']
+ 
+    def __str__(self):
+        return f"{self.name} - {self.rating}\u2605"
+ 

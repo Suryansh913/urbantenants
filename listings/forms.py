@@ -42,4 +42,27 @@ class RoomBookingForm(forms.ModelForm):
             }),
             
         }
-        
+from django import forms
+from .models import Review
+ 
+ 
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['name', 'rating', 'text']
+ 
+    def clean_name(self):
+        name = self.cleaned_data.get('name', '').strip()
+        return name[:60] if name else "Anonymous"
+ 
+    def clean_text(self):
+        text = self.cleaned_data.get('text', '').strip()
+        if not text:
+            raise forms.ValidationError("Please write your review.")
+        return text[:220]
+ 
+    def clean_rating(self):
+        rating = self.cleaned_data.get('rating')
+        if rating is None or rating < 1 or rating > 5:
+            raise forms.ValidationError("Rating must be between 1 and 5.")
+        return rating
