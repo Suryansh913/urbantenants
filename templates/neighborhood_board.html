@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neighborhood Board - {{ listing.location_name }} | UrbanTenants</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue-50: #E6F1FB; --blue-100: #B5D4F4; --blue-300: #5BA3E8;
+      --blue-500: #2579D4; --blue-600: #185FA5; --blue-700: #0E4A84;
+      --neutral-50: #F7F9FC; --neutral-100: #EEF2F8; --neutral-200: #D8E1EF;
+      --neutral-400: #8FA5C4; --neutral-600: #506180; --neutral-900: #111827;
+      --white: #ffffff; --green-500: #22C55E; --green-50: #F0FDF4;
+      --radius-sm: 8px; --radius-md: 14px; --radius-lg: 22px;
+      --shadow-sm: 0 2px 8px rgba(24,95,165,0.07);
+      --shadow-md: 0 6px 24px rgba(24,95,165,0.13);
+    }
+    body {
+      font-family: 'DM Sans', sans-serif; background: var(--neutral-50);
+      color: var(--neutral-900); min-height: 100vh;
+    }
+    .wrap { max-width: 780px; margin: 0 auto; padding: 28px 24px 60px; }
+
+    .page-head { margin-bottom: 20px; }
+    .page-title {
+      font-family: 'Sora', sans-serif; font-size: 24px; font-weight: 700;
+      letter-spacing: -0.4px; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;
+    }
+    .page-title svg { color: var(--blue-600); }
+    .page-sub { font-size: 13px; color: var(--neutral-400); }
+
+    .card {
+      background: var(--white); border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg); padding: 22px; margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* New post form */
+    .new-post-card textarea, .new-post-card input[type=text] {
+      width: 100%; border: 1px solid var(--neutral-200); border-radius: var(--radius-sm);
+      padding: 11px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px;
+      background: var(--neutral-50); resize: vertical; outline: none;
+    }
+    .new-post-card input[type=text] { margin-bottom: 10px; font-weight: 600; }
+    .new-post-card textarea { min-height: 80px; margin-bottom: 12px; }
+    .new-post-card input:focus, .new-post-card textarea:focus { border-color: var(--blue-300); background: #fff; }
+    .btn-post {
+      background: var(--blue-600); color: #fff; border: none; font-family: 'Sora', sans-serif;
+      font-size: 14px; font-weight: 600; padding: 10px 20px; border-radius: var(--radius-sm);
+      cursor: pointer; transition: background 0.18s;
+    }
+    .btn-post:hover { background: var(--blue-700); }
+
+    /* Posts */
+    .post-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+    .post-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; color: var(--neutral-900); }
+    .post-meta { font-size: 12px; color: var(--neutral-400); margin-bottom: 10px; }
+    .post-content { font-size: 14px; color: var(--neutral-600); line-height: 1.6; margin-bottom: 14px; white-space: pre-wrap; }
+
+    .badge-resolved {
+      font-size: 11px; font-weight: 700; background: var(--green-50); color: var(--green-500);
+      border: 1px solid #bbf7d0; padding: 3px 10px; border-radius: 100px; flex-shrink: 0;
+    }
+    .badge-open {
+      font-size: 11px; font-weight: 700; background: var(--blue-50); color: var(--blue-700);
+      border: 1px solid var(--blue-100); padding: 3px 10px; border-radius: 100px; flex-shrink: 0;
+    }
+
+    .toggle-resolve-btn {
+      background: none; border: 1px solid var(--neutral-200); color: var(--neutral-600);
+      font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 100px;
+      cursor: pointer; margin-bottom: 12px;
+    }
+    .toggle-resolve-btn:hover { border-color: var(--blue-300); }
+
+    /* Replies */
+    .replies { border-top: 1px solid var(--neutral-100); padding-top: 12px; margin-top: 4px; }
+    .reply-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    .reply-avatar {
+      width: 30px; height: 30px; border-radius: 50%; background: var(--blue-50); color: var(--blue-700);
+      font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-family: 'Sora', sans-serif;
+    }
+    .reply-body { font-size: 13px; }
+    .reply-user { font-weight: 700; color: var(--neutral-900); }
+    .reply-time { font-size: 11px; color: var(--neutral-400); margin-left: 6px; }
+    .reply-text { color: var(--neutral-600); margin-top: 2px; line-height: 1.5; }
+
+    .reply-form { display: flex; gap: 8px; margin-top: 10px; }
+    .reply-form input {
+      flex: 1; border: 1px solid var(--neutral-200); border-radius: 100px;
+      padding: 9px 16px; font-size: 13px; outline: none; background: var(--neutral-50);
+    }
+    .reply-form input:focus { border-color: var(--blue-300); background: #fff; }
+    .reply-form button {
+      background: var(--blue-600); color: #fff; border: none; border-radius: 100px;
+      padding: 9px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .reply-form button:hover { background: var(--blue-700); }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--neutral-400); font-size: 14px; }
+
+    .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--blue-600); text-decoration: none; margin-bottom: 16px; font-weight: 600; }
+    .back-link:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .wrap { padding: 20px 16px 40px; }
+      .card { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+{% load static %}
+{% include "header.html" %}
+
+<div class="wrap">
+  <a href="{% url 'room' listing.id %}" class="back-link">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to listing
+  </a>
+
+  <div class="page-head">
+    <div class="page-title">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Neighborhood Board
+    </div>
+    <p class="page-sub">Connecting tenants within 2km of {{ listing.location_name }} — {{ nearby_count }} nearby listing{{ nearby_count|pluralize }}</p>
+  </div>
+
+  <!-- New post -->
+  <div class="card new-post-card">
+    <form method="post" action="{% url 'neighborhood_board' listing.id %}">
+      {% csrf_token %}
+      <input type="text" name="title" placeholder="What's the topic? (e.g. Wifi issue, best local plumber)" required maxlength="150" />
+      <textarea name="content" placeholder="Describe your problem, question, or share a solution with nearby tenants..." required></textarea>
+      <button type="submit" class="btn-post">Post to Neighborhood</button>
+    </form>
+  </div>
+
+  <!-- Posts -->
+  {% if posts %}
+    {% for post in posts %}
+    <div class="card">
+      <div class="post-head">
+        <span class="post-title">{{ post.title }}</span>
+        {% if post.is_resolved %}
+          <span class="badge-resolved">✓ Resolved</span>
+        {% else %}
+          <span class="badge-open">Open</span>
+        {% endif %}
+      </div>
+      <p class="post-meta">
+        by <strong>{{ post.user.username }}</strong> · {{ post.listing.location_name }} · {{ post.created_at|timesince }} ago
+      </p>
+      <p class="post-content">{{ post.content }}</p>
+
+      {% if post.user == request.user %}
+      <form method="post" action="{% url 'neighborhood_toggle_resolved' post.id %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="toggle-resolve-btn">
+          {% if post.is_resolved %}Mark as open{% else %}Mark as resolved{% endif %}
+        </button>
+      </form>
+      {% endif %}
+
+      <div class="replies">
+        {% for reply in post.replies.all %}
+        <div class="reply-row">
+          <div class="reply-avatar">{{ reply.user.username|slice:":1"|upper }}</div>
+          <div class="reply-body">
+            <span class="reply-user">{{ reply.user.username }}</span>
+            <span class="reply-time">{{ reply.created_at|timesince }} ago</span>
+            <div class="reply-text">{{ reply.content }}</div>
+          </div>
+        </div>
+        {% endfor %}
+
+        <form method="post" action="{% url 'neighborhood_reply' post.id %}" class="reply-form">
+          {% csrf_token %}
+          <input type="text" name="content" placeholder="Write a reply..." required maxlength="500" />
+          <button type="submit">Reply</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="card empty-state">
+      No posts yet in this neighborhood. Be the first to share something!
+    </div>
+  {% endif %}
+</div>
+
+{% include 'chat_widget.html' %}
+{% include "footer.html" %}
+</body>
+</html>

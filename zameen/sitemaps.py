@@ -36,4 +36,4 @@ class ListingSitemap(Sitemap):
         return obj.date
 
     def location(self, obj):
-        return reverse('roomdetail', args=[obj.id])
+        return reverse('room', args=[obj.id])

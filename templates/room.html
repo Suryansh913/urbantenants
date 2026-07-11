@@ -480,10 +480,32 @@
 
 
 
-    /* MAP */
+    /* MAP + NEARBY PLACES (merged single section) */
     .map-section { max-width: 1200px; margin: 28px auto 0; padding: 0 24px; }
-    .map-label { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 600; color: var(--neutral-900); margin-bottom: 14px; letter-spacing: -0.2px; }
-    #userMap { height: 360px; width: 100%; border-radius: var(--radius-lg); border: 1px solid var(--neutral-200); box-shadow: var(--shadow-sm); overflow: hidden; }
+    .map-card {
+      background: var(--white); border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm);
+    }
+    .map-label { font-family: 'Sora', sans-serif; font-size: 17px; font-weight: 700; color: var(--neutral-900); letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
+    .map-label svg { color: var(--blue-600); flex-shrink: 0; }
+    .map-sub { font-size: 13px; color: var(--neutral-400); margin: 2px 0 16px; }
+
+    .nb-cat-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .nb-cat-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 15px; border: 1px solid var(--neutral-200); border-radius: 100px;
+      background: var(--neutral-50); color: var(--neutral-600); font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .nb-cat-btn:hover { border-color: var(--blue-300); }
+    .nb-cat-btn.active { background: var(--blue-600); color: #fff; border-color: var(--blue-600); box-shadow: var(--shadow-sm); }
+
+    .nb-status-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .nb-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue-500); flex-shrink: 0; animation: pulseDot 1.4s ease-in-out infinite; }
+    @keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+    #nbStatus { font-size: 13px; color: var(--neutral-600); font-weight: 500; }
+
+    #propertyMap { height: 420px; width: 100%; border-radius: var(--radius-md); border: 1px solid var(--neutral-200); overflow: hidden; }
     .feet { height: 40px; }
 
     /* RESPONSIVE */
@@ -516,7 +538,8 @@
       .stat-row { grid-template-columns: 1fr 1fr; }
       .stat:last-child { grid-column: 1 / -1; }
       .amenity-grid { grid-template-columns: repeat(2, 1fr); }
-      #userMap { height: 260px; }
+      #propertyMap { height: 280px; }
+      .map-card { padding: 18px 16px; }
       .lb-btn.prev { left: 8px; }
       .lb-btn.next { right: 8px; }
       .lb-thumbnails { bottom: 36px; }
@@ -906,11 +929,69 @@
     </div><!-- end content-grid -->
   </div><!-- end rf-wrap -->
 
-  <!-- MAP -->
+  <!-- NEIGHBORHOOD BOARD PROMO -->
+  <div class="map-section" style="margin-bottom:0;">
+    <div class="map-card" style="background:linear-gradient(135deg, var(--blue-50), #F0F7FF); border-color:var(--blue-100);">
+      <p class="map-label">
+        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Neighborhood Board
+      </p>
+      <p class="map-sub" style="margin-bottom:14px;">Connect with tenants near this property — ask questions, share tips, and help each other out.</p>
+
+      <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:18px;">
+        <div style="background:#fff; border:1px solid var(--neutral-200); border-radius:100px; padding:9px 16px; font-size:13px; color:var(--neutral-600); display:flex; align-items:center; gap:8px;">
+          💬 "Is the water supply regular in this area?"
+        </div>
+        <div style="background:#fff; border:1px solid var(--neutral-200); border-radius:100px; padding:9px 16px; font-size:13px; color:var(--neutral-600); display:flex; align-items:center; gap:8px;">
+          💬 "Any good local electrician nearby?"
+        </div>
+      </div>
+
+      <a href="{% url 'neighborhood_board' room.id %}"
+         style="display:inline-flex; align-items:center; gap:8px; background:var(--blue-600); color:#fff; font-family:'Sora',sans-serif; font-size:14px; font-weight:600; padding:12px 22px; border-radius:100px; text-decoration:none; transition:background 0.18s; box-shadow:var(--shadow-sm);"
+         onmouseover="this.style.background='var(--blue-700)'" onmouseout="this.style.background='var(--blue-600)'">
+        Connect with your neighbors
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- LOCATION + NEARBY PLACES (single merged map) -->
   {% if room.latitude and room.longitude %}
   <div class="map-section">
-    <p class="map-label">Property Location</p>
-    <div id="userMap"></div>
+    <div class="map-card">
+      <p class="map-label">
+        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Location &amp; Nearby Places
+      </p>
+      <p class="map-sub">{{ room.location_name }} — explore hotels, restaurants, laundry, shopping &amp; more around this property</p>
+
+      <div class="nb-cat-row">
+        <button type="button" class="nb-cat-btn active" data-category="hotel">🏨 Hotels</button>
+        <button type="button" class="nb-cat-btn" data-category="restaurant">🍽️ Restaurants</button>
+        <button type="button" class="nb-cat-btn" data-category="laundry">🧺 Laundry</button>
+        <button type="button" class="nb-cat-btn" data-category="shopping_mart">🛍️ Shopping Mart</button>
+        <button type="button" class="nb-cat-btn" data-category="food_supplier">🛒 Food Supplier</button>
+      </div>
+
+      <div class="nb-status-row">
+        <span class="nb-status-dot"></span>
+        <span id="nbStatus">Loading hotels nearby...</span>
+      </div>
+
+      <div id="propertyMap"></div>
+
+      <div style="display:flex; gap:16px; margin-top:12px; font-size:12px; color:var(--neutral-600);">
+        <span style="display:flex; align-items:center; gap:6px;">
+          <span style="width:10px; height:10px; border-radius:50%; background:#EF4444; display:inline-block; border:2px solid #fff; box-shadow:0 0 0 1px #EF4444;"></span>
+          This property
+        </span>
+        <span style="display:flex; align-items:center; gap:6px;">
+          <span style="width:10px; height:10px; border-radius:50%; background:#22C55E; display:inline-block; border:2px solid #fff; box-shadow:0 0 0 1px #22C55E;"></span>
+          Nearby services
+        </span>
+      </div>
+    </div>
   </div>
   {% endif %}
 
@@ -1071,10 +1152,128 @@
   {% if room.latitude and room.longitude %}
   var lat = {{ room.latitude }};
   var lng = {{ room.longitude }};
-  var map = L.map('userMap').setView([lat, lng], 15);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }).addTo(map);
-  L.marker([lat, lng]).addTo(map).bindPopup("{{ room.Room_title|escapejs }}").openPopup();
-  setTimeout(function() { map.invalidateSize(); }, 300);
+
+  // ---- SINGLE MERGED MAP (property location + nearby places) ----
+  var map = L.map('propertyMap').setView([lat, lng], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  var propertyIcon = L.divIcon({
+    className: 'property-marker',
+    html: '<div style="background:#EF4444; width:18px; height:18px; border-radius:50%; border:3px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.35);"></div>',
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+  });
+  L.marker([lat, lng], { icon: propertyIcon, zIndexOffset: 1000 })
+    .addTo(map)
+    .bindPopup("<b>{{ room.Room_title|escapejs }}</b><br>{{ room.location_name|escapejs }}")
+    .openPopup();
+
+  var nearbyIcon = L.divIcon({
+    className: 'nearby-marker',
+    html: '<div style="background:#22C55E; width:14px; height:14px; border-radius:50%; border:2.5px solid #fff; box-shadow:0 2px 5px rgba(0,0,0,0.3);"></div>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  });
+
+  var nbMarkersLayer = L.layerGroup().addTo(map);
+  var nbStatus = document.getElementById('nbStatus');
+
+  function buildPopupHtml(place) {
+    var rows = [];
+
+    rows.push('<div style="font-family:Sora,sans-serif; font-weight:700; font-size:14px; margin-bottom:4px; color:#111827;">' + place.name + '</div>');
+
+    if (place.stars) {
+      var starsNum = parseInt(place.stars, 10);
+      if (!isNaN(starsNum)) {
+        rows.push('<div style="color:#BA7517; font-size:12px; margin-bottom:4px;">' + '★'.repeat(starsNum) + '<span style="color:#D3D1C7;">' + '★'.repeat(Math.max(0, 5 - starsNum)) + '</span></div>');
+      }
+    }
+
+    if (place.address) {
+      rows.push('<div style="font-size:12px; color:#506180; margin-bottom:3px;">📍 ' + place.address + '</div>');
+    }
+    if (place.cuisine) {
+      rows.push('<div style="font-size:12px; color:#506180; margin-bottom:3px;">🍴 ' + place.cuisine.replace(/_/g, ', ') + '</div>');
+    }
+    if (place.phone) {
+      rows.push('<div style="font-size:12px; color:#506180; margin-bottom:3px;">📞 ' + place.phone + '</div>');
+    }
+    if (place.opening_hours) {
+      rows.push('<div style="font-size:12px; color:#506180; margin-bottom:3px;">🕒 ' + place.opening_hours + '</div>');
+    }
+    if (place.website) {
+      var url = place.website.startsWith('http') ? place.website : 'https://' + place.website;
+      rows.push('<div style="font-size:12px; margin-bottom:3px;">🌐 <a href="' + url + '" target="_blank" rel="noopener" style="color:#185FA5;">Visit website</a></div>');
+    }
+    if (place.email) {
+      rows.push('<div style="font-size:12px; color:#506180; margin-bottom:3px;">✉️ ' + place.email + '</div>');
+    }
+
+    var badges = [];
+    if (place.wheelchair === 'yes') badges.push('♿ Wheelchair accessible');
+    if (place.internet_access && place.internet_access !== 'no') badges.push('📶 Wi-Fi');
+    if (place.air_conditioning === 'yes') badges.push('❄️ AC');
+    if (place.outdoor_seating === 'yes') badges.push('🪑 Outdoor seating');
+    if (place.delivery === 'yes') badges.push('🚴 Delivery');
+    if (place.takeaway === 'yes') badges.push('🥡 Takeaway');
+
+    if (badges.length) {
+      rows.push('<div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:6px;">' +
+        badges.map(function (b) {
+          return '<span style="font-size:10px; background:#E6F1FB; color:#0E4A84; padding:2px 7px; border-radius:100px; font-weight:600;">' + b + '</span>';
+        }).join('') +
+        '</div>');
+    }
+
+    return '<div style="min-width:180px; max-width:240px;">' + rows.join('') + '</div>';
+  }
+
+  var nbLabels = {
+    hotel: "hotels", restaurant: "restaurants", laundry: "laundry services",
+    shopping_mart: "shopping marts", food_supplier: "food suppliers"
+  };
+
+  function loadNearby(category) {
+    nbMarkersLayer.clearLayers();
+    nbStatus.textContent = "Loading " + nbLabels[category] + " nearby...";
+
+    fetch("/api/nearby-places/?lat=" + lat + "&lng=" + lng + "&category=" + category + "&radius=5000")
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.error) {
+          nbStatus.textContent = "Could not load places right now.";
+          return;
+        }
+        if (data.results.length === 0) {
+          nbStatus.textContent = "No " + nbLabels[category] + " found nearby.";
+          return;
+        }
+        data.results.forEach(function (place) {
+          var marker = L.marker([place.lat, place.lng], { icon: nearbyIcon }).addTo(nbMarkersLayer);
+          marker.bindPopup(buildPopupHtml(place));
+        });
+        nbStatus.textContent = "Showing " + data.results.length + " " + nbLabels[category] + " nearby";
+      })
+      .catch(function () {
+        nbStatus.textContent = "Something went wrong loading places.";
+      });
+  }
+
+  loadNearby('hotel');
+  setTimeout(function () { map.invalidateSize(); }, 300);
+
+  document.querySelectorAll('.nb-cat-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.nb-cat-btn').forEach(function (b) {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+      loadNearby(btn.dataset.category);
+    });
+  });
   {% endif %}
 })();
 

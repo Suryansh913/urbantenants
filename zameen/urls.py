@@ -40,6 +40,8 @@ sitemaps = {
 urlpatterns = [
     path('admin/', admin.site.urls),
     
+    path("api/nearby-places/", views.nearby_places_api, name="nearby_places_api"),
+
     path('login/', views.login ,name="login"),
     
     path('room/<int:id>/', views.room, name= "room"),
@@ -85,6 +87,13 @@ urlpatterns = [
     path('admin-dashboard/users/', views.user_list, name='user_list'),
     path("about/founder/", AboutFounderView.as_view(), name="about_founder"),
     path('reviews/submit/', views.create_review, name='create_review'),
+    path("listing/<int:listing_id>/neighborhood/", views.neighborhood_board, name="neighborhood_board"),
+    path("neighborhood/post/<int:post_id>/reply/", views.neighborhood_reply, name="neighborhood_reply"),
+    path("neighborhood/post/<int:post_id>/toggle-resolved/", views.neighborhood_toggle_resolved, name="neighborhood_toggle_resolved"),
+ 
+
+    
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

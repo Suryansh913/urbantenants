@@ -707,3 +707,275 @@ def create_review(request):
         form.save()
         return JsonResponse({'success': True})
     return JsonResponse({'success': False, 'errors': form.errors}, status=400)
+import requests
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
+
+# =====================================================================
+# ADD/REPLACE THIS IN zameen/views.py
+# Robust version: tries multiple Overpass servers, sends proper headers,
+# and gives clear error messages if all fail.
+# =====================================================================
+
+import requests
+from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
+
+# Map categories to OpenStreetMap tags (free, no API key needed)
+# Broadened to catch more tag variants commonly used in Indian OSM data
+PLACE_TAG_MAP = {
+    "hotel": [
+        ("tourism", "hotel"), ("tourism", "guest_house"),
+        ("tourism", "motel"), ("tourism", "hostel"),
+        ("building", "hotel"),
+    ],
+    "restaurant": [
+        ("amenity", "restaurant"), ("amenity", "fast_food"),
+        ("amenity", "cafe"), ("amenity", "food_court"),
+    ],
+    "laundry": [
+        ("shop", "laundry"), ("shop", "dry_cleaning"),
+        ("craft", "dry_cleaning"),
+    ],
+    "shopping_mart": [
+        ("shop", "mall"), ("shop", "department_store"),
+        ("shop", "general"), ("shop", "variety_store"),
+        ("shop", "clothes"),
+    ],
+    "food_supplier": [
+        ("shop", "supermarket"), ("shop", "convenience"),
+        ("shop", "grocery"), ("shop", "greengrocer"),
+    ],
+}
+
+# Multiple public Overpass mirrors — if one is down/slow/blocking us,
+# we automatically try the next one.
+OVERPASS_SERVERS = [
+    "https://overpass-api.de/api/interpreter",
+    "https://overpass.kumi.systems/api/interpreter",
+    "https://overpass.openstreetmap.ru/api/interpreter",
+]
+
+# Overpass sometimes rejects requests that don't look like they're
+# coming from a real browser/app — this header fixes that.
+OVERPASS_HEADERS = {
+    "User-Agent": "UrbanTenants/1.0 (contact: urbantenants1@gmail.com)"
+}
+
+
+def _build_overpass_query(lat, lng, radius, tag_pairs):
+    clauses = []
+    for key, value in tag_pairs:
+        clauses.append(f'node["{key}"="{value}"](around:{radius},{lat},{lng});')
+        clauses.append(f'way["{key}"="{value}"](around:{radius},{lat},{lng});')
+        clauses.append(f'relation["{key}"="{value}"](around:{radius},{lat},{lng});')
+    return f"""
+    [out:json][timeout:25];
+    (
+        {''.join(clauses)}
+    );
+    out center 100;
+    """
+
+
+def _extract_address(tags):
+    parts = []
+    if tags.get("addr:housenumber"):
+        parts.append(tags["addr:housenumber"])
+    if tags.get("addr:street"):
+        parts.append(tags["addr:street"])
+    if tags.get("addr:suburb"):
+        parts.append(tags["addr:suburb"])
+    if tags.get("addr:city"):
+        parts.append(tags["addr:city"])
+    return ", ".join(parts) if parts else None
+
+
+def _query_overpass(query):
+    """
+    Tries each Overpass mirror in order until one succeeds.
+    Returns the parsed JSON data, or raises the last error if all fail.
+    """
+    last_error = None
+    for server_url in OVERPASS_SERVERS:
+        try:
+            resp = requests.post(
+                server_url,
+                data={"data": query},
+                headers=OVERPASS_HEADERS,
+                timeout=20,
+            )
+            resp.raise_for_status()
+            return resp.json()
+        except Exception as e:
+            last_error = e
+            continue  # try the next mirror
+    # all mirrors failed
+    raise last_error
+
+
+def nearby_places_api(request):
+    """
+    AJAX endpoint consumed by the room page's JS.
+    Fetches nearby places from the free OpenStreetMap Overpass API
+    (tries multiple mirrors) and returns a clean JSON payload.
+
+    Query params:
+        lat       (required)
+        lng       (required)
+        category  (optional, default="hotel") -> one of PLACE_TAG_MAP keys
+        radius    (optional, default=3000 meters)
+    """
+    lat = request.GET.get("lat")
+    lng = request.GET.get("lng")
+    category = request.GET.get("category", "hotel")
+    radius = request.GET.get("radius", 3000)
+
+    if not lat or not lng:
+        return JsonResponse({"error": "lat and lng are required"}, status=400)
+
+    tag_pairs = PLACE_TAG_MAP.get(category)
+    if not tag_pairs:
+        return JsonResponse({"error": f"Unknown category '{category}'"}, status=400)
+
+    query = _build_overpass_query(lat, lng, radius, tag_pairs)
+
+    try:
+        data = _query_overpass(query)
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"Could not reach any Overpass server: {e}"},
+            status=502,
+        )
+
+    category_display = {
+        "hotel": "Hotel", "restaurant": "Restaurant", "laundry": "Laundry",
+        "shopping_mart": "Shopping Mart", "food_supplier": "Store",
+    }
+
+    results = []
+    for element in data.get("elements", []):
+        tags = element.get("tags", {})
+        name = tags.get("name") or f"Unnamed {category_display.get(category, 'Place')}"
+
+        if element["type"] == "node":
+            place_lat = element.get("lat")
+            place_lng = element.get("lon")
+        else:
+            center = element.get("center", {})
+            place_lat = center.get("lat")
+            place_lng = center.get("lon")
+
+        if place_lat is None or place_lng is None:
+            continue
+
+        results.append({
+            "name": name,
+            "address": _extract_address(tags),
+            "lat": place_lat,
+            "lng": place_lng,
+            "phone": tags.get("phone") or tags.get("contact:phone"),
+            "opening_hours": tags.get("opening_hours"),
+            "website": tags.get("website") or tags.get("contact:website"),
+            "email": tags.get("email") or tags.get("contact:email"),
+            "cuisine": tags.get("cuisine"),
+            "stars": tags.get("stars"),
+            "wheelchair": tags.get("wheelchair"),
+            "internet_access": tags.get("internet_access"),
+            "outdoor_seating": tags.get("outdoor_seating"),
+            "delivery": tags.get("delivery"),
+            "takeaway": tags.get("takeaway"),
+            "air_conditioning": tags.get("air_conditioning"),
+        })
+
+    return JsonResponse({"results": results, "category": category})
+
+import math
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from listings.models import listings as Listings, NeighborhoodPost, NeighborhoodReply
+ 
+ 
+def _haversine_km(lat1, lng1, lat2, lng2):
+    R = 6371
+    lat1, lng1, lat2, lng2 = map(float, [lat1, lng1, lat2, lng2])
+    dlat = math.radians(lat2 - lat1)
+    dlng = math.radians(lng2 - lng1)
+    a = (math.sin(dlat / 2) ** 2
+         + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlng / 2) ** 2)
+    c = 2 * math.asin(math.sqrt(a))
+    return R * c
+ 
+ 
+def _nearby_listing_ids(listing, radius_km=2):
+    """Returns IDs of all listings (including this one) within radius_km of the given listing."""
+    if not listing.latitude or not listing.longitude:
+        return [listing.id]
+ 
+    ids = [listing.id]
+    others = Listings.objects.exclude(id=listing.id).exclude(latitude=None).exclude(longitude=None)
+    for other in others:
+        dist = _haversine_km(listing.latitude, listing.longitude, other.latitude, other.longitude)
+        if dist <= radius_km:
+            ids.append(other.id)
+    return ids
+ 
+ 
+@login_required
+def neighborhood_board(request, listing_id):
+    """
+    Shows a discussion board for a listing, combining posts from all
+    listings within a 2km radius. Handles new post creation on POST.
+    """
+    listing = get_object_or_404(Listings, id=listing_id)
+    nearby_ids = _nearby_listing_ids(listing, radius_km=2)
+ 
+    if request.method == "POST":
+        title = request.POST.get("title", "").strip()
+        content = request.POST.get("content", "").strip()
+        if title and content:
+            NeighborhoodPost.objects.create(
+                listing=listing,
+                user=request.user,
+                title=title,
+                content=content,
+            )
+        return redirect('neighborhood_board', listing_id=listing.id)
+ 
+    posts = (
+        NeighborhoodPost.objects
+        .filter(listing_id__in=nearby_ids)
+        .select_related('user', 'listing')
+        .prefetch_related('replies__user')
+    )
+ 
+    return render(request, "neighborhood_board.html", {
+        "listing": listing,
+        "posts": posts,
+        "nearby_count": len(nearby_ids),
+    })
+ 
+ 
+@login_required
+def neighborhood_reply(request, post_id):
+    """Handles adding a reply to a NeighborhoodPost."""
+    post = get_object_or_404(NeighborhoodPost, id=post_id)
+    if request.method == "POST":
+        content = request.POST.get("content", "").strip()
+        if content:
+            NeighborhoodReply.objects.create(
+                post=post,
+                user=request.user,
+                content=content,
+            )
+    return redirect('neighborhood_board', listing_id=post.listing.id)
+ 
+ 
+@login_required
+def neighborhood_toggle_resolved(request, post_id):
+    """Lets the original poster mark their post as resolved/unresolved."""
+    post = get_object_or_404(NeighborhoodPost, id=post_id)
+    if request.method == "POST" and post.user == request.user:
+        post.is_resolved = not post.is_resolved
+        post.save()
+    return redirect('neighborhood_board', listing_id=post.listing.id)
