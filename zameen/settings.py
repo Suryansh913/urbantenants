@@ -30,7 +30,18 @@ DEFAULT_FROM_EMAIL = "noreply@urbantenants.com"
 # ── SECURITY ───────────────────────────────────────────
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-3a@=a=ir!)nxbf3ru342_6(3o@b0m4!8$v5dyuy*c9!4=fy_%0')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "www.urbantenants.com",
+    "urbantenants.com",
+    ".onrender.com",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "https://www.urbantenants.com",
+    "https://urbantenants.com",
+    "https://*.onrender.com",
+]
 
 # ── APPS ───────────────────────────────────────────────
 INSTALLED_APPS = [
