@@ -31,3 +31,6 @@ class FCMToken(models.Model):
         if self.partner:
             return f"Partner Token - {self.partner.email}"
         return self.token[:20]
+    
+
+

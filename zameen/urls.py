@@ -90,6 +90,7 @@ urlpatterns = [
     path("listing/<int:listing_id>/neighborhood/", views.neighborhood_board, name="neighborhood_board"),
     path("neighborhood/post/<int:post_id>/reply/", views.neighborhood_reply, name="neighborhood_reply"),
     path("neighborhood/post/<int:post_id>/toggle-resolved/", views.neighborhood_toggle_resolved, name="neighborhood_toggle_resolved"),
+    path("robots.txt", views.robots_txt, name="robots_txt"),
  
 
     

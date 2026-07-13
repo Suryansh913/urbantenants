@@ -17,3 +17,5 @@ class PartnerAdmin(admin.ModelAdmin):
         "phone",
         "upi_id",
     )
+
+

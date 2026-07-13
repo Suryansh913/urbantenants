@@ -415,3 +415,5 @@ def partner_google_complete(request):
         messages.info(request, "You are not a partner yet. Please register first to become a partner, then you can login.")
         request.session['google_prefill_email'] = email
         return redirect('partner_register')
+
+

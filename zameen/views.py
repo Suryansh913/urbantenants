@@ -979,3 +979,19 @@ def neighborhood_toggle_resolved(request, post_id):
         post.is_resolved = not post.is_resolved
         post.save()
     return redirect('neighborhood_board', listing_id=post.listing.id)
+
+
+
+
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "",
+        "Disallow: /admin/",
+        "Disallow: /business/dashboard/",
+        "Disallow: /support/dashboard/",
+        "",
+        f"Sitemap: {request.scheme}://{request.get_host()}/sitemap.xml",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")

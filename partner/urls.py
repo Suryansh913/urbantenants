@@ -16,4 +16,8 @@ urlpatterns = [
     path("set-offer/<int:id>/", views.set_offer, name="set_offer"),
     path("remove-offer/<int:listing_id>/", views.remove_offer, name="remove_offer"),
     path('google-complete/', views.partner_google_complete, name='partner_google_complete'),
+    
+    
+ 
+
 ]
