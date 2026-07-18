@@ -17,14 +17,13 @@ def registerv(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             return redirect('base')
         else:
             print(form.errors)
     else:
         form = RegisterForm()
     return render(request, 'pauth/register.html', {'form': form})
-
 
 def loginv(request):
     if request.user.is_authenticated:
