@@ -32,7 +32,7 @@ from zameen.views import user_list
 from django.contrib.sitemaps.views import sitemap
 from .sitemaps import ListingSitemap, StaticViewSitemap
 from .views import AboutFounderView
-
+from django.views.generic import TemplateView
 sitemaps = {
     'listings': ListingSitemap,
     'static': StaticViewSitemap,
@@ -62,7 +62,10 @@ urlpatterns = [
     path('invoice/<int:booking_id>/download/', views.download_invoice, name='download_invoice'),
     path('', include('listings.urls')),
     path('chatbot/', include('chatbot.urls')),
-    path("OneSignalSDKWorker.js", onesignal_worker),
+    path('OneSignalSDKWorker.js', TemplateView.as_view(
+        template_name='OneSignalSDKWorker.js',
+        content_type='application/javascript'
+    )),
     path(
         'sitemap.xml',
         sitemap,

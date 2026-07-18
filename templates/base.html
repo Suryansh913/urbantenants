@@ -62,8 +62,21 @@
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
         window.OneSignalDeferred = window.OneSignalDeferred || [];
-        OneSignalDeferred.push(async function(OneSignal) {
-            await OneSignal.init({ appId: "6893175d-f04f-4c67-acaf-7a604bb3fa0e" });
+        OneSignalDeferred.push(async function (OneSignal) {
+            try {
+                await OneSignal.init({
+                    appId: "62762933-45c1-490f-9e9c-775b2f22511c",
+                    allowLocalhostAsSecureOrigin: true,
+                    notifyButton: { enable: false }
+                });
+
+                const permission = OneSignal.Notifications.permission;
+                if (!permission) {
+                    await OneSignal.Slidedown.promptPush();
+                }
+            } catch (err) {
+                console.error("OneSignal init error:", err);
+            }
         });
     </script>
     <style>
@@ -1246,6 +1259,7 @@
     });
 })();
 </script>
+
 
 </body>
 </html>
