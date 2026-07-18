@@ -83,25 +83,42 @@ def login(request):
     
     return render(request, "login.html",data)
 # is view se mai ek listing ka data dekh sakat ahu
-def room(request, id):
-    roomd = get_object_or_404(listings,id=id)
-    # room_obj = get_object_or_404(listings,id=id)
+import re
 
-    listing=listings.objects.get(id=id)
-    # # request.session['id']=listings.id
-    listingdata=listings.objects.all()
-    # Booking.objects.create(
-    #     user=request.user,
-    #     listings = room_obj
-    # )
+def get_clean_whatsapp_number(phone):
+    """Return a valid wa.me number: country code + 10 digit number, digits only.
+    Falls back to default number on any invalid/missing/error case."""
+    default_number = "918303970186"
+
+    try:
+        if not phone:
+            return default_number
+
+        digits = re.sub(r'\D', '', str(phone))  # remove +, spaces, dashes, brackets etc.
+
+        if len(digits) == 10:
+            return "91" + digits
+        elif len(digits) == 12 and digits.startswith("91"):
+            return digits
+        elif len(digits) == 11 and digits.startswith("0"):
+            return "91" + digits[1:]
+        else:
+            return default_number
+    except Exception:
+        return default_number
+
+
+def room(request, id):
+    roomd = get_object_or_404(listings, id=id)
+    listing = listings.objects.get(id=id)
+    listingdata = listings.objects.all()
 
     reviews = roomd.ratings.all().order_by('-created_at')
-    
-    # Star breakdown
+
     star_counts = {}
     for s in range(1, 6):
         star_counts[s] = roomd.ratings.filter(rating=s).count()
-    
+
     total = roomd.total_reviews
     star_bars = []
     for s in [5, 4, 3, 2, 1]:
@@ -109,32 +126,42 @@ def room(request, id):
         pct = round((count / total * 100) if total > 0 else 0)
         star_bars.append({'star': s, 'count': count, 'pct': pct})
 
-
     final_price = listing.Room_rent
-
     if hasattr(listing, 'offer') and listing.offer.active:
         discount = listing.offer.discount_percent
         final_price = listing.Room_rent - (listing.Room_rent * discount / 100)
 
-    
-    data={
-        'listingdata':listingdata,
-        
+    data = {
+        'listingdata': listingdata,
     }
-    
-    
-    images=[
+
+    images = [
         listing.Room_images1,
         listing.Room_images2,
         listing.Room_images3,
         listing.Room_images4,
         listing.Room_images5,
     ]
-    print("AVG:", roomd.average_rating)
-    print("TOTAL:", roomd.total_reviews)
-   
-    return render( request, "room.html",{'room': roomd ,'images':images,'data':data,'reviews': reviews,'star_bars': star_bars,'final_price':final_price})
 
+    # ---- WhatsApp number cleanup (fully safe, no crash ever) ----
+    partner_phone = None
+    try:
+        if hasattr(listing, 'partner') and listing.partner and listing.partner.phone:
+            partner_phone = listing.partner.phone
+    except Exception:
+        partner_phone = None
+
+    whatsapp_number = get_clean_whatsapp_number(partner_phone)
+
+    return render(request, "room.html", {
+        'room': roomd,
+        'images': images,
+        'data': data,
+        'reviews': reviews,
+        'star_bars': star_bars,
+        'final_price': final_price,
+        'whatsapp_number': whatsapp_number,
+    })
 def base(request):
     from django.db.models import Avg, Count
     from listings.models import Review          # <-- NEW: import your Review model
