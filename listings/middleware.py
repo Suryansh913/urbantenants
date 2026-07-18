@@ -1,0 +1,14 @@
+from django.shortcuts import redirect
+
+
+class RedirectToMainDomainMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        host = request.get_host()
+
+        if 'onrender.com' in host:
+            return redirect(f'https://urbantenants.com{request.path}')
+
+        return self.get_response(request)

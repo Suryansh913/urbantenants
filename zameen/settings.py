@@ -69,6 +69,7 @@ INSTALLED_APPS = [
 
 # ── MIDDLEWARE ─────────────────────────────────────────
 MIDDLEWARE = [
+    'listings.middleware.RedirectToMainDomainMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
