@@ -43,8 +43,27 @@ def send_brevo_email(to_emails, subject, html_content):
 
 
 
+def submit_review(request, room_id):
+    print("VIEW HIT")
+    if request.method == "POST":
 
+        room = listings.objects.get(id=room_id)
 
+        rating = request.POST.get("rating")
+        review = request.POST.get("review")
+       
+
+        RoomRating.objects.create(
+            room=room,
+            
+            rating=rating,
+            review=review
+        )
+        messages.success(request, "Rating Submitted Successfully!")
+    print("RATING SAVED")
+    return redirect(request.META.get("HTTP_REFERER"))
+
+ 
 
 
 
@@ -86,25 +105,24 @@ def login(request):
 import re
 
 def get_clean_whatsapp_number(phone):
-    """Return a valid wa.me number: country code + 10 digit number, digits only.
-    Falls back to default number on any invalid/missing/error case."""
+    """Return a valid wa.me number: country code + 10 digit number, digits only."""
     default_number = "918303970186"
+    if not phone:
+        return default_number
 
-    try:
-        if not phone:
-            return default_number
+    digits = re.sub(r'\D', '', str(phone))  # remove +, spaces, dashes, brackets etc.
 
-        digits = re.sub(r'\D', '', str(phone))  # remove +, spaces, dashes, brackets etc.
-
-        if len(digits) == 10:
-            return "91" + digits
-        elif len(digits) == 12 and digits.startswith("91"):
-            return digits
-        elif len(digits) == 11 and digits.startswith("0"):
-            return "91" + digits[1:]
-        else:
-            return default_number
-    except Exception:
+    if len(digits) == 10:
+        # plain 10 digit number -> add country code
+        return "91" + digits
+    elif len(digits) == 12 and digits.startswith("91"):
+        # already has country code
+        return digits
+    elif len(digits) == 11 and digits.startswith("0"):
+        # leading zero, strip it, add country code
+        return "91" + digits[1:]
+    else:
+        # fallback if format is weird/unexpected
         return default_number
 
 
@@ -143,13 +161,10 @@ def room(request, id):
         listing.Room_images5,
     ]
 
-    # ---- WhatsApp number cleanup (fully safe, no crash ever) ----
+    # ---- WhatsApp number cleanup ----
     partner_phone = None
-    try:
-        if hasattr(listing, 'partner') and listing.partner and listing.partner.phone:
-            partner_phone = listing.partner.phone
-    except Exception:
-        partner_phone = None
+    if hasattr(listing, 'partner') and listing.partner and listing.partner.phone:
+        partner_phone = listing.partner.phone
 
     whatsapp_number = get_clean_whatsapp_number(partner_phone)
 

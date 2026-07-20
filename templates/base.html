@@ -191,6 +191,28 @@
             animation: livePulse 2s ease-out infinite;
         }
 
+        /* ===== NEW: hero tagline (added above h1) — professional eyebrow badge ===== */
+        .hero-tagline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-head);
+            font-size: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--h-ink);
+            background: var(--h-yellow);
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            box-shadow: 0 6px 16px rgba(240,173,31,0.35), 0 2px 4px rgba(28,28,46,0.08);
+            animation: rise 0.6s 0.04s ease both;
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+        .hero-tagline .tag-star { font-size: 16px; line-height: 1; }
+
         .hero h1 {
             font-family: var(--font-head);
             font-size: 44px; font-weight: 700; color: var(--h-ink);
@@ -334,6 +356,7 @@
         @media (max-width: 480px) {
             .listings-grid { grid-template-columns: 1fr; }
             .hero h1 { font-size: 26px !important; }
+            .hero-tagline { font-size: 12px !important; padding: 8px 14px !important; }
             .hero { padding: 2rem 1.25rem !important; }
             .hero-illustration { width:280px !important; }
 
@@ -767,6 +790,8 @@
                 Limited period · Up to 50% off first month
             </div>
 
+            <p class="hero-tagline"><span class="tag-star">★</span> #1 Room Renting Platform Near Chandigarh University</p>
+
             <h1>Rooms &amp; PGs for rent in <span class="hl-yellow">Kanpur</span> &amp; <span class="hl-blue">near Chandigarh University</span></h1>
 
             <p class="hero-sub">Verified 1BHK, 2BHK and 3BHK rooms in Kanpur, Unnao, Nawabganj, and student housing near Chandigarh University. Zero brokerage, zero platform fee — book online with UrbanTenants.</p>
@@ -1113,7 +1138,9 @@
 <script>
 (function () {
     var STORAGE_FLAG = 'ut_review_submitted';
+    var SHOWN_FLAG = 'ut_review_popup_shown';
     var alreadySubmitted = localStorage.getItem(STORAGE_FLAG) === '1';
+    var alreadyShown = localStorage.getItem(SHOWN_FLAG) === '1';
 
     var selectedRating = 0;
     var inactivityTimer = null;
@@ -1138,6 +1165,7 @@
     }
 
     function openModal() {
+        localStorage.setItem(SHOWN_FLAG, '1');
         overlay.classList.add('open');
         startInactivityTimer();
     }
@@ -1168,27 +1196,32 @@
     modalBox.addEventListener('input', markInteracted);
 
     fab.addEventListener('click', function () {
-        clearInterval(openWatcher);
+        if (openWatcher) clearInterval(openWatcher);
         openModal();
     });
 
     // auto-open 30 seconds of active time on the page — the timer only
     // counts while the tab is actually visible/focused (pauses if the
     // user switches away, so it truly waits for 30s of the user "being
-    // on the page").
-    var OPEN_DELAY = 30000;
-    var activeElapsed = 0;
-    var lastTick = Date.now();
-    var openWatcher = setInterval(function () {
-        if (!document.hidden) {
-            activeElapsed += Date.now() - lastTick;
-        }
-        lastTick = Date.now();
-        if (activeElapsed >= OPEN_DELAY) {
-            clearInterval(openWatcher);
-            if (!overlay.classList.contains('open')) openModal();
-        }
-    }, 500);
+    // on the page"). This entire auto-open flow runs only once ever per
+    // device — if it has already been shown before (this session or any
+    // previous one), skip straight past it.
+    var openWatcher = null;
+    if (!alreadyShown) {
+        var OPEN_DELAY = 30000;
+        var activeElapsed = 0;
+        var lastTick = Date.now();
+        openWatcher = setInterval(function () {
+            if (!document.hidden) {
+                activeElapsed += Date.now() - lastTick;
+            }
+            lastTick = Date.now();
+            if (activeElapsed >= OPEN_DELAY) {
+                clearInterval(openWatcher);
+                if (!overlay.classList.contains('open')) openModal();
+            }
+        }, 500);
+    }
 
     stars.forEach(function (star) {
         star.addEventListener('click', function () {
