@@ -373,6 +373,13 @@
         <a class="s-link {% if request.path == '/pg/' or request.path == '/pg' %}active-s{% endif %}" href="/pg">
             <i class="ti ti-bed" aria-hidden="true"></i>PG / Hostel
         </a>
+
+        <div class="s-label">Company</div>
+
+        <a class="s-link {% if request.resolver_match.url_name == 'founder_message' %}active-s{% endif %}" href="{% url 'founder_message' %}">
+            <i class="ti ti-message-circle-2" aria-hidden="true"></i>Message from Founder
+        </a>
+
         <div class="s-label">Legal</div>
 
         <a class="s-link {% if request.resolver_match.url_name == 'aboutus' %}active-s{% endif %}" href="{% url 'aboutus' %}">
@@ -384,6 +391,7 @@
         <a class="s-link {% if request.resolver_match.url_name == 'privacy-policy' %}active-s{% endif %}" href="{% url 'privacy-policy' %}">
             <i class="ti ti-shield-check" aria-hidden="true"></i>Refund & Cancellation
         </a>
+
         <div class="s-label">Support</div>
 
         <a class="s-link {% if request.resolver_match.url_name == 'help_support' %}active-s{% endif %}" href="{% url 'help_support' %}">
@@ -581,6 +589,12 @@
             <li>
                 <a class="n2-item {% if request.path == '/pg/' or request.path == '/pg' %}active2{% endif %}"
                    href="/pg">PG</a>
+            </li>
+            <li>
+                <a class="n2-item n2-founder" href="{% url 'founder_message' %}">
+                    <i class="ti ti-message-circle-2" aria-hidden="true"></i>
+                    Message from Founder
+                </a>
             </li>
         </ul>
     </nav>

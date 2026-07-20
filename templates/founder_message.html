@@ -4,519 +4,558 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Message from Founder | UrbanTenants</title>
-
+<title>Message from Founder — UrbanTenants</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
+  :root{
+    --navy: #0F2049;
+    --navy-soft: #1c3670;
+    --gold: #c8963e;
+    --gold-deep: #a97b2f;
+    --paper: #f7f6f2;
+    --ink: #171a2b;
+    --ink-soft: #565b74;
+    --line: #e5e2da;
+    --white: #ffffff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'DM Sans', sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:0 28px;}
+  a{color:inherit;}
+  img{max-width:100%;display:block;}
+  h1,h2,h3{font-family:'Sora', sans-serif;}
 
-    :root{
-        --navy:#0b2545;
-        --navy-deep:#071a33;
-        --navy-light:#13315c;
-        --blue:#2563eb;
-        --gold:#f5a623;
-        --bg:#f4f6fb;
-        --text:#3a4356;
-        --radius:22px;
-    }
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+  }
 
-    *{ margin:0; padding:0; box-sizing:border-box; }
+  .back-link{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    color:rgba(255,255,255,0.7);
+    text-decoration:none;
+    padding:26px 28px 0;
+    transition:color 0.18s;
+  }
+  .back-link:hover{color:#fff;}
+  .back-link svg{width:14px;height:14px;}
 
-    body{
-        font-family:'DM Sans', Arial, sans-serif;
-        background:var(--bg);
-        color:var(--text);
-        overflow-x:hidden;
-        perspective:1400px;
-    }
+  /* ============================================
+     HERO
+     ============================================ */
+  .hero{
+    background:linear-gradient(155deg, var(--navy) 0%, var(--navy-soft) 100%);
+    position:relative;
+    overflow:hidden;
+    padding-bottom:0;
+  }
+  .hero-ring{
+    position:absolute;
+    top:-180px; right:-160px;
+    width:480px; height:480px;
+    border-radius:50%;
+    border:1px solid rgba(200,150,62,0.18);
+    pointer-events:none;
+  }
+  .hero-ring::before{
+    content:"";
+    position:absolute;
+    inset:36px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,0.06);
+  }
 
-    h1,h2,h3{ font-family:'Sora', Arial, sans-serif; }
+  .hero-grid{
+    position:relative;
+    display:grid;
+    grid-template-columns:1.2fr 0.8fr;
+    gap:48px;
+    align-items:center;
+    padding:44px 0 60px;
+  }
 
-    /* ================= HERO ================= */
-    header{
-        position:relative;
-        min-height:420px;
-        background:
-            radial-gradient(circle at 15% 20%, rgba(37,99,235,.35), transparent 45%),
-            radial-gradient(circle at 85% 75%, rgba(245,166,35,.25), transparent 45%),
-            linear-gradient(160deg, var(--navy-deep) 0%, var(--navy) 55%, var(--navy-light) 100%);
-        color:white;
-        text-align:center;
-        padding:90px 20px 160px;
-        overflow:hidden;
-    }
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:9px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    font-weight:600;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:20px;
+  }
+  .eyebrow::before{ content:""; width:20px; height:1.5px; background:var(--gold); display:inline-block; }
 
-    header .shape{
-        position:absolute;
-        border-radius:24px;
-        background:linear-gradient(135deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
-        border:1px solid rgba(255,255,255,.12);
-        backdrop-filter:blur(2px);
-        animation:float 7s ease-in-out infinite;
-    }
-    header .shape.s1{ width:90px; height:90px; top:14%; left:8%; transform:rotate(18deg); animation-delay:0s; }
-    header .shape.s2{ width:55px; height:55px; top:62%; left:16%; border-radius:50%; background:linear-gradient(135deg, var(--gold), transparent); opacity:.35; animation-delay:1.2s; }
-    header .shape.s3{ width:110px; height:110px; top:20%; right:10%; border-radius:50%; background:linear-gradient(135deg, var(--blue), transparent); opacity:.3; animation-delay:.6s; }
-    header .shape.s4{ width:70px; height:70px; top:65%; right:16%; transform:rotate(-14deg); animation-delay:1.8s; }
+  .hero-copy h1{
+    font-size:clamp(30px, 4vw, 42px);
+    font-weight:700;
+    line-height:1.18;
+    color:#fff;
+    letter-spacing:-0.01em;
+    margin-bottom:18px;
+  }
+  .hero-copy h1 em{
+    font-style:normal;
+    color:var(--gold);
+  }
+  .hero-copy p{
+    font-size:16px;
+    line-height:1.75;
+    color:#c3c9e0;
+    max-width:460px;
+  }
 
-    @keyframes float{
-        0%,100%{ transform:translateY(0); }
-        50%{ transform:translateY(-18px); }
-    }
+  .hero-cta{
+    margin-top:30px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    font-family:'Sora', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:13px 24px;
+    border-radius:10px;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    transition:transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, border-color 0.16s;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-solid{ background:var(--gold); color:var(--navy); }
+  .btn-solid:hover{ background:#d8a852; box-shadow:0 12px 24px -10px rgba(200,150,62,0.5); }
+  .btn-outline{ color:#fff; border:1.5px solid rgba(255,255,255,0.28); }
+  .btn-outline:hover{ border-color:rgba(255,255,255,0.6); }
 
-    header .badge{
-        display:inline-flex;
-        align-items:center;
-        gap:8px;
-        margin-bottom:22px;
-        padding:8px 20px;
-        background:rgba(245,166,35,.12);
-        border:1px solid rgba(245,166,35,.5);
-        color:var(--gold);
-        border-radius:40px;
-        font-size:13px;
-        font-weight:600;
-        letter-spacing:.6px;
-        position:relative;
-        z-index:2;
-    }
+  /* photo */
+  .hero-photo{ position:relative; }
+  .photo-glow{
+    position:absolute;
+    inset:-30px;
+    background:radial-gradient(circle at 65% 30%, rgba(200,150,62,0.28), transparent 60%);
+    filter:blur(24px);
+    z-index:0;
+  }
+  .photo-frame{
+    position:relative;
+    z-index:1;
+    border-radius:16px;
+    overflow:hidden;
+    border:1px solid rgba(255,255,255,0.14);
+    box-shadow:0 30px 60px -20px rgba(0,0,0,0.55);
+  }
+  .photo-frame img, .photo-fallback{
+    width:100%;
+    aspect-ratio:4/5;
+    object-fit:cover;
+    display:block;
+  }
+  .photo-frame img.hidden{ display:none; }
+  .photo-fallback{
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg, var(--navy-soft), var(--navy));
+    color:var(--gold);
+    font-family:'Sora', sans-serif;
+    font-weight:800;
+    font-size:56px;
+  }
+  .photo-fallback.show{ display:flex; }
 
-    header h1{
-        font-size:46px;
-        font-weight:800;
-        margin-bottom:14px;
-        position:relative;
-        z-index:2;
-        text-shadow:0 8px 30px rgba(0,0,0,.35);
-    }
+  .badge-chip{
+    position:relative;
+    z-index:2;
+    margin-top:-26px;
+    margin-left:16px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--white);
+    border-radius:100px;
+    padding:9px 16px 9px 10px;
+    box-shadow:0 14px 30px -10px rgba(0,0,0,0.3);
+  }
+  .badge-chip .dot{
+    width:26px; height:26px;
+    border-radius:50%;
+    background:var(--navy);
+    color:var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px;
+  }
+  .badge-chip span{
+    font-family:'Sora', sans-serif;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--ink);
+  }
 
-    header p{
-        font-size:18px;
-        opacity:.8;
-        position:relative;
-        z-index:2;
-        max-width:520px;
-        margin:0 auto;
-    }
+  /* ============================================
+     STATS STRIP
+     ============================================ */
+  .stats{
+    background:var(--navy);
+    border-top:1px solid rgba(255,255,255,0.08);
+  }
+  .stats-row{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+  }
+  .stat{
+    padding:26px 20px;
+    text-align:center;
+    border-right:1px solid rgba(255,255,255,0.08);
+  }
+  .stat:last-child{ border-right:none; }
+  .stat strong{
+    display:block;
+    font-family:'Sora', sans-serif;
+    font-size:26px;
+    font-weight:700;
+    color:#fff;
+  }
+  .stat strong em{ font-style:normal; color:var(--gold); }
+  .stat span{
+    display:block;
+    margin-top:4px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    font-weight:600;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:#9aa3c4;
+  }
 
-    /* ================= MAIN ================= */
-    .container{
-        max-width:1120px;
-        margin:-120px auto 60px;
-        padding:0 20px;
-        position:relative;
-        z-index:3;
-    }
+  /* ============================================
+     CONTENT
+     ============================================ */
+  .content{ padding:64px 0 60px; }
 
-    .founder-box{
-        position:relative;
-        background:rgba(255,255,255,.85);
-        backdrop-filter:blur(18px);
-        border:1px solid rgba(255,255,255,.6);
-        border-radius:var(--radius);
-        box-shadow:
-            0 2px 4px rgba(11,37,69,.04),
-            0 30px 70px -20px rgba(11,37,69,.35),
-            0 0 0 1px rgba(11,37,69,.03);
-        padding:50px;
-        display:flex;
-        gap:50px;
-        align-items:center;
-        transform-style:preserve-3d;
-        transition:transform .4s ease, box-shadow .4s ease;
-    }
+  .section-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    font-weight:600;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--gold-deep);
+    margin-bottom:10px;
+  }
 
-    .founder-box:hover{
-        transform:rotateX(1.5deg) rotateY(-1.5deg) translateY(-4px);
-        box-shadow:
-            0 2px 4px rgba(11,37,69,.05),
-            0 45px 90px -20px rgba(11,37,69,.4);
-    }
+  .story{
+    display:grid;
+    grid-template-columns:200px 1fr;
+    gap:40px;
+    margin-bottom:64px;
+  }
+  .story h2{
+    font-size:clamp(22px, 2.6vw, 27px);
+    font-weight:700;
+    line-height:1.3;
+    color:var(--navy);
+  }
+  .story-body p{
+    font-size:15.5px;
+    line-height:1.85;
+    color:var(--ink-soft);
+  }
+  .story-body p + p{ margin-top:16px; }
+  .story-body strong{ color:var(--ink); font-weight:600; }
 
-    .founder-box::before{
-        content:"";
-        position:absolute;
-        top:-4px; left:40px; right:40px;
-        height:4px;
-        border-radius:4px;
-        background:linear-gradient(90deg, var(--gold), var(--blue));
-    }
+  /* AIMS */
+  .aims{ margin-bottom:64px; }
+  .aims-head{ max-width:520px; margin-bottom:30px; }
+  .aims-head h2{
+    font-size:clamp(22px, 2.6vw, 27px);
+    font-weight:700;
+    color:var(--navy);
+    margin-top:6px;
+  }
+  .aim-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    border-radius:14px;
+    overflow:hidden;
+  }
+  .aim-item{
+    background:var(--white);
+    padding:26px 26px;
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+  }
+  .aim-icon{
+    flex-shrink:0;
+    width:38px; height:38px;
+    border-radius:10px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--gold-deep);
+  }
+  .aim-icon svg{ width:18px; height:18px; }
+  .aim-item h4{
+    font-size:15px;
+    font-weight:700;
+    color:var(--ink);
+    margin-bottom:4px;
+  }
+  .aim-item p{
+    font-size:13.5px;
+    line-height:1.6;
+    color:var(--ink-soft);
+  }
 
-    .photo-wrap{
-        position:relative;
-        flex-shrink:0;
-        width:250px;
-        height:250px;
-        transform-style:preserve-3d;
-    }
+  /* QUOTE */
+  .mission{
+    background:var(--navy);
+    border-radius:20px;
+    padding:50px 48px;
+    position:relative;
+    overflow:hidden;
+    margin-bottom:64px;
+  }
+  .mission::before{
+    content:"\201C";
+    position:absolute;
+    top:-46px; left:20px;
+    font-family:'Sora', sans-serif;
+    font-weight:800;
+    font-size:220px;
+    color:rgba(255,255,255,0.04);
+    line-height:1;
+    pointer-events:none;
+  }
+  .mission-inner{ position:relative; z-index:1; max-width:620px; }
+  .mission p{
+    font-size:clamp(17px, 2vw, 20px);
+    line-height:1.65;
+    color:#fff;
+    font-style:italic;
+    font-weight:400;
+  }
+  .mission-attr{
+    margin-top:24px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .mission-attr .line{ width:30px; height:2px; background:var(--gold); }
+  .mission-attr span{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    color:#c3c9e0;
+  }
 
-    .photo-wrap .ring-back{
-        position:absolute;
-        inset:-20px;
-        border-radius:50%;
-        background:conic-gradient(from 140deg, var(--gold), var(--blue), var(--gold));
-        transform:translateZ(-40px) rotate(-8deg);
-        filter:blur(2px);
-        opacity:.85;
-    }
+  /* CTA */
+  .cta-box{
+    border:1.5px solid var(--line);
+    border-radius:20px;
+    padding:46px 48px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+    background:var(--white);
+  }
+  .cta-box h3{
+    font-size:clamp(20px, 2.4vw, 25px);
+    font-weight:700;
+    color:var(--navy);
+    max-width:440px;
+    line-height:1.3;
+  }
+  .cta-buttons{ display:flex; gap:12px; flex-wrap:wrap; }
+  .btn-navy{ background:var(--navy); color:#fff; }
+  .btn-navy:hover{ background:var(--navy-soft); }
+  .btn-ghost{ color:var(--navy); border:1.5px solid var(--line); }
+  .btn-ghost:hover{ border-color:var(--navy); }
 
-    .photo-wrap .ring-mid{
-        position:absolute;
-        inset:-8px;
-        border-radius:50%;
-        border:2px dashed rgba(37,99,235,.4);
-        transform:translateZ(-15px) rotate(10deg);
-    }
+  footer{
+    text-align:center;
+    padding:30px 0 46px;
+    color:var(--ink-soft);
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:0.03em;
+  }
 
-    .founder-photo{
-        position:relative;
-        z-index:2;
-        width:250px;
-        height:250px;
-        border-radius:50%;
-        object-fit:cover;
-        border:6px solid white;
-        box-shadow:
-            0 20px 45px rgba(11,37,69,.3),
-            0 0 0 1px rgba(11,37,69,.05);
-        display:block;
-        transform:translateZ(20px);
-    }
-
-    .founder-photo.hidden{ display:none; }
-
-    .photo-fallback{
-        position:relative;
-        z-index:2;
-        width:250px;
-        height:250px;
-        border-radius:50%;
-        border:6px solid white;
-        box-shadow:0 20px 45px rgba(11,37,69,.3);
-        background:linear-gradient(135deg, var(--navy), var(--blue));
-        color:white;
-        display:none;
-        align-items:center;
-        justify-content:center;
-        font-family:'Sora', sans-serif;
-        font-size:68px;
-        font-weight:700;
-        transform:translateZ(20px);
-    }
-
-    .photo-fallback.show{ display:flex; }
-
-    .verified-chip{
-        position:absolute;
-        bottom:6px;
-        right:4px;
-        z-index:3;
-        background:white;
-        color:var(--navy);
-        font-size:12px;
-        font-weight:700;
-        padding:6px 12px;
-        border-radius:20px;
-        box-shadow:0 10px 25px rgba(11,37,69,.25);
-        display:flex;
-        align-items:center;
-        gap:5px;
-        transform:translateZ(35px);
-    }
-
-    .verified-chip .dot{
-        width:8px; height:8px; border-radius:50%;
-        background:var(--gold);
-        box-shadow:0 0 0 3px rgba(245,166,35,.25);
-    }
-
-    .content h2{
-        color:var(--navy);
-        font-size:27px;
-        margin-bottom:6px;
-    }
-
-    .content .role{
-        color:var(--blue);
-        font-weight:700;
-        font-size:13px;
-        letter-spacing:.8px;
-        text-transform:uppercase;
-        margin-bottom:22px;
-        display:inline-block;
-    }
-
-    .content p{
-        font-size:16px;
-        line-height:1.85;
-        margin-bottom:16px;
-        color:#4a5265;
-    }
-
-    .signature{
-        margin-top:8px;
-        padding-top:20px;
-        border-top:1px solid rgba(11,37,69,.08);
-    }
-
-    .signature .thanks{ color:#4a5265; margin-bottom:4px; }
-    .signature h3{ color:var(--navy); font-size:20px; margin-top:2px; }
-    .signature .title{ color:var(--gold); font-weight:600; font-size:14px; margin-top:2px; }
-
-    /* ================= STAT STRIP ================= */
-    .stats{
-        display:grid;
-        grid-template-columns:repeat(3,1fr);
-        gap:20px;
-        margin-top:35px;
-    }
-
-    .stat{
-        background:white;
-        border-radius:16px;
-        padding:22px;
-        text-align:center;
-        box-shadow:0 12px 30px -10px rgba(11,37,69,.12);
-        border:1px solid rgba(11,37,69,.05);
-    }
-
-    .stat .num{
-        font-family:'Sora', sans-serif;
-        font-size:26px;
-        font-weight:800;
-        background:linear-gradient(135deg, var(--navy), var(--blue));
-        -webkit-background-clip:text;
-        -webkit-text-fill-color:transparent;
-    }
-
-    .stat .label{
-        font-size:13px;
-        color:#6b7385;
-        margin-top:4px;
-    }
-
-    /* ================= CARDS (3D tilt) ================= */
-    .cards{
-        display:grid;
-        grid-template-columns:repeat(3,1fr);
-        gap:26px;
-        margin-top:50px;
-    }
-
-    .card{
-        position:relative;
-        background:white;
-        padding:38px 30px;
-        border-radius:18px;
-        text-align:center;
-        box-shadow:0 14px 35px -12px rgba(11,37,69,.15);
-        border:1px solid rgba(11,37,69,.05);
-        transform-style:preserve-3d;
-        transition:transform .35s ease, box-shadow .35s ease;
-        overflow:hidden;
-    }
-
-    .card::after{
-        content:"";
-        position:absolute;
-        inset:0;
-        background:linear-gradient(160deg, rgba(37,99,235,.06), transparent 60%);
-        opacity:0;
-        transition:opacity .35s ease;
-    }
-
-    .card:hover{
-        transform:translateY(-10px) rotateX(4deg) rotateY(-4deg);
-        box-shadow:0 30px 55px -15px rgba(11,37,69,.28);
-    }
-
-    .card:hover::after{ opacity:1; }
-
-    .card .icon{
-        width:62px;
-        height:62px;
-        margin:0 auto 20px;
-        border-radius:16px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-size:26px;
-        background:linear-gradient(135deg, var(--navy), var(--blue));
-        color:white;
-        box-shadow:0 12px 25px -6px rgba(37,99,235,.5);
-        transform:translateZ(15px);
-    }
-
-    .card h3{
-        color:var(--navy);
-        margin-bottom:12px;
-        font-size:18px;
-        transform:translateZ(10px);
-    }
-
-    .card p{
-        color:#6b7385;
-        font-size:14.5px;
-        line-height:1.7;
-        transform:translateZ(10px);
-    }
-
-    /* ================= FOOTER ================= */
-    footer{
-        margin-top:80px;
-        background:linear-gradient(160deg, var(--navy-deep), var(--navy));
-        color:white;
-        text-align:center;
-        padding:40px 20px;
-    }
-
-    footer h3{ color:var(--gold); margin-bottom:8px; letter-spacing:.5px; }
-    footer p{ opacity:.7; font-size:14px; }
-
-    @media(max-width:900px){
-        .founder-box{
-            flex-direction:column;
-            text-align:center;
-            padding:35px 25px;
-        }
-        .cards, .stats{ grid-template-columns:1fr; }
-        .photo-wrap, .founder-photo, .photo-fallback{ width:200px; height:200px; }
-        header h1{ font-size:30px; }
-        .container{ margin-top:-90px; }
-    }
-
+  /* ============================================
+     RESPONSIVE
+     ============================================ */
+  @media (max-width: 800px){
+    .hero-grid{ grid-template-columns:1fr; padding-top:20px; }
+    .hero-photo{ order:-1; max-width:280px; margin:0 auto; }
+    .badge-chip{ margin-left:0; }
+    .story{ grid-template-columns:1fr; gap:14px; }
+    .aim-grid{ grid-template-columns:1fr; }
+    .cta-box{ padding:36px 28px; justify-content:center; text-align:center; }
+  }
+  @media (max-width: 560px){
+    .wrap{ padding:0 20px; }
+    .stat strong{ font-size:21px; }
+    .mission{ padding:38px 26px; }
+    .stats-row{ grid-template-columns:1fr; }
+    .stat{ border-right:none; border-bottom:1px solid rgba(255,255,255,0.08); }
+    .stat:last-child{ border-bottom:none; }
+  }
 </style>
 </head>
-
 <body>
 
-<header>
-    <div class="shape s1"></div>
-    <div class="shape s2"></div>
-    <div class="shape s3"></div>
-    <div class="shape s4"></div>
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero-ring"></div>
+    <a class="back-link" href="/">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Back to UrbanTenants
+    </a>
 
-    <span class="badge">✦ Founder's Message</span>
-    <h1>Message from Founder</h1>
-    <p>Welcome to UrbanTenants</p>
-</header>
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <div class="eyebrow">The person behind UrbanTenants</div>
+        <h1>Hi, I'm Suryansh Shukla —<br>I built <em>UrbanTenants</em> to fix room-hunting for good.</h1>
+        <p>We started this after seeing how much time students lose hunting for rooms across WhatsApp groups and unreliable listings — and how hard it was for genuine property owners to find the right tenants.</p>
+      </div>
 
-<div class="container">
-
-    <div class="founder-box">
-
-        <div class="photo-wrap">
-            <div class="ring-back"></div>
-            <div class="ring-mid"></div>
-
-            {% comment %}
-            Agar static image load na ho paye (missing STATICFILES_DIRS,
-            galat path, ya file collect nahi hui), onerror initials wala
-            fallback circle dikha dega — page kabhi broken nahi dikhega.
-            {% endcomment %}
-            <img
-                class="founder-photo"
-                src="{% static 'image/founder.jpg' %}"
-                alt="Suryansh Shukla - Founder, UrbanTenants"
-                onerror="this.classList.add('hidden'); var fb=this.nextElementSibling; if(fb){fb.classList.add('show');}"
-            >
-            <div class="photo-fallback">SS</div>
-
-            <span class="verified-chip"><span class="dot"></span> Verified Founder</span>
+      <div class="hero-photo">
+        <div class="photo-glow"></div>
+        <div class="photo-frame">
+          <img
+            src="{% static 'image/founder.jpg' %}"
+            alt="Suryansh Shukla, Founder of UrbanTenants"
+            onerror="this.classList.add('hidden'); var fb=this.nextElementSibling; if(fb){fb.classList.add('show');}"
+          >
+          <div class="photo-fallback">SS</div>
         </div>
-
-        <div class="content">
-
-            <h2>Suryansh Shukla</h2>
-            <span class="role">Founder, UrbanTenants</span>
-
-            <p>Hi, I'm Suryansh Shukla, Founder of UrbanTenants.</p>
-
-            <p>
-                UrbanTenants was created with one simple goal — to make finding
-                rooms and PGs near Chandigarh University easier, faster, and
-                more trustworthy.
-            </p>
-
-            <p>
-                We noticed that students spent countless hours searching
-                through WhatsApp groups, Facebook posts, and unreliable
-                listings. Property owners also struggled to connect with
-                genuine tenants.
-            </p>
-
-            <p>
-                That's why UrbanTenants was built — to create a trusted
-                platform where students and property owners can connect
-                easily and confidently.
-            </p>
-
-            <p>
-                Our commitment is to provide verified listings, transparent
-                information, and an excellent rental experience for everyone.
-            </p>
-
-            <p>
-                Thank you for trusting UrbanTenants and supporting our
-                journey. We will continue improving the platform every
-                single day.
-            </p>
-
-            <div class="signature">
-                <p class="thanks">Warm Regards,</p>
-                <h3>Suryansh Shukla</h3>
-                <p class="title">Founder, UrbanTenants</p>
-            </div>
-
+        <div class="badge-chip">
+          <span class="dot">★</span>
+          <span>Founder &amp; Developer</span>
         </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- ============ STATS ============ -->
+  <section class="stats">
+    <div class="wrap stats-row">
+      <div class="stat">
+        <strong>1,200<em>+</em></strong>
+        <span>Students trust us</span>
+      </div>
+      <div class="stat">
+        <strong>100<em>%</em></strong>
+        <span>Verified listings</span>
+      </div>
+      <div class="stat">
+        <strong>Zero<em> ₹</em></strong>
+        <span>Brokerage, always</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTENT ============ -->
+  <div class="wrap content">
+
+    <!-- STORY -->
+    <div class="story">
+      <div>
+        <div class="section-label">The story</div>
+        <h2>Why I built this, alone.</h2>
+      </div>
+      <div class="story-body">
+        <p>Every year, thousands of students move to Lucknow for college and end up navigating the same broken system — unverified listings, brokers who disappear after the deposit, and no real way to check a room before showing up with luggage in hand.</p>
+        <p><strong>I built UrbanTenants to fix exactly that.</strong> As a developer, I designed and coded the platform myself, from the listings engine to the booking flow, so renters get accurate details, real photos and videos, and a straightforward way to book a verified room without the guesswork.</p>
+        <p>UrbanTenants exists to make that simple: verified rooms, honest pricing, and zero brokerage — so every student can find a place to call home without the stress.</p>
+      </div>
     </div>
 
-    <div class="stats">
-        <div class="stat">
-            <div class="num">1,200+</div>
-            <div class="label">Students Trust Us</div>
+    <!-- AIMS -->
+    <div class="aims">
+      <div class="aims-head">
+        <div class="section-label">What we're aiming for</div>
+        <h2>Our goals, simplified.</h2>
+      </div>
+      <div class="aim-grid">
+        <div class="aim-item">
+          <div class="aim-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div>
+            <h4>Zero Brokerage, Always</h4>
+            <p>No hidden charges — students pay a fair price, directly.</p>
+          </div>
         </div>
-        <div class="stat">
-            <div class="num">0%</div>
-            <div class="label">Brokerage Charged</div>
+        <div class="aim-item">
+          <div class="aim-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          </div>
+          <div>
+            <h4>100% Verified Listings</h4>
+            <p>Every room and PG is checked before it goes live.</p>
+          </div>
         </div>
-        <div class="stat">
-            <div class="num">100%</div>
-            <div class="label">Verified Listings</div>
+        <div class="aim-item">
+          <div class="aim-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div>
+            <h4>Trusted By Students</h4>
+            <p>1,200+ students across UP already rely on UrbanTenants.</p>
+          </div>
         </div>
+        <div class="aim-item">
+          <div class="aim-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div>
+            <h4>A Home, Not Just A Room</h4>
+            <p>Building a platform students can trust from day one.</p>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="cards">
-
-        <div class="card">
-            <div class="icon">🎯</div>
-            <h3>Our Mission</h3>
-            <p>Make room searching simple, secure and transparent.</p>
+    <!-- QUOTE -->
+    <div class="mission">
+      <div class="mission-inner">
+        <p>"I didn't want to build another listings site. I wanted to build the thing I wished existed when I was the one hunting for a room — something honest, fast, and built for the person moving in, not the broker collecting a fee."</p>
+        <div class="mission-attr">
+          <span class="line"></span>
+          <span>Suryansh Shukla — Founder, UrbanTenants</span>
         </div>
-
-        <div class="card">
-            <div class="icon">🌍</div>
-            <h3>Our Vision</h3>
-            <p>Become India's most trusted student accommodation platform.</p>
-        </div>
-
-        <div class="card">
-            <div class="icon">❤️</div>
-            <h3>Our Promise</h3>
-            <p>Verified listings, honest information and continuous improvements.</p>
-        </div>
-
+      </div>
     </div>
 
-</div>
+  </div>
 
-<footer>
-    <h3>UrbanTenants</h3>
-    <p>Helping Students Find Their Perfect Stay.</p>
-</footer>
+  <footer>
+    © 2026 UrbanTenants · Built solo in Lucknow
+  </footer>
 
 </body>
 </html>
