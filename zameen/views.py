@@ -731,7 +731,8 @@ def user_list(request):
 
 from django.views.generic import TemplateView
 
-
+def founder_message(request):
+    return render(request, "founder_message.html")
 
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST

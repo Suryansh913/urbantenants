@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message from Founder | UrbanTenants</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+
+        body{
+            background:#f5f6fa;
+            color:#333;
+        }
+
+        header{
+            background:#ff6b00;
+            color:white;
+            text-align:center;
+            padding:50px 20px;
+        }
+
+        header h1{
+            font-size:42px;
+            margin-bottom:10px;
+        }
+
+        header p{
+            font-size:18px;
+            opacity:.9;
+        }
+
+        .container{
+            max-width:1100px;
+            margin:60px auto;
+            padding:0 20px;
+        }
+
+        .founder-box{
+            background:white;
+            border-radius:20px;
+            box-shadow:0 10px 30px rgba(0,0,0,.1);
+            padding:40px;
+            display:flex;
+            gap:40px;
+            align-items:center;
+        }
+
+        .founder-box img{
+            width:260px;
+            height:260px;
+            border-radius:50%;
+            object-fit:cover;
+            border:6px solid #ff6b00;
+        }
+
+        .content h2{
+            color:#ff6b00;
+            margin-bottom:20px;
+        }
+
+        .content p{
+            font-size:17px;
+            line-height:1.8;
+            margin-bottom:18px;
+        }
+
+        .cards{
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:25px;
+            margin-top:60px;
+        }
+
+        .card{
+            background:white;
+            padding:30px;
+            border-radius:15px;
+            text-align:center;
+            box-shadow:0 8px 25px rgba(0,0,0,.08);
+        }
+
+        .card h3{
+            color:#ff6b00;
+            margin-bottom:15px;
+        }
+
+        footer{
+            margin-top:70px;
+            background:#111;
+            color:white;
+            text-align:center;
+            padding:30px;
+        }
+
+        @media(max-width:900px){
+
+            .founder-box{
+                flex-direction:column;
+                text-align:center;
+            }
+
+            .cards{
+                grid-template-columns:1fr;
+            }
+
+            .founder-box img{
+                width:180px;
+                height:180px;
+            }
+
+            header h1{
+                font-size:30px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<header>
+
+    <h1>Message from Founder</h1>
+
+    <p>Welcome to UrbanTenants</p>
+
+</header>
+
+<div class="container">
+
+    <div class="founder-box">
+
+        <!-- Founder Image -->
+        {% comment %} <img src="founder.jpg" alt="Founder"> {% endcomment %}
+
+        <div class="content">
+
+            <h2>Suryansh Shukla</h2>
+
+            <p>
+                Hi, I'm Suryansh Shukla, Founder of UrbanTenants.
+            </p>
+
+            <p>
+                UrbanTenants was created with one simple goal—to make finding
+                rooms and PGs near Chandigarh University easier, faster, and
+                more trustworthy.
+            </p>
+
+            <p>
+                We noticed that students spent countless hours searching
+                through WhatsApp groups, Facebook posts, and unreliable
+                listings. Property owners also struggled to connect with
+                genuine tenants.
+            </p>
+
+            <p>
+                That's why UrbanTenants was built—to create a trusted platform
+                where students and property owners can connect easily and
+                confidently.
+            </p>
+
+            <p>
+                Our commitment is to provide verified listings, transparent
+                information, and an excellent rental experience for everyone.
+            </p>
+
+            <p>
+                Thank you for trusting UrbanTenants and supporting our journey.
+                We will continue improving the platform every single day.
+            </p>
+
+            <br>
+
+            <strong>Warm Regards,</strong><br><br>
+
+            <h3>Suryansh Shukla</h3>
+
+            <p>Founder, UrbanTenants</p>
+
+        </div>
+
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+
+            <h3>🎯 Our Mission</h3>
+
+            <p>
+                Make room searching simple, secure and transparent.
+            </p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>🌍 Our Vision</h3>
+
+            <p>
+                Become India's most trusted student accommodation platform.
+            </p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>❤️ Our Promise</h3>
+
+            <p>
+                Verified listings, honest information and continuous
+                improvements.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<footer>
+
+    <h3>UrbanTenants</h3>
+
+    <p>Helping Students Find Their Perfect Stay.</p>
+
+</footer>
+
+</body>
+</html>

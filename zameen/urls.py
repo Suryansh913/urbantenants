@@ -94,7 +94,7 @@ urlpatterns = [
     path("neighborhood/post/<int:post_id>/reply/", views.neighborhood_reply, name="neighborhood_reply"),
     path("neighborhood/post/<int:post_id>/toggle-resolved/", views.neighborhood_toggle_resolved, name="neighborhood_toggle_resolved"),
     path("robots.txt", views.robots_txt, name="robots_txt"),
- 
+    path("founder-message/", views.founder_message, name="founder_message"),
 
     
 
