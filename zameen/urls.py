@@ -31,7 +31,7 @@ from .views import submit_support_query
 from zameen.views import user_list
 from django.contrib.sitemaps.views import sitemap
 from .sitemaps import ListingSitemap, StaticViewSitemap
-from .views import AboutFounderView
+
 from django.views.generic import TemplateView
 sitemaps = {
     'listings': ListingSitemap,
@@ -88,7 +88,7 @@ urlpatterns = [
     
     path('accounts/', include('allauth.urls')),  # yeh last mein
     path('admin-dashboard/users/', views.user_list, name='user_list'),
-    path("about/founder/", AboutFounderView.as_view(), name="about_founder"),
+    
     path('reviews/submit/', views.create_review, name='create_review'),
     path("listing/<int:listing_id>/neighborhood/", views.neighborhood_board, name="neighborhood_board"),
     path("neighborhood/post/<int:post_id>/reply/", views.neighborhood_reply, name="neighborhood_reply"),

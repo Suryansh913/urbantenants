@@ -731,8 +731,7 @@ def user_list(request):
 
 from django.views.generic import TemplateView
 
-class AboutFounderView(TemplateView):
-    template_name = "about-founder.html"   # space hata diya, zameen/ folder hata diya
+
 
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
