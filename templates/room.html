@@ -499,6 +499,7 @@
     }
     .nb-cat-btn:hover { border-color: var(--blue-300); }
     .nb-cat-btn.active { background: var(--blue-600); color: #fff; border-color: var(--blue-600); box-shadow: var(--shadow-sm); }
+    .nb-cat-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
     .nb-status-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
     .nb-status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--blue-500); flex-shrink: 0; animation: pulseDot 1.4s ease-in-out infinite; }
@@ -975,9 +976,17 @@
         <span id="nbStatus">Loading hotels nearby...</span>
       </div>
 
+      <!-- Track route from user's location to this listing -->
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+        <button type="button" id="trackRouteBtn" class="nb-cat-btn" style="background:var(--blue-600); color:#fff; border-color:var(--blue-600);">
+          📍 Track Route from My Location
+        </button>
+        <span id="routeInfo" style="font-size:13px; color:var(--neutral-600); font-weight:500;"></span>
+      </div>
+
       <div id="propertyMap"></div>
 
-      <div style="display:flex; gap:16px; margin-top:12px; font-size:12px; color:var(--neutral-600);">
+      <div style="display:flex; gap:16px; margin-top:12px; font-size:12px; color:var(--neutral-600); flex-wrap:wrap;">
         <span style="display:flex; align-items:center; gap:6px;">
           <span style="width:10px; height:10px; border-radius:50%; background:#EF4444; display:inline-block; border:2px solid #fff; box-shadow:0 0 0 1px #EF4444;"></span>
           This property
@@ -985,6 +994,10 @@
         <span style="display:flex; align-items:center; gap:6px;">
           <span style="width:10px; height:10px; border-radius:50%; background:#22C55E; display:inline-block; border:2px solid #fff; box-shadow:0 0 0 1px #22C55E;"></span>
           Nearby services
+        </span>
+        <span style="display:flex; align-items:center; gap:6px;">
+          <span style="width:10px; height:10px; border-radius:50%; background:#2563eb; display:inline-block; border:2px solid #fff; box-shadow:0 0 0 1px #2563eb;"></span>
+          Your location
         </span>
       </div>
     </div>
@@ -1150,7 +1163,8 @@
   var lng = {{ room.longitude }};
 
   // ---- SINGLE MERGED MAP (property location + nearby places) ----
-  var map = L.map('propertyMap').setView([lat, lng], 14);
+  // Zoom bumped to 17 so the exact building/plot is clearly visible instead of the whole neighborhood.
+  var map = L.map('propertyMap').setView([lat, lng], 17);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
@@ -1261,15 +1275,86 @@
   loadNearby('hotel');
   setTimeout(function () { map.invalidateSize(); }, 300);
 
-  document.querySelectorAll('.nb-cat-btn').forEach(function (btn) {
+  document.querySelectorAll('.nb-cat-btn[data-category]').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      document.querySelectorAll('.nb-cat-btn').forEach(function (b) {
+      document.querySelectorAll('.nb-cat-btn[data-category]').forEach(function (b) {
         b.classList.remove('active');
       });
       btn.classList.add('active');
       loadNearby(btn.dataset.category);
     });
   });
+
+  // ---- TRACK ROUTE FROM USER'S LOCATION TO THIS LISTING ----
+  var userMarker = null;
+  var routeLine = null;
+  var routeInfoEl = document.getElementById('routeInfo');
+  var trackBtn = document.getElementById('trackRouteBtn');
+
+  if (trackBtn) {
+    trackBtn.addEventListener('click', function () {
+      if (!navigator.geolocation) {
+        routeInfoEl.textContent = "Geolocation not supported in this browser.";
+        return;
+      }
+      trackBtn.disabled = true;
+      trackBtn.textContent = "📍 Locating...";
+
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        var userLat = pos.coords.latitude;
+        var userLng = pos.coords.longitude;
+
+        var userIcon = L.divIcon({
+          className: 'user-marker',
+          html: '<div style="background:#2563eb; width:16px; height:16px; border-radius:50%; border:3px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.35);"></div>',
+          iconSize: [16, 16],
+          iconAnchor: [8, 8],
+        });
+
+        if (userMarker) map.removeLayer(userMarker);
+        userMarker = L.marker([userLat, userLng], { icon: userIcon, zIndexOffset: 900 })
+          .addTo(map)
+          .bindPopup("<b>Your location</b>");
+
+        fetch("https://router.project-osrm.org/route/v1/driving/" + userLng + "," + userLat + ";" + lng + "," + lat + "?overview=full&geometries=geojson")
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (!data.routes || !data.routes.length) {
+              routeInfoEl.textContent = "Could not find a route.";
+              trackBtn.disabled = false;
+              trackBtn.textContent = "📍 Track Route from My Location";
+              return;
+            }
+            var route = data.routes[0];
+            var coords = route.geometry.coordinates.map(function (c) { return [c[1], c[0]]; });
+
+            if (routeLine) map.removeLayer(routeLine);
+            routeLine = L.polyline(coords, { color: '#2563eb', weight: 4, opacity: 0.8 }).addTo(map);
+
+            var bounds = L.latLngBounds(coords);
+            bounds.extend([lat, lng]);
+            bounds.extend([userLat, userLng]);
+            map.fitBounds(bounds, { padding: [40, 40] });
+
+            var km = (route.distance / 1000).toFixed(1);
+            var mins = Math.round(route.duration / 60);
+            routeInfoEl.textContent = "📏 " + km + " km · ⏱️ ~" + mins + " min from your location";
+
+            trackBtn.disabled = false;
+            trackBtn.textContent = "📍 Recalculate Route";
+          })
+          .catch(function () {
+            routeInfoEl.textContent = "Something went wrong fetching the route.";
+            trackBtn.disabled = false;
+            trackBtn.textContent = "📍 Track Route from My Location";
+          });
+      }, function () {
+        routeInfoEl.textContent = "Location access denied or unavailable.";
+        trackBtn.disabled = false;
+        trackBtn.textContent = "📍 Track Route from My Location";
+      }, { enableHighAccuracy: true, timeout: 10000 });
+    });
+  }
   {% endif %}
 })();
 
