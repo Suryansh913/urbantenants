@@ -508,6 +508,8 @@
 
             <p class="hero-sub" id="heroSub">Verified 1BHK, 2BHK and 3BHK rooms in Kanpur, Unnao, Nawabganj, and student housing near Chandigarh University. Zero brokerage, zero platform fee — book online with UrbanTenants.</p>
 
+            <p id="heroAreaHead" style="display:none;font-size:18px;font-weight:800;letter-spacing:0.02em;color:var(--h-ink);text-transform:uppercase;margin-bottom:1.2rem;"></p>
+
             <div class="feature-chips">
                 <span class="chip">
                     <span class="chip-ic">
@@ -538,8 +540,6 @@
             </form>
 
             <p class="hero-list-link">Got a room to rent? <a href="#">List it for free →</a></p>
-            <p id="geoDebug" style="margin-top:8px;font-size:11px;color:#c2410c;font-family:monospace;">geo: waiting...</p>
-            <!-- TEMP debug line — remove this <p id="geoDebug"> once location detection is confirmed working -->
         </div>
 
         <!-- ===== ILLUSTRATION: friends chatting at home ===== -->
@@ -638,22 +638,40 @@
      script detects the visitor's location and swaps just the hero text. ===== -->
 <script>
 (function () {
-    function showDebug(msg) {
-        var el = document.getElementById('geoDebug');
-        if (el) el.textContent = msg;
-        console.log('[geo-debug]', msg);
+    var AREA_HEADS = [
+        { match: /kanpur/i, name: 'Hriom Agnihotri' },
+        { match: /nawab\s*ganj/i, name: 'Sudhanshu Pandey' }
+    ];
+
+    function findAreaHead(name) {
+        if (!name) return null;
+        for (var i = 0; i < AREA_HEADS.length; i++) {
+            if (AREA_HEADS[i].match.test(name)) return AREA_HEADS[i].name;
+        }
+        return null;
     }
 
     function setHeroForLocation(name) {
-        var tagline = document.getElementById('heroTagline');
-        var title   = document.getElementById('heroTitle');
-        var sub     = document.getElementById('heroSub');
-        var input   = document.getElementById('heroSearchInput');
+        var tagline  = document.getElementById('heroTagline');
+        var title    = document.getElementById('heroTitle');
+        var sub      = document.getElementById('heroSub');
+        var input    = document.getElementById('heroSearchInput');
+        var areaHead = document.getElementById('heroAreaHead');
 
         if (tagline) tagline.innerHTML = '<span class="tag-star">★</span> #1 Room Renting Platform Near ' + name;
         if (title)   title.innerHTML = 'Rooms &amp; PGs for rent near <span class="hl-blue">' + name + '</span>';
         if (sub)     sub.textContent = 'Verified rooms and PGs near ' + name + '. Zero brokerage, zero platform fee — book online with UrbanTenants.';
         if (input)   input.setAttribute('placeholder', "Try '2BHK under ₹10,000'…");
+
+        var headName = findAreaHead(name);
+        if (areaHead) {
+            if (headName) {
+                areaHead.textContent = 'Area Head: ' + headName;
+                areaHead.style.display = 'block';
+            } else {
+                areaHead.style.display = 'none';
+            }
+        }
     }
 
     function reverseGeocode(lat, lng, cb) {
@@ -669,26 +687,20 @@
             .catch(function () { cb(null); });
     }
 
-    if (!('geolocation' in navigator)) { showDebug('geolocation not supported by this browser'); return; }
-    if (!window.isSecureContext) { showDebug('BLOCKED: needs https, or http://localhost / http://127.0.0.1'); return; }
+    if (!('geolocation' in navigator)) { return; }
+    if (!window.isSecureContext) { return; }
 
-    showDebug('requesting permission...');
     navigator.geolocation.getCurrentPosition(
         function (pos) {
             var lat = pos.coords.latitude, lng = pos.coords.longitude;
-            showDebug('got position: ' + lat.toFixed(4) + ', ' + lng.toFixed(4) + ' — looking up area name...');
             reverseGeocode(lat, lng, function (name) {
                 if (name) {
                     setHeroForLocation(name);
-                    showDebug('hero updated for: ' + name);
-                } else {
-                    showDebug('got position but could not resolve area name — default hero kept');
                 }
             });
         },
         function (err) {
-            var reasons = { 1: 'PERMISSION_DENIED', 2: 'POSITION_UNAVAILABLE', 3: 'TIMEOUT' };
-            showDebug('error: ' + (reasons[err.code] || err.code) + ' — default hero kept');
+            /* permission denied / unavailable / timeout — default hero stays */
         },
         { timeout: 6000, maximumAge: 600000 }
     );
@@ -753,7 +765,7 @@
     <div class="loc-chip-row" id="locChipRow">
         <span class="loc-chip" data-loc="kanpur">PG in Kanpur</span>
         <span class="loc-chip">Flats in Unnao</span>
-        <span class="loc-chip">Rooms in Nawabganj</span>
+        <span class="loc-chip" data-loc="nawabganj">Rooms in Nawabganj</span>
         <span class="loc-chip" data-loc="chandigarh-university">Near Chandigarh University</span>
         <span class="loc-chip">2BHK Flats</span>
         <span class="loc-chip">3BHK Flats</span>
@@ -849,12 +861,18 @@
         </div>
         {% if request.GET.location == 'kanpur' %}
             <h2>Rooms &amp; PG Accommodation in Kanpur</h2>
+            <p style="font-size:18px;font-weight:800;letter-spacing:0.02em;color:var(--h-ink);text-transform:uppercase;margin-bottom:14px;">Area Head: Hriom Agnihotri</p>
             <p>UrbanTenants helps students and young professionals find verified rooms, PGs, and flats for rent in Kanpur, Unnao, and Nawabganj. Whether you're looking for a single room, a shared PG, or a full 2BHK or 3BHK flat, every listing on UrbanTenants is verified, with zero brokerage and zero platform fees.</p>
             <p>Popular searches on UrbanTenants include PG accommodation in Kanpur, budget flats in Unnao, and shared rooms in Nawabganj — all bookable online with transparent pricing and no hidden charges.</p>
         {% elif request.GET.location == 'chandigarh-university' %}
             <h2>Student Housing Near Chandigarh University</h2>
             <p>UrbanTenants helps students find verified rooms, PGs, and shared flats near Chandigarh University. Every listing is verified, with zero brokerage and zero platform fees, so you can book with confidence before you even arrive on campus.</p>
             <p>Popular searches include PG accommodation near Chandigarh University, shared rooms for students, and budget flats close to campus — all bookable online with transparent pricing and no hidden charges.</p>
+        {% elif request.GET.location == 'nawabganj' %}
+            <h2>Rooms &amp; Flats for Rent in Nawabganj</h2>
+            <p style="font-size:18px;font-weight:800;letter-spacing:0.02em;color:var(--h-ink);text-transform:uppercase;margin-bottom:14px;">Area Head: Sudhanshu Pandey</p>
+            <p>UrbanTenants helps students and young professionals find verified rooms, PGs, and flats for rent in Nawabganj. Whether you're looking for a single room, a shared PG, or a full 2BHK or 3BHK flat, every listing on UrbanTenants is verified, with zero brokerage and zero platform fees.</p>
+            <p>Popular searches on UrbanTenants include rooms in Nawabganj, shared PG accommodation, and budget flats — all bookable online with transparent pricing and no hidden charges.</p>
         {% else %}
             <h2>Rooms &amp; PG Accommodation Across Uttar Pradesh</h2>
             <p>UrbanTenants helps students and young professionals find verified rooms, PGs, and flats for rent in Kanpur, Unnao, and Nawabganj, along with dedicated listings for students near Chandigarh University. Whether you're looking for a single room, a shared PG, or a full 2BHK or 3BHK flat, every listing on UrbanTenants is verified, with zero brokerage and zero platform fees.</p>
