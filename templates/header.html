@@ -361,6 +361,9 @@
             <i class="ti ti-building-estate" aria-hidden="true"></i>Add Property
             <span class="s-badge">Partner</span>
         </a>
+        <a class="s-link {% if request.resolver_match.url_name == 'list_and_earn' %}active-s{% endif %}" href="{% url 'list_and_earn' %}">
+            <i class="ti ti-coin" aria-hidden="true"></i>List and Earn
+        </a>
 
         <div class="s-label">Browse</div>
 
@@ -591,9 +594,9 @@
                    href="/pg">PG</a>
             </li>
             <li>
-                <a class="n2-item n2-founder" href="{% url 'founder_message' %}">
-                    <i class="ti ti-message-circle-2" aria-hidden="true"></i>
-                    Message from Founder
+                <a class="n2-item n2-founder" href="{% url 'list_and_earn' %}">
+                    <i class="ti ti-coin" aria-hidden="true"></i>
+                    List and Earn
                 </a>
             </li>
         </ul>

@@ -82,10 +82,17 @@ def add_listing(request):
     if request.method == 'POST':
         form = AddListingForm(request.POST, request.FILES)
         if form.is_valid():
-            listing = form.save(commit=False)
-            listing.partner = partner_data
-            listing.save()
-            return redirect('partner_dashboard')
+            try:
+                listing = form.save(commit=False)
+                listing.partner = partner_data
+                listing.save()
+                messages.success(request, "Listing published successfully!")
+                return redirect('partner_dashboard')
+            except Exception as e:
+                messages.error(request, f"Upload failed, please try again. ({str(e)})")
+                return render(request, 'add_listing.html', {'form': form})
+        else:
+            messages.error(request, "Please fix the errors below.")
     else:
         form = AddListingForm()
 

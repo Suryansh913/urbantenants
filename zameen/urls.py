@@ -24,7 +24,7 @@ from login import urls
 from partner import urls
 from .views import SupportLoginView, support_logout, support_dashboard, toggle_resolved
 from django.contrib.auth import views as auth_views
-from .views import onesignal_worker
+from .views import onesignal_worker,list_and_earn
 from django.contrib.sitemaps.views import sitemap
 from .sitemaps import StaticViewSitemap
 from .views import submit_support_query
@@ -72,6 +72,8 @@ urlpatterns = [
         {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'
     ),
+    path("list-and-earn/", list_and_earn, name="list_and_earn"),
+
     path('help-support/', views.help_support, name='help_support'),
     path('how-to-book/', views.how_to_book, name='how_to_book'),
     path('support/submit/', submit_support_query, name='submit_support_query'),

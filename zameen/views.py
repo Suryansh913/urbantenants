@@ -818,7 +818,8 @@ def _build_overpass_query(lat, lng, radius, tag_pairs):
     );
     out center 100;
     """
-
+def list_and_earn(request):
+    return render(request, "list_and_earn.html")
 
 def _extract_address(tags):
     parts = []

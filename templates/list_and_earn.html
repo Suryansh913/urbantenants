@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+{% include 'header.html'%}
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>List & Earn — UrbanTenants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #16261F;
+    --ink-soft: #425149;
+    --muted: #5E6E64;
+    --bg: #EAF1F0;
+    --bg-soft: #FAF9F6;
+    --line: #DEDCD3;
+    --green: #3D6B4F;
+    --green-dark: #2E5540;
+    --gold: #C9A227;
+    --gold-bg: #FBF1D3;
+    --gold-border: #E3C766;
+    --gold-text: #8A6D1E;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Manrope', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    padding: 72px 24px 88px;
+    background-image:
+      linear-gradient(rgba(22,38,31,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(22,38,31,0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .container { max-width: 1040px; margin: 0 auto; }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--gold-text); background: var(--gold-bg); border: 1px solid var(--gold-border);
+    padding: 6px 12px; border-radius: 999px; margin-bottom: 28px;
+    opacity: 0; transform: translateY(8px);
+    animation: rise .5s ease forwards;
+  }
+
+  .hero-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 48px; align-items: center; }
+  @media (max-width: 800px) { .hero-grid { grid-template-columns: 1fr; } }
+
+  h1 {
+    font-size: clamp(34px, 5vw, 54px);
+    line-height: 1.06;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    margin: 0;
+    opacity: 0; transform: translateY(12px);
+    animation: rise .6s ease .1s forwards;
+  }
+  h1 .accent { color: var(--green); }
+
+  .sub {
+    font-size: 17px; line-height: 1.6; color: var(--ink-soft); max-width: 460px; margin-top: 20px;
+    opacity: 0; transform: translateY(12px);
+    animation: rise .6s ease .2s forwards;
+  }
+
+  .btn {
+    margin-top: 32px; display: inline-flex; align-items: center; gap: 10px;
+    background: var(--ink); color: var(--bg); border: none; padding: 15px 26px;
+    border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer;
+    text-decoration: none; transition: background .15s ease, transform .1s ease;
+    opacity: 0; transform: translateY(12px);
+    animation: rise .6s ease .3s forwards;
+  }
+  .btn:hover { background: #213A2E; }
+  .btn:active { transform: scale(0.97); }
+  .btn.alt { background: var(--green); animation: none; opacity: 1; transform: none; }
+  .btn.alt:hover { background: var(--green-dark); }
+  .btn svg { transition: transform .15s ease; }
+  .btn:hover svg { transform: translateX(3px); }
+
+  .note {
+    margin-top: 14px; font-size: 12px; color: var(--muted);
+    opacity: 0; animation: rise .6s ease .4s forwards;
+  }
+
+  .sketch { opacity: 0; transform: scale(0.96); animation: pop .6s ease .3s forwards; }
+
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+  @keyframes pop { to { opacity: 1; transform: scale(1); } }
+
+  /* ---------- STEPS ---------- */
+  .steps { padding: 64px 24px; background: var(--bg-soft); }
+  .steps-head { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 32px; }
+  .steps-grid { display: grid; grid-template-columns: repeat(3,1fr); }
+  @media (max-width: 800px) { .steps-grid { grid-template-columns: 1fr; } }
+
+  .step {
+    padding: 28px 24px; border-left: 1px solid var(--line);
+    transition: background .15s ease;
+    opacity: 0; transform: translateY(16px);
+  }
+  .step.visible { animation: rise .5s ease forwards; }
+  .step:first-child { border-left: none; }
+  .step:hover { background: #F0EEE6; }
+  .step .n { font-size: 13px; color: var(--green); margin-bottom: 12px; font-weight: 600; }
+  .step h3 { font-size: 18px; font-weight: 700; margin: 0 0 8px; }
+  .step p { font-size: 14.5px; line-height: 1.55; color: var(--muted); margin: 0; }
+
+  /* ---------- RECEIPT ---------- */
+  .receipt-section { padding: 64px 24px 88px; }
+  .receipt-card {
+    max-width: 460px; margin: 0 auto; background: #fff; border: 1px solid var(--line);
+    border-radius: 6px 6px 0 0; padding: 28px 28px 20px;
+    background-image: repeating-linear-gradient(90deg, var(--ink) 0 10px, transparent 10px 18px);
+    background-position: bottom; background-repeat: repeat-x; background-size: auto 2px;
+  }
+  .receipt-head { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-top: 1px dashed #E4E2D9; font-size: 14px; }
+  .row .label { color: var(--ink-soft); }
+  .row .value { font-weight: 600; }
+  .row .value.bold { font-weight: 800; }
+
+  .total {
+    max-width: 460px; margin: 0 auto; background: var(--ink); color: var(--bg);
+    border-radius: 0 0 6px 6px; padding: 16px 28px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .fineprint { max-width: 460px; margin: 10px auto 0; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+  .cta-center { text-align: center; margin-top: 36px; }
+
+  /* commission calculator */
+  .calc {
+    max-width: 460px; margin: 40px auto 0; background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; padding: 24px 28px;
+  }
+  .calc-head { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .calc-field { margin-bottom: 14px; }
+  .calc-field label { display: block; font-size: 13px; color: var(--ink-soft); margin-bottom: 6px; }
+  .calc-field input {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--ink);
+  }
+  .calc-field input:focus { outline: 2px solid var(--green); outline-offset: 1px; }
+  .calc-result {
+    margin-top: 16px; padding: 14px 16px; background: var(--bg-soft); border-radius: 6px;
+    display: flex; justify-content: space-between; align-items: center; font-family: 'IBM Plex Mono', monospace;
+  }
+  .calc-result .lbl { font-size: 12px; color: var(--muted); }
+  .calc-result .val { font-size: 16px; font-weight: 700; color: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="badge">✦ Student Listing Program</div>
+
+    <div class="hero-grid">
+      <div>
+        <h1>
+          Your room's empty.<br>
+          <span class="accent">Someone else's rent</span><br>
+          is your reward.
+        </h1>
+        <p class="sub">
+          List the room or flat you're leaving on UrbanTenants.
+          Add your commission on top of the rent — you keep it
+          the moment the room gets booked.
+        </p>
+
+        <a href="/partner/" class="btn">
+          Add Your Property
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+
+        <div class="note mono">Only verified students can list. No fee to post.</div>
+      </div>
+
+      <div class="sketch">
+        <svg viewBox="0 0 300 260" width="100%" style="max-width:320px;margin:0 auto;display:block;">
+          <rect x="20" y="20" width="220" height="180" fill="none" stroke="#16261F" stroke-width="2"/>
+          <line x1="20" y1="120" x2="140" y2="120" stroke="#16261F" stroke-width="1.5"/>
+          <line x1="140" y1="120" x2="140" y2="200" stroke="#16261F" stroke-width="1.5"/>
+          <text x="60" y="165" class="mono" font-size="9" fill="#425149">10' × 12'</text>
+          <text x="160" y="150" class="mono" font-size="9" fill="#425149">BALCONY</text>
+          <g transform="translate(150,190) rotate(8)">
+            <rect x="0" y="0" width="128" height="40" rx="4" fill="#FBF1D3" stroke="#C9A227" stroke-width="1.5"/>
+            <text x="24" y="17" class="mono" font-size="7.5" fill="#8A6D1E" font-weight="600">RENT + COMMISSION</text>
+            <text x="24" y="31" class="mono" font-size="11" fill="#16261F" font-weight="700">You set the price</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="steps">
+  <div class="container">
+    <div class="steps-head mono">How it works</div>
+    <div class="steps-grid">
+      <div class="step">
+        <div class="n mono">01</div>
+        <h3>Add your commission to the rent</h3>
+        <p>Decide what the room actually costs, then add your commission on top. That combined number is the rent you list.</p>
+      </div>
+      <div class="step">
+        <div class="n mono">02</div>
+        <h3>List the property</h3>
+        <p>Fill in photos, location, amenities and the final amount — commission already included. Submit for verification.</p>
+      </div>
+      <div class="step">
+        <div class="n mono">03</div>
+        <h3>Get booked, keep the commission</h3>
+        <p>When someone books the room through UrbanTenants, the full rent is collected — and your commission is yours to keep.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECEIPT + LIVE CALCULATOR -->
+<section class="receipt-section">
+  <div class="receipt-card">
+    <div class="receipt-head">How Your Earning Works</div>
+    <div class="row"><span class="label">Actual room rent</span><span class="value">₹8,000</span></div>
+    <div class="row"><span class="label">+ Your commission</span><span class="value">₹500</span></div>
+    <div class="row"><span class="label">Amount you list on UrbanTenants</span><span class="value bold">₹8,500</span></div>
+  </div>
+  <div class="total mono">
+    <span>WHEN BOOKED, YOU EARN</span>
+    <span>₹500</span>
+  </div>
+  <p class="fineprint mono">
+    *Example only — try your own numbers below.
+  </p>
+
+  <!-- Live commission calculator (vanilla JS) -->
+  <div class="calc">
+    <div class="calc-head mono">Try your own numbers</div>
+    <div class="calc-field">
+      <label for="rentInput">Actual room rent (₹)</label>
+      <input type="number" id="rentInput" value="8000" min="0" step="100">
+    </div>
+    <div class="calc-field">
+      <label for="commissionInput">Your commission (₹)</label>
+      <input type="number" id="commissionInput" value="500" min="0" step="50">
+    </div>
+    <div class="calc-result">
+      <span class="lbl">AMOUNT YOU'LL LIST</span>
+      <span class="val" id="listedAmount">₹8,500</span>
+    </div>
+    <div class="calc-result" style="margin-top:8px;">
+      <span class="lbl">YOU EARN ON BOOKING</span>
+      <span class="val" id="earnAmount">₹500</span>
+    </div>
+  </div>
+
+  <div class="cta-center">
+    <a href="/partner/register/" class="btn alt">
+      Add Your Property
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+  </div>
+</section>
+{% include 'footer.html'%}
+<script>
+  // Reveal step cards as they scroll into view
+  const steps = document.querySelectorAll('.step');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  steps.forEach(step => observer.observe(step));
+
+  // Live commission calculator
+  const rentInput = document.getElementById('rentInput');
+  const commissionInput = document.getElementById('commissionInput');
+  const listedAmountEl = document.getElementById('listedAmount');
+  const earnAmountEl = document.getElementById('earnAmount');
+
+  function formatINR(n) {
+    return '₹' + Number(n || 0).toLocaleString('en-IN');
+  }
+
+  function updateCalc() {
+    const rent = parseFloat(rentInput.value) || 0;
+    const commission = parseFloat(commissionInput.value) || 0;
+    listedAmountEl.textContent = formatINR(rent + commission);
+    earnAmountEl.textContent = formatINR(commission);
+  }
+
+  rentInput.addEventListener('input', updateCalc);
+  commissionInput.addEventListener('input', updateCalc);
+  updateCalc();
+</script>
+
+</body>
+</html>
