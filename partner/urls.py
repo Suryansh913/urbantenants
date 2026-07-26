@@ -18,6 +18,7 @@ urlpatterns = [
     path('google-complete/', views.partner_google_complete, name='partner_google_complete'),
     
     
+    
  
 
 ]

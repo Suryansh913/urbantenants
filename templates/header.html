@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2357487058280395"
-     crossorigin="anonymous"></script>
+    
     <title>UrbanTenants</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
@@ -378,6 +377,9 @@
         <a class="s-link {% if request.path == '/pg/' or request.path == '/pg' %}active-s{% endif %}" href="/pg">
             <i class="ti ti-bed" aria-hidden="true"></i>PG / Hostel
         </a>
+        <a class="s-link {% if request.resolver_match.url_name == 'all_listings_map' %}active-s{% endif %}" href="{% url 'all_listings_map' %}">
+            <i class="ti ti-map-2" aria-hidden="true"></i>Urban Maps
+        </a>
 
         <div class="s-label">Company</div>
 
@@ -537,6 +539,9 @@
             <a class="nav-item" href="{% url 'mybooking' %}" data-text="My Booking"><span>My Booking</span></a>
 
             <a class="nav-item" href="/partner/register" data-text="Add Property"><span>Add Property</span></a>
+
+            <a class="nav-item {% if request.resolver_match.url_name == 'all_listings_map' %}active{% endif %}"
+               href="{% url 'all_listings_map' %}" data-text="Urban Maps"><span>Urban Maps</span></a>
         </nav>
 
         <!-- Login CTA / Profile Dropdown -->
@@ -562,6 +567,9 @@
                         <a class="profile-dropdown-link" href="/partner/register" role="menuitem">
                             <i class="ti ti-building-estate" aria-hidden="true"></i> Add Property
                             <span class="profile-dropdown-badge">Partner</span>
+                        </a>
+                        <a class="profile-dropdown-link" href="{% url 'all_listings_map' %}" role="menuitem">
+                            <i class="ti ti-map-2" aria-hidden="true"></i> Urban Maps
                         </a>
                         <div class="profile-dropdown-divider"></div>
                         <a class="profile-dropdown-link logout-link" href="{% url 'logoutv' %}" role="menuitem">
@@ -594,6 +602,13 @@
             <li>
                 <a class="n2-item {% if request.path == '/pg/' or request.path == '/pg' %}active2{% endif %}"
                    href="/pg">PG</a>
+            </li>
+            <li>
+                <a class="n2-item {% if request.resolver_match.url_name == 'all_listings_map' %}active2{% endif %}"
+                   href="{% url 'all_listings_map' %}">
+                    <i class="ti ti-map-2" aria-hidden="true"></i>
+                    Urban Maps
+                </a>
             </li>
             <li>
                 <a class="n2-item n2-founder" href="{% url 'list_and_earn' %}">

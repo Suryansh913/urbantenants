@@ -97,6 +97,8 @@ urlpatterns = [
     path("neighborhood/post/<int:post_id>/toggle-resolved/", views.neighborhood_toggle_resolved, name="neighborhood_toggle_resolved"),
     path("robots.txt", views.robots_txt, name="robots_txt"),
     path("founder-message/", views.founder_message, name="founder_message"),
+    path('map/', views.all_listings_map, name='all_listings_map'),
+    path('api/listings-geojson/', views.listings_geojson, name='listings_geojson'),
 
     
 

@@ -1038,3 +1038,35 @@ def robots_txt(request):
         f"Sitemap: {request.scheme}://{request.get_host()}/sitemap.xml",
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
+
+
+
+
+from django.http import JsonResponse
+
+def all_listings_map(request):
+    return render(request, 'all_listings_map.html')
+
+
+from django.urls import reverse
+
+def listings_geojson(request):
+    rooms = listings.objects.filter(
+        latitude__isnull=False,
+        longitude__isnull=False
+    ).only('id', 'Room_title', 'listing_id', 'location_name', 'Room_rent', 'latitude', 'longitude')
+
+    data = []
+    for room in rooms:
+        data.append({
+            'id': room.id,
+            'title': room.Room_title,
+            'listing_id': room.listing_id or 'No',
+            'location_name': room.location_name or '',
+            'rent': room.Room_rent,
+            'lat': float(room.latitude),
+            'lng': float(room.longitude),
+            'url': reverse('room', args=[room.id]),
+        })
+
+    return JsonResponse({'results': data})

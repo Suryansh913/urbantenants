@@ -1,0 +1,883 @@
+{% load static %}
+<!DOCTYPE html>
+{% include 'header.html' %}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Listings Map | UrbanTenants</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink-950: #071426;
+      --ink-900: #0a2044;
+      --ink-800: #0f2c53;
+      --ink-700: #163a68;
+      --brass-600: #a9701f;
+      --brass-500: #c98a3a;
+      --brass-400: #dba25a;
+      --brass-300: #e6bb7d;
+      --sky-500: #3f7de0;
+      --sky-400: #5b8fef;
+      --n-50:  #F7F9FC;
+      --n-100: #EEF2F8;
+      --n-200: #DDE5F0;
+      --n-300: #C3D0E3;
+      --n-400: #8FA0BE;
+      --n-600: #4E5F7C;
+      --n-900: #101828;
+      --white: #ffffff;
+      --r-sm: 8px;
+      --r-md: 14px;
+      --r-lg: 22px;
+      --shadow-sm: 0 2px 8px rgba(10,32,68,0.08);
+      --shadow-md: 0 10px 30px rgba(10,32,68,0.14);
+      --shadow-lg: 0 24px 64px rgba(7,20,38,0.32);
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: var(--n-50);
+      color: var(--n-900);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+    }
+
+    a:focus-visible, button:focus-visible, input:focus-visible {
+      outline: 2px solid var(--sky-500);
+      outline-offset: 2px;
+    }
+
+    /* ===================== HERO — chart room ===================== */
+    .hero {
+      position: relative;
+      background:
+        radial-gradient(ellipse 900px 520px at 14% 18%, rgba(63,125,224,0.30), transparent 62%),
+        radial-gradient(ellipse 640px 480px at 92% 6%, rgba(201,138,58,0.16), transparent 58%),
+        linear-gradient(165deg, var(--ink-950) 0%, var(--ink-900) 52%, var(--ink-800) 100%);
+      overflow: hidden;
+      padding: 30px 42px 128px;
+    }
+    /* coordinate-tick chart border — top, bottom, sides */
+    .chart-ticks {
+      position: absolute; left: 0; right: 0; top: 0;
+      display: flex; justify-content: space-between;
+      padding: 0 30px;
+      font-family: var(--font-mono);
+      font-size: 10.5px; letter-spacing: 0.4px;
+      color: rgba(219,162,90,0.55);
+      z-index: 2; pointer-events: none;
+    }
+    .chart-ticks span { padding-top: 10px; border-top: 1px solid rgba(219,162,90,0.35); }
+
+    .chart-ticks-side {
+      position: absolute; top: 46px; bottom: 34px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.3px;
+      color: rgba(219,162,90,0.4);
+      z-index: 2; pointer-events: none;
+      writing-mode: vertical-rl;
+    }
+    .chart-ticks-side.left  { left: 14px; }
+    .chart-ticks-side.right { right: 14px; }
+    .chart-ticks-side span { padding-left: 8px; border-left: 1px solid rgba(219,162,90,0.28); }
+
+    /* scattered area pins + dashed routes — the map-of-the-map detail */
+    .hero-annot {
+      position: absolute; z-index: 2; pointer-events: none;
+      font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.3px;
+      color: rgba(255,255,255,0.5);
+      opacity: 0; animation: rise 0.6s ease forwards;
+    }
+    .hero-annot .pin {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--brass-400);
+      box-shadow: 0 0 0 3px rgba(219,162,90,0.18);
+      display: inline-block; margin-right: 6px; vertical-align: middle;
+    }
+    .hero-route {
+      position: absolute; z-index: 1; pointer-events: none;
+      opacity: 0.4;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 54px 54px;
+      -webkit-mask-image: linear-gradient(180deg, black, transparent 88%);
+              mask-image: linear-gradient(180deg, black, transparent 88%);
+      pointer-events: none;
+    }
+
+    /* compass rose watermark — the signature element */
+    .compass-wm {
+      position: absolute; right: -60px; top: -60px;
+      width: 420px; height: 420px;
+      opacity: 0.16;
+      pointer-events: none;
+      animation: compassSpin 90s linear infinite;
+      z-index: 1;
+    }
+    @keyframes compassSpin { to { transform: rotate(360deg); } }
+
+    .hero-inner {
+      position: relative; z-index: 3;
+      max-width: 1180px; margin: 0 auto;
+      padding-top: 22px;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(219,162,90,0.35);
+      border-radius: 100px; padding: 6px 16px 6px 9px;
+      font-family: var(--font-mono);
+      font-size: 11.5px; font-weight: 500; color: var(--brass-300);
+      margin-bottom: 24px; letter-spacing: 0.5px; text-transform: uppercase;
+      opacity: 0; animation: rise 0.6s ease forwards;
+    }
+    .hero-badge .pulse-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--brass-500);
+      box-shadow: 0 0 0 0 rgba(201,138,58,0.6);
+      animation: pulse 2s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(201,138,58,0.55); }
+      70% { box-shadow: 0 0 0 8px rgba(201,138,58,0); }
+      100% { box-shadow: 0 0 0 0 rgba(201,138,58,0); }
+    }
+    @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 4.6vw, 52px);
+      font-weight: 700; color: #fff;
+      letter-spacing: -1.3px; line-height: 1.08;
+      margin-bottom: 16px; max-width: 640px;
+      opacity: 0; transform: translateY(14px);
+      animation: rise 0.65s ease 0.08s forwards;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(120deg, var(--brass-300), var(--brass-500));
+      -webkit-background-clip: text; background-clip: text;
+      color: transparent;
+    }
+    .hero-sub {
+      font-size: 15.5px; color: rgba(255,255,255,0.6);
+      max-width: 480px; line-height: 1.65; font-weight: 300;
+      margin-bottom: 32px;
+      opacity: 0; transform: translateY(14px);
+      animation: rise 0.65s ease 0.16s forwards;
+    }
+
+    /* brass gauge stats */
+    .hero-stats {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      opacity: 0; transform: translateY(14px);
+      animation: rise 0.65s ease 0.24s forwards;
+    }
+    .gauge {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--r-lg);
+      padding: 16px 22px;
+      min-width: 130px;
+      position: relative;
+      overflow: hidden;
+    }
+    .gauge::after {
+      content: '';
+      position: absolute; left: 0; bottom: 0; height: 2px; width: 100%;
+      background: linear-gradient(90deg, var(--brass-500), transparent);
+    }
+    .gauge .num {
+      font-family: var(--font-display);
+      font-size: 27px; font-weight: 700; color: #fff;
+      letter-spacing: -0.5px; line-height: 1;
+    }
+    .gauge .lbl {
+      font-family: var(--font-mono);
+      font-size: 10px; color: rgba(255,255,255,0.5);
+      text-transform: uppercase; letter-spacing: 0.7px;
+      margin-top: 8px;
+    }
+
+    /* ===================== CONTROL BAR ===================== */
+    .control-bar {
+      position: relative; z-index: 4;
+      max-width: 1180px; margin: -78px auto 0; padding: 0 32px;
+    }
+    .control-card {
+      background: var(--white);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 20px 24px;
+    }
+    .control-top {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .control-left { display: flex; align-items: center; gap: 13px; min-width: 0; }
+    .control-icon {
+      width: 40px; height: 40px; border-radius: var(--r-sm);
+      background: linear-gradient(135deg, var(--ink-900), var(--ink-700));
+      display: flex; align-items: center; justify-content: center;
+      color: var(--brass-300); flex-shrink: 0;
+    }
+    .control-title {
+      font-family: var(--font-display); font-size: 15px; font-weight: 700;
+      color: var(--n-900);
+    }
+    .control-sub {
+      font-size: 12.5px; color: var(--n-400); margin-top: 2px;
+      font-family: var(--font-mono);
+    }
+
+    .control-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--n-50);
+      border: 1.5px solid var(--n-200);
+      border-radius: 100px;
+      padding: 7px 7px 7px 15px;
+      transition: border-color 0.15s;
+    }
+    .search-box:focus-within { border-color: var(--sky-500); }
+    .search-box svg { color: var(--n-400); flex-shrink: 0; }
+    .search-box input {
+      border: none; background: none; outline: none;
+      font-family: var(--font-mono); font-size: 12.5px; color: var(--n-900);
+      width: 175px;
+    }
+    .search-box input::placeholder { color: var(--n-400); font-family: var(--font-body); }
+    .search-box button {
+      background: var(--ink-900); color: #fff; border: none;
+      font-family: var(--font-display); font-size: 12px; font-weight: 700;
+      padding: 8px 15px; border-radius: 100px; cursor: pointer;
+      transition: background 0.15s; flex-shrink: 0;
+    }
+    .search-box button:hover { background: var(--ink-700); }
+
+    .icon-btn {
+      width: 38px; height: 38px; flex-shrink: 0;
+      border-radius: var(--r-sm);
+      background: var(--n-100); border: 1px solid var(--n-200);
+      color: var(--n-600); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s, color 0.15s;
+    }
+    .icon-btn:hover { background: var(--n-200); color: var(--ink-900); }
+    .icon-btn.active { background: var(--sky-500); border-color: var(--sky-500); color: #fff; }
+    .icon-btn .spin-ring {
+      width: 15px; height: 15px; border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* filter chips */
+    .filter-row {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      margin-top: 16px; padding-top: 16px;
+      border-top: 1px solid var(--n-100);
+    }
+    .filter-label {
+      font-family: var(--font-mono); font-size: 10.5px; color: var(--n-400);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px;
+    }
+    .chip {
+      font-family: var(--font-body); font-size: 12.5px; font-weight: 600;
+      color: var(--n-600);
+      background: var(--n-50); border: 1.5px solid var(--n-200);
+      padding: 6px 14px; border-radius: 100px; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .chip:hover { border-color: var(--brass-400); }
+    .chip.active {
+      background: var(--ink-900); border-color: var(--ink-900); color: #fff;
+    }
+    .search-status {
+      font-size: 12px; font-weight: 600; font-family: var(--font-mono);
+      margin-left: auto;
+    }
+    .search-status.ok    { color: #16a34a; }
+    .search-status.error { color: #dc2626; }
+
+    /* Fullscreen map mode */
+    .workspace.is-fullscreen {
+      position: fixed; inset: 0; z-index: 5000;
+      max-width: none; margin: 0; padding: 0;
+      background: var(--ink-950);
+      grid-template-columns: 1fr !important;
+    }
+    .workspace.is-fullscreen .list-panel { display: none; }
+    .workspace.is-fullscreen .map-shell { border-radius: 0; height: 100vh; box-shadow: none; border: none; }
+    .workspace.is-fullscreen #allListingsMap { height: 100vh; }
+    body.map-locked { overflow: hidden; }
+
+    /* ===================== WORKSPACE (list + map) ===================== */
+    .workspace {
+      max-width: 1180px; margin: 22px auto 64px; padding: 0 32px;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .list-panel {
+      background: var(--white);
+      border: 1px solid var(--n-200);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      max-height: 620px;
+    }
+    .list-panel-head {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--n-100);
+      font-family: var(--font-mono);
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--n-400); font-weight: 600;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .list-scroll { overflow-y: auto; flex: 1; }
+
+    .listing-card {
+      display: flex; flex-direction: column; gap: 5px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--n-100);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .listing-card:hover, .listing-card.hovered { background: var(--n-50); }
+    .listing-card.active { background: #EAF1FD; }
+    .lc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .lc-title {
+      font-family: var(--font-display); font-size: 13.5px; font-weight: 600;
+      color: var(--n-900); line-height: 1.3;
+    }
+    .lc-id {
+      font-family: var(--font-mono); font-size: 10px; color: var(--brass-600);
+      background: #FBF1DE; padding: 2px 7px; border-radius: 100px;
+      flex-shrink: 0; white-space: nowrap;
+    }
+    .lc-meta { display: flex; justify-content: space-between; align-items: center; }
+    .lc-loc { font-size: 12px; color: var(--n-400); }
+    .lc-rent { font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: var(--ink-900); }
+    .lc-dist {
+      font-family: var(--font-mono); font-size: 10.5px; color: var(--sky-500); font-weight: 600;
+    }
+
+    .skeleton-card { padding: 14px 18px; border-bottom: 1px solid var(--n-100); }
+    .skel-line {
+      height: 11px; border-radius: 4px; margin-bottom: 8px;
+      background: linear-gradient(90deg, var(--n-100) 25%, var(--n-200) 37%, var(--n-100) 63%);
+      background-size: 400% 100%;
+      animation: shimmer 1.4s ease infinite;
+    }
+    @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+    .list-empty {
+      padding: 40px 20px; text-align: center; color: var(--n-400); font-size: 13px;
+    }
+
+    /* ===================== MAP ===================== */
+    .map-shell {
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--n-200);
+      position: relative;
+    }
+    #allListingsMap { width: 100%; height: 620px; }
+
+    .lm-loading {
+      position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(6px);
+      padding: 9px 18px;
+      border-radius: 100px;
+      box-shadow: var(--shadow-sm);
+      font-size: 12.5px; color: var(--n-600); font-weight: 500;
+      font-family: var(--font-mono);
+      z-index: 1000;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .lm-loading .spin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--n-200); border-top-color: var(--sky-500); animation: spin 0.7s linear infinite; }
+
+    .leaflet-popup-content-wrapper { border-radius: var(--r-md); box-shadow: var(--shadow-md); padding: 2px; }
+    .leaflet-popup-content { margin: 14px 16px; }
+    .leaflet-popup-tip { box-shadow: none; }
+
+    .lm-popup { min-width: 190px; font-family: var(--font-body); }
+    .lm-popup .lm-title { font-family: var(--font-display); font-weight: 700; font-size: 14.5px; color: var(--n-900); margin-bottom: 6px; line-height: 1.3; }
+    .lm-popup .lm-id { display: inline-block; background: #FBF1DE; color: var(--brass-600); font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.2px; padding: 3px 9px; border-radius: 100px; margin-bottom: 8px; }
+    .lm-popup .lm-loc { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--n-600); margin-bottom: 8px; }
+    .lm-popup .lm-rent { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--n-900); margin-bottom: 10px; }
+    .lm-popup .lm-rent span { font-size: 11px; color: var(--n-400); font-weight: 400; font-family: var(--font-body); }
+    .lm-popup a { display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--ink-900); color: #fff; font-size: 12.5px; font-weight: 700; padding: 9px 0; border-radius: var(--r-sm); text-decoration: none; transition: background 0.15s; }
+    .lm-popup a:hover { background: var(--ink-700); }
+
+    .lm-empty {
+      position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+      background: var(--n-50); z-index: 500; flex-direction: column; gap: 10px; text-align: center;
+    }
+    .lm-empty.show { display: flex; }
+    .lm-empty-icon { width: 52px; height: 52px; border-radius: 50%; background: var(--n-100); display: flex; align-items: center; justify-content: center; color: var(--n-400); }
+    .lm-empty p { font-size: 14px; color: var(--n-600); font-weight: 500; }
+
+    .marker-cluster-custom {
+      background: rgba(15,44,83,0.88);
+      border: 2px solid var(--brass-400);
+      border-radius: 50%;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono); font-weight: 700; font-size: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .hero { padding: 22px 18px 96px; }
+      .chart-ticks, .chart-ticks-side, .hero-annot, .hero-route { display: none; }
+      .control-bar { margin-top: -56px; }
+      .workspace { grid-template-columns: 1fr; }
+      .list-panel { max-height: 320px; order: 2; }
+      .map-shell { order: 1; }
+    }
+    @media (max-width: 600px) {
+      .control-bar { padding: 0 16px; margin-top: -52px; }
+      .control-card { padding: 16px 16px 18px; }
+      .search-box input { width: 130px; }
+      .workspace { padding: 0 16px; margin-top: 16px; }
+      #allListingsMap { height: 440px; }
+      .gauge { min-width: 100px; padding: 13px 16px; }
+      .gauge .num { font-size: 21px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===================== HERO ===================== -->
+  <section class="hero">
+    <div class="chart-ticks">
+      <span>26.85&deg; N</span><span>UT&ndash;MAP&ndash;01</span><span>80.94&deg; E</span>
+    </div>
+    <div class="chart-ticks-side left"><span>N</span></div>
+    <div class="chart-ticks-side right"><span>E</span></div>
+
+    <!-- dashed survey routes connecting the covered areas -->
+    <svg class="hero-route" viewBox="0 0 1180 420" preserveAspectRatio="none" style="width:100%; height:100%; left:0; top:0;">
+      <path d="M 660 90 Q 780 160 840 230" fill="none" stroke="#dba25a" stroke-width="1.2" stroke-dasharray="2 6" stroke-linecap="round"/>
+      <path d="M 840 230 Q 900 270 970 250" fill="none" stroke="#dba25a" stroke-width="1.2" stroke-dasharray="2 6" stroke-linecap="round"/>
+      <path d="M 660 90 Q 600 220 690 320" fill="none" stroke="#5b8fef" stroke-width="1.2" stroke-dasharray="2 6" stroke-linecap="round"/>
+      <circle cx="660" cy="90" r="3" fill="#e6bb7d"/>
+      <circle cx="840" cy="230" r="3" fill="#e6bb7d"/>
+      <circle cx="970" cy="250" r="3" fill="#e6bb7d"/>
+      <circle cx="690" cy="320" r="3" fill="#5b8fef"/>
+    </svg>
+
+    <div class="hero-annot" style="top:78px; left:660px;"><span class="pin"></span>Kanpur</div>
+    <div class="hero-annot" style="top:218px; left:848px; animation-delay:0.1s;"><span class="pin"></span>Unnao</div>
+    <div class="hero-annot" style="top:238px; left:978px; animation-delay:0.18s;"><span class="pin"></span>Nawabganj</div>
+    <div class="hero-annot" style="top:308px; left:698px; animation-delay:0.26s;"><span class="pin" style="background:#5b8fef; box-shadow:0 0 0 3px rgba(91,143,239,0.2);"></span>Chandigarh Univ.</div>
+
+    <svg class="compass-wm" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="100" r="92" fill="none" stroke="#e6bb7d" stroke-width="1"/>
+      <circle cx="100" cy="100" r="70" fill="none" stroke="#e6bb7d" stroke-width="0.6"/>
+      <g stroke="#e6bb7d" stroke-width="1">
+        <line x1="100" y1="8" x2="100" y2="26"/>
+        <line x1="100" y1="174" x2="100" y2="192"/>
+        <line x1="8" y1="100" x2="26" y2="100"/>
+        <line x1="174" y1="100" x2="192" y2="100"/>
+      </g>
+      <path d="M100 30 L112 100 L100 170 L88 100 Z" fill="#e6bb7d" opacity="0.85"/>
+      <path d="M30 100 L100 88 L170 100 L100 112 Z" fill="#e6bb7d" opacity="0.5"/>
+      <circle cx="100" cy="100" r="5" fill="#e6bb7d"/>
+      <text x="100" y="22" text-anchor="middle" fill="#e6bb7d" font-size="9" font-family="IBM Plex Mono">N</text>
+    </svg>
+
+    <div class="hero-inner">
+      <div class="hero-badge">
+        <span class="pulse-dot"></span>
+        Live listings &middot; plotted in real time
+      </div>
+      <h1>Every room, every <em>PG</em>,<br>charted on the map</h1>
+      <p class="hero-sub">Verified rooms and PGs across Kanpur, Unnao, Nawabganj and near Chandigarh University — pinned exactly where they stand. Filter by rent, find what's nearest you, tap any pin for details.</p>
+
+      <div class="hero-stats">
+        <div class="gauge">
+          <div class="num" id="statTotal">&hellip;</div>
+          <div class="lbl">Listings mapped</div>
+        </div>
+        <div class="gauge">
+          <div class="num">&#8377;0</div>
+          <div class="lbl">Brokerage</div>
+        </div>
+        <div class="gauge">
+          <div class="num">100%</div>
+          <div class="lbl">Verified</div>
+        </div>
+        <div class="gauge">
+          <div class="num" id="statAreas">3</div>
+          <div class="lbl">Areas covered</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONTROL BAR ===================== -->
+  <div class="control-bar">
+    <div class="control-card">
+      <div class="control-top">
+        <div class="control-left">
+          <div class="control-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div>
+            <div class="control-title">Interactive listings map</div>
+            <div class="control-sub" id="lmCount">Loading listings&hellip;</div>
+          </div>
+        </div>
+        <div class="control-right">
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="lmSearchInput" placeholder="Search by Listing ID">
+            <button id="lmSearchBtn" type="button">Go</button>
+          </div>
+          <button id="lmLocateBtn" class="icon-btn" type="button" title="Show listings near me">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+          </button>
+          <button id="lmFullscreenBtn" class="icon-btn" type="button" title="Maximize map">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-row">
+        <span class="filter-label">Rent</span>
+        <button class="chip active" data-min="0" data-max="999999999">All</button>
+        <button class="chip" data-min="0" data-max="5000">Under &#8377;5k</button>
+        <button class="chip" data-min="5000" data-max="10000">&#8377;5k&ndash;10k</button>
+        <button class="chip" data-min="10000" data-max="20000">&#8377;10k&ndash;20k</button>
+        <button class="chip" data-min="20000" data-max="999999999">&#8377;20k+</button>
+        <span class="search-status" id="lmSearchStatus"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== WORKSPACE ===================== -->
+  <div class="workspace" id="workspace">
+
+    <!-- LIST PANEL -->
+    <div class="list-panel">
+      <div class="list-panel-head">
+        <span id="listPanelLabel">All listings</span>
+        <span id="listPanelCount"></span>
+      </div>
+      <div class="list-scroll" id="listScroll">
+        <div class="skeleton-card"><div class="skel-line" style="width:70%"></div><div class="skel-line" style="width:45%"></div></div>
+        <div class="skeleton-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:40%"></div></div>
+        <div class="skeleton-card"><div class="skel-line" style="width:75%"></div><div class="skel-line" style="width:50%"></div></div>
+        <div class="skeleton-card"><div class="skel-line" style="width:55%"></div><div class="skel-line" style="width:35%"></div></div>
+      </div>
+    </div>
+
+    <!-- MAP -->
+    <div class="map-shell">
+      <div class="lm-loading" id="lmLoading"><span class="spin"></span> Loading listings&hellip;</div>
+      <div class="lm-empty" id="lmEmpty">
+        <div class="lm-empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <p>No listings match this filter yet.</p>
+      </div>
+      <div id="allListingsMap"></div>
+    </div>
+
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script>
+    var map = L.map('allListingsMap', { zoomControl: true }).setView([26.8467, 80.9462], 11); // Kanpur default center
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    var listingIcon = L.divIcon({
+      className: 'listing-marker',
+      html: '<div style="background:#0f2c53; width:16px; height:16px; border-radius:50%; border:3px solid #fff; box-shadow:0 2px 8px rgba(10,32,68,0.4);"></div>',
+      iconSize: [16, 16], iconAnchor: [8, 8],
+    });
+
+    var userIcon = L.divIcon({
+      className: 'user-marker',
+      html: '<div style="background:#3f7de0; width:16px; height:16px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 0 6px rgba(63,125,224,0.25);"></div>',
+      iconSize: [16, 16], iconAnchor: [8, 8],
+    });
+
+    var cluster = L.markerClusterGroup({
+      maxClusterRadius: 46,
+      iconCreateFunction: function (c) {
+        return L.divIcon({
+          html: '<div class="marker-cluster-custom" style="width:' + (34 + Math.min(c.getChildCount(), 20)) + 'px; height:' + (34 + Math.min(c.getChildCount(), 20)) + 'px;">' + c.getChildCount() + '</div>',
+          className: '', iconSize: [40, 40]
+        });
+      }
+    });
+    map.addLayer(cluster);
+
+    var countEl        = document.getElementById('lmCount');
+    var loadingEl       = document.getElementById('lmLoading');
+    var emptyEl          = document.getElementById('lmEmpty');
+    var statTotal        = document.getElementById('statTotal');
+    var searchInput       = document.getElementById('lmSearchInput');
+    var searchBtn          = document.getElementById('lmSearchBtn');
+    var searchStatusEl      = document.getElementById('lmSearchStatus');
+    var fullscreenBtn        = document.getElementById('lmFullscreenBtn');
+    var locateBtn              = document.getElementById('lmLocateBtn');
+    var workspaceEl              = document.getElementById('workspace');
+    var listScrollEl               = document.getElementById('listScroll');
+    var listPanelCountEl            = document.getElementById('listPanelCount');
+    var listPanelLabelEl             = document.getElementById('listPanelLabel');
+    var chips                         = document.querySelectorAll('.chip');
+
+    var allListings = [];      // { item, marker, id }
+    var byId = {};             // lowercased listing_id -> listing object
+    var activeFilter = { min: 0, max: 999999999 };
+    var userLatLng = null;
+
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      var R = 6371;
+      var dLat = (lat2 - lat1) * Math.PI / 180;
+      var dLon = (lon2 - lon1) * Math.PI / 180;
+      var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+      return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+    }
+
+    function animateCount(el, target) {
+      var start = 0, duration = 900, startTime = null;
+      function step(ts) {
+        if (!startTime) startTime = ts;
+        var progress = Math.min((ts - startTime) / duration, 1);
+        el.textContent = Math.floor(progress * target);
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(step);
+    }
+
+    function buildPopupHtml(item) {
+      return '<div class="lm-popup">' +
+          '<div class="lm-title">' + item.title + '</div>' +
+          '<div class="lm-id">ID: ' + item.listing_id + '</div>' +
+          '<div class="lm-loc">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+            item.location_name +
+          '</div>' +
+          '<div class="lm-rent">\u20B9' + item.rent + ' <span>/ month</span></div>' +
+          '<a href="' + item.url + '">View Listing</a>' +
+        '</div>';
+    }
+
+    function matchesFilter(item) {
+      var rent = parseFloat(item.rent) || 0;
+      return rent >= activeFilter.min && rent <= activeFilter.max;
+    }
+
+    function renderList() {
+      var filtered = allListings.filter(function (l) { return matchesFilter(l.item); });
+
+      if (userLatLng) {
+        filtered.sort(function (a, b) { return a.dist - b.dist; });
+        listPanelLabelEl.textContent = 'Nearest to you';
+      } else {
+        listPanelLabelEl.textContent = 'All listings';
+      }
+
+      listPanelCountEl.textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        listScrollEl.innerHTML = '<div class="list-empty">No listings match this filter.<br>Try a wider rent range.</div>';
+        return;
+      }
+
+      listScrollEl.innerHTML = filtered.map(function (l) {
+        var distHtml = (l.dist !== undefined) ? '<div class="lc-dist">' + l.dist.toFixed(1) + ' km away</div>' : '';
+        return '<div class="listing-card" data-id="' + l.id + '">' +
+            '<div class="lc-top"><div class="lc-title">' + l.item.title + '</div><div class="lc-id">' + l.item.listing_id + '</div></div>' +
+            '<div class="lc-meta"><span class="lc-loc">' + l.item.location_name + '</span><span class="lc-rent">\u20B9' + l.item.rent + '</span></div>' +
+            distHtml +
+          '</div>';
+      }).join('');
+
+      listScrollEl.querySelectorAll('.listing-card').forEach(function (card) {
+        card.addEventListener('click', function () {
+          var l = byId[card.getAttribute('data-id')];
+          if (!l) return;
+          map.setView([l.item.lat, l.item.lng], 16, { animate: true });
+          cluster.zoomToShowLayer(l.marker, function () { l.marker.openPopup(); });
+        });
+        card.addEventListener('mouseenter', function () {
+          var l = byId[card.getAttribute('data-id')];
+          if (l) l.marker.openTooltip && null;
+        });
+      });
+    }
+
+    function applyFilterToMap() {
+      cluster.clearLayers();
+      var filtered = allListings.filter(function (l) { return matchesFilter(l.item); });
+      filtered.forEach(function (l) { cluster.addLayer(l.marker); });
+      emptyEl.classList.toggle('show', filtered.length === 0);
+      renderList();
+    }
+
+    fetch("{% url 'listings_geojson' %}")
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        loadingEl.style.display = 'none';
+
+        if (!data.results || data.results.length === 0) {
+          countEl.textContent = 'No listings with location found.';
+          statTotal.textContent = '0';
+          listScrollEl.innerHTML = '<div class="list-empty">No listings yet.</div>';
+          emptyEl.classList.add('show');
+          return;
+        }
+
+        var bounds = [];
+
+        data.results.forEach(function (item, idx) {
+          var marker = L.marker([item.lat, item.lng], { icon: listingIcon });
+          marker.bindPopup(buildPopupHtml(item));
+          cluster.addLayer(marker);
+          bounds.push([item.lat, item.lng]);
+
+          var id = 'lst-' + idx;
+          var record = { item: item, marker: marker, id: id };
+          allListings.push(record);
+          if (item.listing_id) byId[item.listing_id.toLowerCase()] = record;
+          byId[id] = record;
+        });
+
+        var count = allListings.length;
+        countEl.textContent = count + ' listing' + (count !== 1 ? 's' : '') + ' currently pinned on the map';
+        animateCount(statTotal, count);
+
+        if (bounds.length) map.fitBounds(bounds, { padding: [50, 50] });
+
+        renderList();
+      })
+      .catch(function () {
+        loadingEl.innerHTML = 'Could not load listings.';
+        listScrollEl.innerHTML = '<div class="list-empty">Could not load listings.</div>';
+      });
+
+    // ---- FILTER CHIPS ----
+    chips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        chips.forEach(function (c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        activeFilter = { min: parseFloat(chip.getAttribute('data-min')), max: parseFloat(chip.getAttribute('data-max')) };
+        applyFilterToMap();
+      });
+    });
+
+    // ---- SEARCH BY LISTING ID ----
+    function runSearch() {
+      var query = searchInput.value.trim().toLowerCase();
+      if (!query) { searchStatusEl.textContent = ''; searchStatusEl.className = 'search-status'; return; }
+
+      var found = byId[query];
+      if (found) {
+        map.setView([found.item.lat, found.item.lng], 16, { animate: true });
+        cluster.zoomToShowLayer(found.marker, function () { found.marker.openPopup(); });
+        searchStatusEl.textContent = 'Found: ' + found.item.listing_id;
+        searchStatusEl.className = 'search-status ok';
+      } else {
+        searchStatusEl.textContent = 'No listing found with that ID';
+        searchStatusEl.className = 'search-status error';
+      }
+    }
+    searchBtn.addEventListener('click', runSearch);
+    searchInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') runSearch(); });
+    searchInput.addEventListener('input', function () {
+      if (searchInput.value.trim() === '') { searchStatusEl.textContent = ''; searchStatusEl.className = 'search-status'; }
+    });
+
+    // ---- LOCATE ME ----
+    var userMarker = null;
+    locateBtn.addEventListener('click', function () {
+      if (!navigator.geolocation) {
+        searchStatusEl.textContent = 'Geolocation not supported';
+        searchStatusEl.className = 'search-status error';
+        return;
+      }
+      locateBtn.innerHTML = '<span class="spin-ring"></span>';
+      locateBtn.classList.add('active');
+
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        userLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+
+        allListings.forEach(function (l) {
+          l.dist = haversineKm(userLatLng.lat, userLatLng.lng, l.item.lat, l.item.lng);
+        });
+
+        if (userMarker) map.removeLayer(userMarker);
+        userMarker = L.marker([userLatLng.lat, userLatLng.lng], { icon: userIcon }).addTo(map);
+        userMarker.bindPopup('You are here').openPopup();
+        map.setView([userLatLng.lat, userLatLng.lng], 13, { animate: true });
+
+        locateBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>';
+        renderList();
+      }, function () {
+        locateBtn.classList.remove('active');
+        locateBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>';
+        searchStatusEl.textContent = 'Location access denied';
+        searchStatusEl.className = 'search-status error';
+      });
+    });
+
+    // ---- FULLSCREEN MAP TOGGLE ----
+    var isFullscreen = false;
+    function setFullscreen(on) {
+      isFullscreen = on;
+      workspaceEl.classList.toggle('is-fullscreen', on);
+      document.body.classList.toggle('map-locked', on);
+      fullscreenBtn.classList.toggle('active', on);
+      fullscreenBtn.title = on ? 'Minimize map' : 'Maximize map';
+      fullscreenBtn.innerHTML = on
+        ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3m8-5h3a2 2 0 0 1 2 2v3"/></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>';
+      setTimeout(function () { map.invalidateSize(); }, 200);
+    }
+    fullscreenBtn.addEventListener('click', function () { setFullscreen(!isFullscreen); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isFullscreen) setFullscreen(false); });
+  </script>
+{% include 'footer.html' %}
+</body>
+</html>
