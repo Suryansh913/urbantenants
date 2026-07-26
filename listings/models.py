@@ -3,8 +3,15 @@ from django.contrib.auth.models import User
 from partner.models import Partner
 from django.db.models import Avg
 from cloudinary.models import CloudinaryField
+from django.db import transaction  
+class ListingIDCounter(models.Model):
+    last_number = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"Last ID: {self.last_number}"
 # this is for room listing
 class listings(models.Model):
+    listing_id = models.CharField(max_length=20, unique=True, blank=True, null=True, editable=False, db_index=True)
     Room_title = models.CharField(max_length=100)
     Room_rent = models.IntegerField()
     Room_images1 = CloudinaryField('image', blank=False, null=True)
@@ -61,6 +68,15 @@ class listings(models.Model):
         blank=True,
         related_name='listings'
     )
+    def save(self, *args, **kwargs):
+        if not self.listing_id:
+            with transaction.atomic():
+                counter, created = ListingIDCounter.objects.select_for_update().get_or_create(id=1)
+                counter.last_number += 1
+                counter.save()
+                self.listing_id = f"UT{counter.last_number:07d}"
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.Room_title
     @property

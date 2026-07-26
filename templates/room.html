@@ -605,6 +605,7 @@
             {% endif %}
             <span class="tag tag-type">Only For: {{ room.Room_type }}</span>
             <span class="tag" style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0;">📅 Listed: {{ room.date }}</span>
+            <span class="tag" style="background:#eef2f8; color:#374B65; border:1px solid #D8E1EF;">🆔 Listing ID: {{ room.listing_id|default:"No" }}</span>
           </div>
           <div class="title-row">
             <h1 class="room-title">{{ room.Room_title }}</h1>
