@@ -434,10 +434,19 @@
         .rm-stars span { color: #E3E1EE; transition: color 0.15s; }
         .rm-stars span.active { color: #E0A527; }
 
-        .rm-submit {
-            width: 100%; background: var(--h-ink); color: #fff; border: none; border-radius: 9px;
+        .rm-btn-row { display: flex; gap: 10px; margin-top: 6px; }
+
+        .rm-cancel {
+            flex: 1; background: #fff; color: var(--ink2); border: 1px solid var(--cream3); border-radius: 9px;
             padding: 12px; font-family: var(--font-sans); font-size: 14px; font-weight: 600; cursor: pointer;
-            margin-top: 6px; letter-spacing: 0.01em; transition: background 0.15s ease;
+            letter-spacing: 0.01em; transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .rm-cancel:hover { background: var(--cream2); border-color: var(--ink3); }
+
+        .rm-submit {
+            flex: 1; background: var(--h-ink); color: #fff; border: none; border-radius: 9px;
+            padding: 12px; font-family: var(--font-sans); font-size: 14px; font-weight: 600; cursor: pointer;
+            letter-spacing: 0.01em; transition: background 0.15s ease;
         }
         .rm-submit:hover { background: #2d2d45; }
         .rm-submit:disabled { opacity: 0.65; cursor: default; }
@@ -940,7 +949,10 @@
             <textarea id="rmText" placeholder="Tell us about your experience..." maxlength="220"></textarea>
         </div>
 
-        <button class="rm-submit" id="rmSubmit" type="button">Submit review</button>
+        <div class="rm-btn-row">
+            <button class="rm-cancel" id="rmCancel" type="button">Cancel</button>
+            <button class="rm-submit" id="rmSubmit" type="button">Submit review</button>
+        </div>
         <div class="rm-success" id="rmSuccess">Thank you! Your review has been posted.</div>
     </div>
 </div>
@@ -965,6 +977,7 @@
     var nameInput   = document.getElementById('rmName');
     var textInput   = document.getElementById('rmText');
     var submitBtn   = document.getElementById('rmSubmit');
+    var cancelBtn   = document.getElementById('rmCancel');
     var successMsg  = document.getElementById('rmSuccess');
     var csrfInput   = document.querySelector('.review-modal input[name=csrfmiddlewaretoken]');
 
@@ -1004,6 +1017,10 @@
     fab.addEventListener('click', function () {
         if (openWatcher) clearInterval(openWatcher);
         openModal();
+    });
+
+    cancelBtn.addEventListener('click', function () {
+        closeModal();
     });
 
     var openWatcher = null;
