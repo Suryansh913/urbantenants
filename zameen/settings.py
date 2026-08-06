@@ -203,15 +203,3 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024
 
 
-# Cashfree credentials - dashboard.cashfree.com se lo (Developers > API Keys)
-CASHFREE_APP_ID = config("CASHFREE_APP_ID")
-CASHFREE_SECRET_KEY = config("CASHFREE_SECRET_KEY")
-CASHFREE_ENV = config("CASHFREE_ENV", default="TEST")
-CASHFREE_API_VERSION = "2023-08-01"
-
-CASHFREE_BASE_URL = (
-    "https://sandbox.cashfree.com/pg" if CASHFREE_ENV == "TEST"
-    else "https://api.cashfree.com/pg"
-)
-
-SITE_DOMAIN = config("SITE_DOMAIN", default="http://127.0.0.1:8000")
