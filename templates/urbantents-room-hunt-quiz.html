@@ -142,6 +142,17 @@
   }
   .pulse-highlight{ animation:pulseHi 1.1s ease; border-radius:10px; }
   @keyframes pulseHi{ 0%,100%{ box-shadow:none; } 35%{ box-shadow:0 0 0 5px rgba(245,183,35,0.35); } }
+  .coupon-expiry{
+    text-align:center; font-size:10.5px; color:var(--muted); margin-top:6px;
+    font-family:'Inter',sans-serif; font-weight:500;
+  }
+  .coupon-expiry strong{ color:var(--navy); font-weight:700; }
+
+  .page-footer-note{
+    text-align:center; font-size:11.5px; color:var(--muted); line-height:1.6;
+    padding:22px 20px 8px; max-width:520px; margin:0 auto;
+  }
+  .page-footer-note strong{ color:var(--navy); font-weight:700; }
 
   .content-pad{ padding:24px 20px 0; }
   @media (min-width:700px){ .content-pad{ padding:28px 32px 0; } }
@@ -383,6 +394,7 @@
 
       </div>
       <div class="coupon-hint" id="couponHint">← swipe to see all prizes →</div>
+      <div class="coupon-expiry">🕐 Offer valid only for <strong>1 week</strong> from challenge launch — till <strong>13 August 2026</strong></div>
     </div>
   </div>
 
@@ -500,6 +512,8 @@
 
   </div>
 </div>
+
+<div class="page-footer-note">🕐 This offer is valid only for <strong>1 week from the challenge launch date</strong> — entries close on <strong>13 August 2026</strong>. Prizes and vouchers issued after this date will not be honoured.</div>
 
 <canvas id="genCanvas" width="1000" height="700" class="hidden"></canvas>
 
