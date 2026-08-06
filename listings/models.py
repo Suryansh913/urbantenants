@@ -292,3 +292,20 @@ class NeighborhoodReply(models.Model):
  
     def __str__(self):
         return f"Reply by {self.user.username} on '{self.post.title}'"
+
+
+
+
+class Participant(models.Model):
+    """A single Room Hunt Challenge attempt."""
+    name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=15 ,blank=True, default='')
+    score = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+ 
+    class Meta:
+        ordering = ['-score', 'created_at']
+ 
+    def __str__(self):
+        return f"{self.name} ({self.phone}) — {self.score}"
+ 

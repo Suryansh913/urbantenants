@@ -1070,3 +1070,56 @@ def listings_geojson(request):
         })
 
     return JsonResponse({'results': data})
+
+
+
+
+import json
+import re
+
+from django.db import IntegrityError
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.decorators.http import require_POST
+
+from listings.models import Participant
+
+MAX_SCORE = 5000
+
+
+def room_hunt_view(request):
+    """Renders the Room Hunt Challenge quiz page."""
+    return render(request, 'urbantents-room-hunt-quiz.html')
+
+
+def _clean_phone(raw):
+    return re.sub(r'\s+', '', raw or '').strip()
+
+
+@require_POST
+def submit_score(request):
+    """
+    Saves a participant's finished-quiz score. Phone number is stored
+    only to inform winners later — no format validation is enforced.
+    """
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        name = (data.get('name') or '').strip()[:100]
+        phone = _clean_phone(data.get('phone'))[:15]
+        score = int(data.get('score', 0))
+    except (json.JSONDecodeError, ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid payload'}, status=400)
+
+    if not name:
+        return JsonResponse({'error': 'Name is required'}, status=400)
+    if not phone:
+        return JsonResponse({'error': 'Phone number is required'}, status=400)
+
+    score = max(0, min(score, MAX_SCORE))
+
+    try:
+        participant = Participant.objects.create(name=name, phone=phone, score=score)
+    except IntegrityError:
+        return JsonResponse({'error': 'This phone number has already played'}, status=409)
+
+    return JsonResponse({'id': participant.id})

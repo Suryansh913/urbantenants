@@ -31,7 +31,7 @@ from .views import submit_support_query
 from zameen.views import user_list
 from django.contrib.sitemaps.views import sitemap
 from .sitemaps import ListingSitemap, StaticViewSitemap
-
+app_name = 'room_hunt'
 from django.views.generic import TemplateView
 sitemaps = {
     'listings': ListingSitemap,
@@ -99,6 +99,10 @@ urlpatterns = [
     path("founder-message/", views.founder_message, name="founder_message"),
     path('map/', views.all_listings_map, name='all_listings_map'),
     path('api/listings-geojson/', views.listings_geojson, name='listings_geojson'),
+    path('quiz/', views.room_hunt_view, name='index'),
+    path('api/submit-score/', views.submit_score, name='submit_score'),
+
+
 
     
 

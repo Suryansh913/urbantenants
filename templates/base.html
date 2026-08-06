@@ -499,6 +499,56 @@
             .review-fab { right: 16px; bottom: 80px; width: 48px; height: 48px; }
             .review-modal { padding: 26px 20px 22px; }
         }
+
+        /* ===================== QUIZ PROMO ===================== */
+        .quiz-promo {
+            position: relative; display: block; text-decoration: none;
+            background: linear-gradient(135deg, var(--h-ink) 0%, #2a2a45 100%);
+            border-radius: 18px; padding: 22px 24px; margin-bottom: 1.5rem;
+            overflow: hidden; max-width: 480px;
+            box-shadow: 0 14px 34px rgba(28,28,46,0.28), 0 4px 10px rgba(28,28,46,0.16);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+            animation: rise 0.55s 0.02s ease both; opacity: 0; animation-fill-mode: forwards;
+        }
+        .quiz-promo:hover { transform: translateY(-3px); box-shadow: 0 20px 42px rgba(28,28,46,0.34), 0 6px 14px rgba(28,28,46,0.2); }
+        .quiz-promo::before {
+            content: ""; position: absolute; width: 160px; height: 160px; border-radius: 50%;
+            background: rgba(255,201,60,0.14); top: -60px; right: -50px;
+        }
+        .qp-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: var(--h-yellow); color: var(--h-ink);
+            font-family: var(--font-head); font-weight: 700; font-size: 11.5px;
+            text-transform: uppercase; letter-spacing: 0.05em;
+            padding: 6px 12px; border-radius: 30px; margin-bottom: 12px;
+            position: relative; z-index: 1;
+        }
+        .qp-title {
+            font-family: var(--font-head); font-weight: 700; font-size: 24px; color: #fff;
+            line-height: 1.2; margin-bottom: 8px; position: relative; z-index: 1;
+        }
+        .qp-title em { font-style: normal; color: var(--h-yellow); }
+        .qp-sub {
+            font-size: 13.5px; color: rgba(255,255,255,0.72); line-height: 1.6;
+            margin-bottom: 16px; max-width: 40ch; position: relative; z-index: 1;
+        }
+        .qp-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; position: relative; z-index: 1; }
+        .qp-chip {
+            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
+            color: #fff; font-size: 11.5px; font-weight: 600; padding: 6px 12px; border-radius: 20px;
+        }
+        .qp-cta {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--h-yellow); color: var(--h-ink);
+            font-family: var(--font-head); font-weight: 700; font-size: 14px;
+            padding: 12px 22px; border-radius: 12px; position: relative; z-index: 1;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .quiz-promo:hover .qp-cta { background: var(--h-yellow-d); transform: translateX(2px); }
+        @media (max-width: 480px) {
+            .quiz-promo { padding: 18px 18px; max-width: 100%; }
+            .qp-title { font-size: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -512,6 +562,19 @@
 
     <div class="hero-flex">
         <div class="hero-content">
+
+            <a href="{% url 'index' %}" class="quiz-promo">
+                <span class="qp-badge">🎯 New Challenge Live</span>
+                <div class="qp-title">Solve the Quiz.<br>Win <em>Cash &amp; Discounts.</em></div>
+                <p class="qp-sub">Guess the rent on 5 real rooms. Top scorers win cash prizes — everyone else still gets a discount voucher.</p>
+                <div class="qp-chips">
+                    <span class="qp-chip">🥇 Up to ₹5,000</span>
+                    <span class="qp-chip">🎟 ₹500 voucher for all</span>
+                    <span class="qp-chip">Free to play</span>
+                </div>
+                <span class="qp-cta">Play Room Hunt Quiz →</span>
+            </a>
+
             <div class="hero-badge">
                 <span class="dot">%</span>
                 Limited period · Up to 50% off first month

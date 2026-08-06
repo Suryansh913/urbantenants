@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User   
 class loginm(models.Model):
     username=models.CharField(max_length=200)
     phone=models.IntegerField( )
@@ -34,3 +34,4 @@ class SetNewPasswordForm(forms.Form):
         if p1 and p2 and p1 != p2:
             raise ValidationError("Dono passwords match nahi karte.")
         return cleaned
+

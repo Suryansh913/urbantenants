@@ -9,7 +9,12 @@ from django.conf import settings
 from django.contrib import messages
 from .forms import RegisterForm, LoginForm, SetNewPasswordForm
 from django.urls import reverse
+from .forms import RegisterForm, LoginForm
 
+from partner.models import Partner   # <-- apne partner app se import
+from django.http import JsonResponse
+import uuid, json, requests
+import os
 def registerv(request):
     if request.user.is_authenticated:
         return redirect('base')

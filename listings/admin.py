@@ -42,3 +42,13 @@ class ReviewAdmin(admin.ModelAdmin):
     list_filter = ('rating', 'is_approved', 'created_at')
     search_fields = ('name', 'text')
     list_editable = ('is_approved',)
+
+
+
+from .models import Participant
+
+@admin.register(Participant)
+class ParticipantAdmin(admin.ModelAdmin):
+    list_display = ("name", "score", "created_at")
+    search_fields = ("name",)
+    ordering = ("-score", "created_at")
