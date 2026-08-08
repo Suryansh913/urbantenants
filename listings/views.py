@@ -5,20 +5,20 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.conf import settings
 from django.contrib import messages
- 
+
 from .models import listings, ChatSubscription
 from .utils import cashfree_create_order, cashfree_get_order
- 
- 
+
+
 @login_required(login_url='loginv')
 def chat_unlock_plans(request, room_id):
     """Shows the two chat-unlock plans for a given room."""
     room = get_object_or_404(listings, id=room_id)
- 
+
     active_sub = ChatSubscription.get_active_for(request.user, room)
     if active_sub:
         return redirect('room', id=room.id)
- 
+
     plans = [
         {
             'key': ChatSubscription.PLAN_BASIC,
@@ -33,13 +33,13 @@ def chat_unlock_plans(request, room_id):
             'desc': 'Unlimited chats · valid for 14 days',
         },
     ]
- 
+
     return render(request, 'chat_unlock_plans.html', {
         'room': room,
         'plans': plans,
     })
- 
- 
+
+
 @login_required(login_url='loginv')
 @require_POST
 def chat_unlock_create_order(request, room_id):
@@ -47,33 +47,38 @@ def chat_unlock_create_order(request, room_id):
     print("🔥 CHAT UNLOCK FUNCTION CALLED", flush=True)
     room = get_object_or_404(listings, id=room_id)
     plan = request.POST.get('plan')
- 
+
     if plan not in (ChatSubscription.PLAN_BASIC, ChatSubscription.PLAN_UNLIMITED):
         return JsonResponse({'success': False, 'error': 'Invalid plan selected.'}, status=400)
- 
+
     amount = ChatSubscription.PLAN_PRICES[plan]
- 
+
     return_url = settings.SITE_DOMAIN.rstrip('/') + reverse(
         'chat_unlock_verify', args=[room.id]
     )
-    print("========== CASHFREE ==========")
-    print("ENV:", settings.CASHFREE_ENV)
-    print("URL:", settings.CASHFREE_BASE_URL)
-    print("APP ID:", settings.CASHFREE_APP_ID[:12])
-    print("================================")
+    print("========== CASHFREE ORDER CREATE ==========", flush=True)
+    print("ENV:", settings.CASHFREE_ENV, flush=True)
+    print("URL:", settings.CASHFREE_BASE_URL, flush=True)
+    print("APP ID:", settings.CASHFREE_APP_ID[:12], flush=True)
+    print("RETURN URL SENT TO CASHFREE:", return_url + "?order_id={order_id}", flush=True)
+    print("=============================================", flush=True)
+
     cf_response = cashfree_create_order(
         amount=amount,
         user=request.user,
         return_url=return_url,
         order_note=f"Chat unlock ({plan}) for room {room.id}",
     )
- 
+
+    print("🔥 CASHFREE CREATE ORDER RESPONSE:", cf_response, flush=True)
+
     if cf_response.get('_http_status') not in (200, 201) or 'payment_session_id' not in cf_response:
+        print("🔥 ORDER CREATE FAILED:", cf_response, flush=True)
         return JsonResponse({
             'success': False,
             'error': cf_response.get('message', 'Could not create payment order. Please try again.'),
         }, status=400)
- 
+
     sub = ChatSubscription.objects.create(
         user=request.user,
         room=room,
@@ -83,7 +88,9 @@ def chat_unlock_create_order(request, room_id):
         cf_payment_session_id=cf_response['payment_session_id'],
         status=ChatSubscription.STATUS_CREATED,
     )
- 
+
+    print("🔥 SUBSCRIPTION CREATED:", sub.id, sub.cf_order_id, sub.status, flush=True)
+
     return JsonResponse({
         'success': True,
         'payment_session_id': cf_response['payment_session_id'],
@@ -91,28 +98,46 @@ def chat_unlock_create_order(request, room_id):
         'subscription_id': sub.id,
         'is_test': settings.CASHFREE_ENV == 'TEST',
     })
- 
- 
+
+
 @login_required(login_url='loginv')
 def chat_unlock_verify(request, room_id):
     """Cashfree redirects here after checkout. Verifies payment and activates subscription."""
+    print("🔥🔥🔥 CHAT_UNLOCK_VERIFY HIT", flush=True)
+    print("🔥 Full path:", request.get_full_path(), flush=True)
+    print("🔥 GET params:", dict(request.GET), flush=True)
+    print("🔥 User:", request.user, "authenticated:", request.user.is_authenticated, flush=True)
+
     room = get_object_or_404(listings, id=room_id)
     cf_order_id = request.GET.get('order_id')
- 
+    print("🔥 cf_order_id from URL:", cf_order_id, flush=True)
+
     sub = ChatSubscription.objects.filter(
         cf_order_id=cf_order_id, user=request.user, room=room
     ).first()
- 
+
+    print("🔥 Subscription found in DB:", sub, flush=True)
+
     if not sub:
+        # Try without the user filter too, to see if it's a user-mismatch issue
+        any_sub = ChatSubscription.objects.filter(cf_order_id=cf_order_id).first()
+        print("🔥 Subscription found WITHOUT user filter:", any_sub,
+              "| its user:", any_sub.user if any_sub else None, flush=True)
+
         messages.error(request, "We couldn't find that payment. Please try again.")
         return redirect('room', id=room.id)
- 
+
+    print("🔥 Subscription current status:", sub.status, flush=True)
+
     if sub.status != ChatSubscription.STATUS_ACTIVE:
         cf_data = cashfree_get_order(cf_order_id)
+        print("🔥 Cashfree get_order response:", cf_data, flush=True)
         order_status = cf_data.get('order_status')
- 
+        print("🔥 order_status from Cashfree:", order_status, flush=True)
+
         if order_status == 'PAID':
             sub.activate()
+            print("🔥 SUBSCRIPTION ACTIVATED:", sub.status, sub.valid_until, flush=True)
             messages.success(
                 request,
                 f"Chat unlocked! You now have "
@@ -120,27 +145,31 @@ def chat_unlock_verify(request, room_id):
                 f"for {ChatSubscription.VALIDITY_DAYS} days."
             )
         elif order_status in ('ACTIVE', 'PENDING'):
+            print("🔥 Payment still pending/active, not marking as paid yet", flush=True)
             messages.info(request, "Your payment is still processing. Please wait a moment and refresh.")
         else:
+            print("🔥 Marking subscription as FAILED, order_status was:", order_status, flush=True)
             sub.status = ChatSubscription.STATUS_FAILED
             sub.save(update_fields=['status'])
             messages.error(request, "Payment failed or was cancelled. Please try again.")
- 
+    else:
+        print("🔥 Subscription was already ACTIVE, skipping re-verification", flush=True)
+
     return redirect('room', id=room.id)
- 
- 
+
+
 @login_required(login_url='loginv')
 @require_POST
 def chat_unlock_use(request, room_id):
     """Called via AJAX right before opening the WhatsApp link, to consume one chat credit."""
     room = get_object_or_404(listings, id=room_id)
     sub = ChatSubscription.get_active_for(request.user, room)
- 
+
     if not sub:
         return JsonResponse({'success': False, 'error': 'no_active_subscription'}, status=402)
- 
+
     sub.consume_chat()
- 
+
     return JsonResponse({
         'success': True,
         'chats_remaining': sub.chats_remaining(),
