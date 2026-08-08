@@ -67,7 +67,7 @@ def cashfree_create_order(amount, user, return_url, order_note=""):
             "customer_phone": getattr(user, "phone", None) or "9999999999",
         },
         "order_meta": {
-            "return_url": return_url + "?order_id={order_id}",
+            "return_url": return_url + f"?order_id={order_id}",
         },
         "order_note": order_note,
     }
