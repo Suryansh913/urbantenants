@@ -1,6 +1,6 @@
 from django.http import HttpResponse
 from django.shortcuts import render,get_object_or_404,redirect
-from listings.models import listings, Booking , RoomBooking,Order,RoomRating
+from listings.models import listings, Booking , RoomBooking,Order,RoomRating,ChatSubscription
 from listings.forms import RoomBookingForm
 from django.contrib.auth.decorators import login_required
 from listings.models import RoomBooking
@@ -168,6 +168,26 @@ def room(request, id):
 
     whatsapp_number = get_clean_whatsapp_number(partner_phone)
 
+    # ---- Chat unlock (WhatsApp paywall via Cashfree) ----
+    chat_sub = None
+    if request.user.is_authenticated:
+        chat_sub = ChatSubscription.get_active_for(request.user, roomd)
+
+    chat_plans = [
+        {
+            'key': ChatSubscription.PLAN_BASIC,
+            'label': 'Basic',
+            'price': ChatSubscription.PLAN_PRICES[ChatSubscription.PLAN_BASIC],
+            'desc': f'{ChatSubscription.PLAN_CHAT_LIMIT[ChatSubscription.PLAN_BASIC]} chats · valid {ChatSubscription.VALIDITY_DAYS} days',
+        },
+        {
+            'key': ChatSubscription.PLAN_UNLIMITED,
+            'label': 'Unlimited',
+            'price': ChatSubscription.PLAN_PRICES[ChatSubscription.PLAN_UNLIMITED],
+            'desc': f'Unlimited chats · valid {ChatSubscription.VALIDITY_DAYS} days',
+        },
+    ]
+
     return render(request, "room.html", {
         'room': roomd,
         'images': images,
@@ -176,6 +196,9 @@ def room(request, id):
         'star_bars': star_bars,
         'final_price': final_price,
         'whatsapp_number': whatsapp_number,
+        'chat_sub': chat_sub,
+        'chat_plans': chat_plans,
+        'cashfree_mode': 'sandbox' if settings.CASHFREE_ENV == 'TEST' else 'production',
     })
 def base(request):
     from django.db.models import Avg, Count

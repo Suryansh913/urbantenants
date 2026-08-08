@@ -38,6 +38,9 @@ def loginv(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
             return redirect('base')
         else:
             return render(request, 'pauth/login.html', {
@@ -52,6 +55,3 @@ def loginv(request):
 def logoutv(request):
     logout(request)
     return redirect('loginv')
-
-
-

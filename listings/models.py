@@ -294,8 +294,8 @@ class NeighborhoodReply(models.Model):
         return f"Reply by {self.user.username} on '{self.post.title}'"
 
 
-
-
+from django.utils import timezone
+from datetime import timedelta
 class Participant(models.Model):
     """A single Room Hunt Challenge attempt."""
     name = models.CharField(max_length=100)
@@ -309,3 +309,106 @@ class Participant(models.Model):
     def __str__(self):
         return f"{self.name} ({self.phone}) — {self.score}"
  
+class ChatSubscription(models.Model):
+    PLAN_BASIC = 'basic'
+    PLAN_UNLIMITED = 'unlimited'
+    PLAN_CHOICES = [
+        (PLAN_BASIC, 'Basic - 20 Chats (14 days)'),
+        (PLAN_UNLIMITED, 'Unlimited Chats (14 days)'),
+    ]
+ 
+    STATUS_CREATED = 'created'
+    STATUS_ACTIVE = 'active'
+    STATUS_FAILED = 'failed'
+    STATUS_EXPIRED = 'expired'
+    STATUS_CHOICES = [
+        (STATUS_CREATED, 'Created'),
+        (STATUS_ACTIVE, 'Active'),
+        (STATUS_FAILED, 'Failed'),
+        (STATUS_EXPIRED, 'Expired'),
+    ]
+ 
+    PLAN_PRICES = {
+        PLAN_BASIC: 1,
+        PLAN_UNLIMITED: 19,
+    }
+    PLAN_CHAT_LIMIT = {
+        PLAN_BASIC: 20,
+        PLAN_UNLIMITED: None,  # unlimited
+    }
+    VALIDITY_DAYS = 14
+ 
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='chat_subscriptions'
+    )
+    room = models.ForeignKey(
+        listings, on_delete=models.CASCADE, related_name='chat_subscriptions'
+    )
+    plan = models.CharField(max_length=20, choices=PLAN_CHOICES)
+    amount = models.PositiveIntegerField(default=0)
+ 
+    cf_order_id = models.CharField(max_length=100, unique=True, db_index=True)
+    cf_payment_session_id = models.CharField(max_length=255, blank=True, null=True)
+ 
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default=STATUS_CREATED
+    )
+ 
+    chats_limit = models.PositiveIntegerField(null=True, blank=True)  # null = unlimited
+    chats_used = models.PositiveIntegerField(default=0)
+ 
+    valid_until = models.DateTimeField(null=True, blank=True)
+ 
+    created_at = models.DateTimeField(auto_now_add=True)
+    activated_at = models.DateTimeField(null=True, blank=True)
+ 
+    class Meta:
+        ordering = ['-created_at']
+ 
+    def __str__(self):
+        return f"{self.user} - {self.room} - {self.get_plan_display()} - {self.status}"
+ 
+    def activate(self):
+        """Mark this subscription paid & active. Called after payment verification."""
+        self.status = self.STATUS_ACTIVE
+        self.chats_limit = self.PLAN_CHAT_LIMIT[self.plan]
+        self.chats_used = 0
+        self.activated_at = timezone.now()
+        self.valid_until = self.activated_at + timedelta(days=self.VALIDITY_DAYS)
+        self.save()
+ 
+    def is_active(self):
+        if self.status != self.STATUS_ACTIVE:
+            return False
+        if self.valid_until and timezone.now() > self.valid_until:
+            return False
+        if self.chats_limit is not None and self.chats_used >= self.chats_limit:
+            return False
+        return True
+ 
+    def chats_remaining(self):
+        if self.chats_limit is None:
+            return None  # unlimited
+        return max(0, self.chats_limit - self.chats_used)
+ 
+    def consume_chat(self):
+        """Increment usage. Only meaningful for the limited (basic) plan."""
+        if self.chats_limit is not None:
+            self.chats_used = models.F('chats_used') + 1
+            self.save(update_fields=['chats_used'])
+            self.refresh_from_db(fields=['chats_used'])
+ 
+    @classmethod
+    def get_active_for(cls, user, room):
+        if not user or not user.is_authenticated:
+            return None
+        sub = (
+            cls.objects.filter(
+                user=user, room=room, status=cls.STATUS_ACTIVE
+            )
+            .order_by('-created_at')
+            .first()
+        )
+        if sub and sub.is_active():
+            return sub
+        return None

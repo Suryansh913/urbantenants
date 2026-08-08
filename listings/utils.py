@@ -36,3 +36,63 @@ def send_booking_notification(booking):
             json=payload,
             headers=headers
         )
+
+import uuid
+from django.conf import settings
+ 
+ 
+def cashfree_headers():
+    return {
+        "x-client-id": settings.CASHFREE_APP_ID,
+        "x-client-secret": settings.CASHFREE_SECRET_KEY,
+        "x-api-version": settings.CASHFREE_API_VERSION,
+        "Content-Type": "application/json",
+    }
+ 
+ 
+def cashfree_create_order(amount, user, return_url, order_note=""):
+    """
+    Creates an order on Cashfree and returns the parsed JSON response,
+    which includes 'order_id' and 'payment_session_id'.
+    """
+    order_id = f"CHAT{uuid.uuid4().hex[:20]}"
+ 
+    payload = {
+        "order_id": order_id,
+        "order_amount": amount,
+        "order_currency": "INR",
+        "customer_details": {
+            "customer_id": f"user_{user.id}",
+            "customer_email": user.email or f"user{user.id}@urbantenants.com",
+            "customer_phone": getattr(user, "phone", None) or "9999999999",
+        },
+        "order_meta": {
+            "return_url": return_url + "?order_id={order_id}",
+        },
+        "order_note": order_note,
+    }
+    print("CASHFREE ENV:", settings.CASHFREE_ENV)
+    print("CASHFREE URL:", settings.CASHFREE_BASE_URL)
+    print("APP ID:", settings.CASHFREE_APP_ID[:10], "...")
+    resp = requests.post(
+        f"{settings.CASHFREE_BASE_URL}/orders",
+        json=payload,
+        headers=cashfree_headers(),
+        timeout=15,
+    )
+    data = resp.json()
+    data["_http_status"] = resp.status_code
+    data["_order_id"] = order_id
+    return data
+ 
+ 
+def cashfree_get_order(cf_order_id):
+    """Fetches order status from Cashfree to verify payment."""
+    resp = requests.get(
+        f"{settings.CASHFREE_BASE_URL}/orders/{cf_order_id}",
+        headers=cashfree_headers(),
+        timeout=15,
+    )
+    data = resp.json()
+    data["_http_status"] = resp.status_code
+    return data
