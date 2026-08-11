@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     'chatbot',
     'partner',
     'notifications',
-    
+    'leads',
 ]
 
 # ── MIDDLEWARE ─────────────────────────────────────────

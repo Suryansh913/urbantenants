@@ -1,0 +1,203 @@
+{% extends "leads/urbantents_layout.html" %}
+{% block title %}UrbanTents · Dashboard{% endblock %}
+{% block content %}
+
+<header class="top">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 64 64" fill="none">
+      <path d="M32 8 L58 52 H6 L32 8Z" stroke="#C9A227" stroke-width="3" fill="none" stroke-linejoin="round"/>
+      <path d="M32 8 L32 52" stroke="#C9A227" stroke-width="2"/>
+      <path d="M20 52 L32 30 L44 52" stroke="#6FA287" stroke-width="2" fill="none"/>
+    </svg>
+    <div>
+      <h1>UrbanTents</h1>
+      <span>Employee Lead Dashboard · {{ employee_name }}</span>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>{{ total }}</b><small>Total</small></div>
+    <div class="stat"><b>{{ leads_active|length }}</b><small>Active</small></div>
+    <div class="stat"><b>{{ leads_booked|length }}</b><small>Booked</small></div>
+    <div class="stat"><b>{{ leads_lost|length }}</b><small>Lost</small></div>
+    <a href="{% url 'leads:logout' %}" class="btn btn-ghost" style="text-decoration:none;">Logout</a>
+  </div>
+</header>
+
+<form method="get" class="toolbar">
+  <input type="text" name="q" value="{{ query }}" placeholder="Search name, phone, city ya user ID se...">
+  <button type="submit" class="btn btn-ghost">Search</button>
+  {% if query %}<a href="{% url 'leads:dashboard' %}" class="btn btn-ghost" style="text-decoration:none;">Clear</a>{% endif %}
+</form>
+
+<main>
+  <div class="board">
+
+    <div class="column col-active">
+      <div class="col-head"><div class="row"><h2>Active</h2><span class="count mono">{{ leads_active|length }}</span></div></div>
+      <div class="col-body">
+        {% if leads_active %}
+          {% for lead in leads_active %}{% include "leads/_card.html" %}{% endfor %}
+        {% else %}<div class="empty-note">Yahan koi lead nahi</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="column col-booked">
+      <div class="col-head"><div class="row"><h2>Booked</h2><span class="count mono">{{ leads_booked|length }}</span></div></div>
+      <div class="col-body">
+        {% if leads_booked %}
+          {% for lead in leads_booked %}{% include "leads/_card.html" %}{% endfor %}
+        {% else %}<div class="empty-note">Yahan koi lead nahi</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="column col-lost">
+      <div class="col-head"><div class="row"><h2>Lost</h2><span class="count mono">{{ leads_lost|length }}</span></div></div>
+      <div class="col-body">
+        {% if leads_lost %}
+          {% for lead in leads_lost %}{% include "leads/_card.html" %}{% endfor %}
+        {% else %}<div class="empty-note">Yahan koi lead nahi</div>{% endif %}
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="note">Data sabhi employees ke beech shared hai — koi bhi is passcode se yahan add/edit kar sakta hai.</footer>
+
+<button class="fab" onclick="openAddModal()">+ Naya Lead</button>
+
+<!-- ============ ADD LEAD MODAL ============ -->
+<div class="overlay" id="addOverlay">
+  <div class="modal">
+    <button class="close-x" onclick="closeModal('addOverlay')">✕</button>
+    <h3>Naya Lead Add Karein</h3>
+    <div class="sub">User ID auto-generate hogi</div>
+    <form method="post" action="{% url 'leads:add_lead' %}">
+      {% csrf_token %}
+      <div class="field"><label>Naam</label>{{ lead_form.name }}</div>
+      <div class="field-row">
+        <div class="field"><label>Phone Number</label>{{ lead_form.phone }}</div>
+        <div class="field"><label>Shehar (City)</label>{{ lead_form.city }}</div>
+      </div>
+      <div class="field"><label>Budget (₹)</label>{{ lead_form.budget }}</div>
+      <div class="field"><label>Note (optional)</label>{{ lead_form.note }}</div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('addOverlay')">Cancel</button>
+        <button type="submit" class="btn btn-gold">Save Lead</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ EDIT LEAD MODAL ============ -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <button class="close-x" onclick="closeModal('editOverlay')">✕</button>
+    <h3>Lead Edit Karein</h3>
+    <div class="sub" id="editSub"></div>
+    <form method="post" id="editForm">
+      {% csrf_token %}
+      <div class="field"><label>Naam</label><input type="text" name="name" id="editName" required></div>
+      <div class="field-row">
+        <div class="field"><label>Phone Number</label><input type="text" name="phone" id="editPhone" required></div>
+        <div class="field"><label>Shehar (City)</label><input type="text" name="city" id="editCity" required></div>
+      </div>
+      <div class="field"><label>Budget (₹)</label><input type="text" name="budget" id="editBudget" required></div>
+      <div class="field"><label>Note (optional)</label><input type="text" name="note" id="editNote"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('editOverlay')">Cancel</button>
+        <button type="submit" class="btn btn-gold">Update Lead</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ ADD UPDATE MODAL ============ -->
+<div class="overlay" id="updateOverlay">
+  <div class="modal">
+    <button class="close-x" onclick="closeModal('updateOverlay')">✕</button>
+    <h3>Status Update Add Karein</h3>
+    <div class="sub" id="updateSub"></div>
+    <form method="post" id="updateForm">
+      {% csrf_token %}
+      <div class="field">
+        <label>Update Text</label>
+        <textarea name="text" placeholder="Jaise: 2 rooms dekh chuka hai / pasand aa gaya / book kar liya..." required></textarea>
+      </div>
+      <div class="field">
+        <label>Isi ke saath status bhi badlein (optional)</label>
+        <select name="status">
+          <option value="">-- No change --</option>
+          {% for value, label in status_choices %}
+            <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('updateOverlay')">Cancel</button>
+        <button type="submit" class="btn btn-gold">Add Update</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ HISTORY MODAL ============ -->
+<div class="overlay" id="historyOverlay">
+  <div class="modal">
+    <button class="close-x" onclick="closeModal('historyOverlay')">✕</button>
+    <h3 id="historyTitle">Poora Status History</h3>
+    <div class="sub" id="historySub"></div>
+    <div class="timeline" id="historyList"></div>
+  </div>
+</div>
+
+<script>
+function openAddModal(){ document.getElementById('addOverlay').classList.add('show'); }
+
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+function openEditModal(btn){
+  const d = btn.dataset;
+  document.getElementById('editForm').action = d.editUrl;
+  document.getElementById('editSub').textContent = d.leadId;
+  document.getElementById('editName').value = d.name;
+  document.getElementById('editPhone').value = d.phone;
+  document.getElementById('editCity').value = d.city;
+  document.getElementById('editBudget').value = d.budget;
+  document.getElementById('editNote').value = d.note;
+  document.getElementById('editOverlay').classList.add('show');
+}
+
+function openUpdateModal(btn){
+  const d = btn.dataset;
+  document.getElementById('updateForm').action = d.updateUrl;
+  document.getElementById('updateSub').textContent = d.leadId + ' · ' + d.name;
+  document.getElementById('updateOverlay').classList.add('show');
+}
+
+function openHistoryModal(btn){
+  const d = btn.dataset;
+  document.getElementById('historyTitle').textContent = d.name + ' — Poora History';
+  document.getElementById('historySub').textContent = d.leadId + ' · ' + d.city;
+  let hist = [];
+  try { hist = JSON.parse(document.getElementById('hist-' + d.leadId).textContent); } catch(e){ hist = []; }
+  const labels = {active:'Active', booked:'Booked', lost:'Lost'};
+  const list = document.getElementById('historyList');
+  if(!hist.length){
+    list.innerHTML = '<div class="empty-note">Abhi tak koi update nahi hai</div>';
+  } else {
+    list.innerHTML = hist.slice().reverse().map(h => `
+      <div class="timeline-item">
+        <span class="t-status ${h.status}">${labels[h.status] || h.status}</span>
+        <div class="t-text">${h.text}</div>
+        <div class="t-meta">${h.who} · ${h.time}</div>
+      </div>`).join('');
+  }
+  document.getElementById('historyOverlay').classList.add('show');
+}
+
+document.querySelectorAll('.overlay').forEach(ov=>{
+  ov.addEventListener('click', e=>{ if(e.target === ov) ov.classList.remove('show'); });
+});
+</script>
+{% endblock %}

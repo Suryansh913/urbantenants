@@ -1,0 +1,63 @@
+<div class="card">
+  <div class="card-top">
+    <div>
+      <div class="card-name">{{ lead.name }}</div>
+      <div class="card-id mono">{{ lead.lead_id }}</div>
+    </div>
+  </div>
+  <div class="card-meta">
+    📞 <a href="tel:{{ lead.phone }}">{{ lead.phone }}</a><br>
+    📍 {{ lead.city }} &nbsp;·&nbsp; ₹{{ lead.budget }}
+    {% if lead.note %}<br>📝 {{ lead.note }}{% endif %}
+  </div>
+  <div class="card-date">Added: {{ lead.created_at|date:"d M, h:i A" }}</div>
+
+  {% if lead.latest_update %}
+  <div class="card-latest">
+    <span class="who">{{ lead.latest_update.employee.name|default:"Employee" }} · {{ lead.latest_update.created_at|date:"d M, h:i A" }}</span>
+    {{ lead.latest_update.text }}
+  </div>
+  {% endif %}
+
+  <div class="card-actions">
+    {% for value, label in status_choices %}
+      {% if value != lead.status %}
+      <form method="post" action="{% url 'leads:set_status' lead.lead_id %}" class="inline-pill">
+        {% csrf_token %}
+        <input type="hidden" name="status" value="{{ value }}">
+        <button type="submit" class="pill">→ {{ label }}</button>
+      </form>
+      {% endif %}
+    {% endfor %}
+
+    <button type="button" class="pill"
+      onclick="openUpdateModal(this)"
+      data-lead-id="{{ lead.lead_id }}"
+      data-name="{{ lead.name }}"
+      data-update-url="{% url 'leads:add_update' lead.lead_id %}">+ Update</button>
+
+    <button type="button" class="pill"
+      onclick="openHistoryModal(this)"
+      data-lead-id="{{ lead.lead_id }}"
+      data-name="{{ lead.name }}"
+      data-city="{{ lead.city }}">History ({{ lead.history_count }})</button>
+
+    <button type="button" class="pill"
+      onclick="openEditModal(this)"
+      data-lead-id="{{ lead.lead_id }}"
+      data-name="{{ lead.name }}"
+      data-phone="{{ lead.phone }}"
+      data-city="{{ lead.city }}"
+      data-budget="{{ lead.budget }}"
+      data-note="{{ lead.note }}"
+      data-edit-url="{% url 'leads:edit_lead' lead.lead_id %}">Edit</button>
+
+    <form method="post" action="{% url 'leads:delete_lead' lead.lead_id %}" class="inline-pill"
+      onsubmit="return confirm('{{ lead.name }} ka lead delete karein?');">
+      {% csrf_token %}
+      <button type="submit" class="pill danger">Delete</button>
+    </form>
+  </div>
+
+  {{ lead.history_data|json_script:lead.hist_id }}
+</div>

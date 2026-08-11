@@ -101,6 +101,7 @@ urlpatterns = [
     path('api/listings-geojson/', views.listings_geojson, name='listings_geojson'),
     path('quiz/', views.room_hunt_view, name='index'),
     path('api/submit-score/', views.submit_score, name='submit_score'),
+    path("leads/", include("leads.urls"))
 
 
 

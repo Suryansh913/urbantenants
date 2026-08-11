@@ -1,0 +1,23 @@
+{% extends "leads/urbantents_layout.html" %}
+{% block title %}UrbanTents · Login{% endblock %}
+{% block content %}
+<div class="gate-wrap">
+  <svg width="56" height="56" viewBox="0 0 64 64" fill="none">
+    <path d="M32 8 L58 52 H6 L32 8Z" stroke="#C9A227" stroke-width="3" fill="none" stroke-linejoin="round"/>
+    <path d="M32 8 L32 52" stroke="#C9A227" stroke-width="2"/>
+    <path d="M20 52 L32 30 L44 52" stroke="#6FA287" stroke-width="2" fill="none"/>
+  </svg>
+  <h1>UrbanTents</h1>
+  <p>Ye dashboard sirf UrbanTents employees ke liye hai. Aage badhne ke liye apna naam aur employee passcode daalein.</p>
+  <form method="post" class="gate-box">
+    {% csrf_token %}
+    {{ form.name }}
+    {{ form.passcode }}
+    {% if form.errors %}
+      <div class="gate-err">Apna naam aur sahi passcode daalein.</div>
+    {% endif %}
+    <button type="submit" class="btn btn-gold" style="width:100%">Enter Dashboard</button>
+  </form>
+  <div class="gate-hint">Passcode <code>settings.URBANTENTS_PASSCODE</code> se set hota hai (default: <b>URBANTENTS2026</b>).</div>
+</div>
+{% endblock %}
