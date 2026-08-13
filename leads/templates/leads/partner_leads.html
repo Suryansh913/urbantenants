@@ -1,0 +1,166 @@
+{% extends "leads/urbantents_layout.html" %}
+{% comment %}
+  If your urbantents_layout.html uses a different block name than "content",
+  change {% block content %} below to match it.
+{% endcomment %}
+
+{% block content %}
+<div class="pl-wrap">
+
+    <div class="pl-header">
+        <div>
+            <h2>Partner Leads</h2>
+            <p class="pl-sub">{{ partners|length }} partner{{ partners|length|pluralize }} listed</p>
+        </div>
+        <button type="button" onclick="document.getElementById('add-partner-form').classList.toggle('open')" class="pl-btn pl-btn-primary">
+            + Naya Partner
+        </button>
+    </div>
+
+    <form method="get" class="pl-search">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search: naam, phone, location, listing id...">
+        <button type="submit" class="pl-btn">Search</button>
+    </form>
+
+    <div id="add-partner-form" class="pl-card pl-add-form">
+        <form method="post" action="{% url 'leads:add_partner_lead' %}">
+            {% csrf_token %}
+            {{ partner_form.as_p }}
+            <button type="submit" class="pl-btn pl-btn-primary">Add Partner Lead</button>
+        </form>
+    </div>
+
+    <div class="pl-card pl-table-wrap">
+    <table class="pl-table">
+        <thead>
+            <tr>
+                <th>Listing ID</th>
+                <th>Partner Name</th>
+                <th>Phone</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Contacted</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in partners %}
+            <tr>
+                <td class="pl-mono">{{ p.listing_id }}</td>
+                <td class="pl-strong">{{ p.partner_name }}</td>
+                <td>{{ p.phone }}</td>
+                <td>{{ p.location }}</td>
+                <td><span class="pl-badge pl-badge-{{ p.status }}">{{ p.get_status_display }}</span></td>
+                <td>
+                    <details class="pl-tags">
+                        <summary>Contact status</summary>
+                        <div class="pl-tag-list">
+                            {% for row in p.tag_rows %}
+                            <form method="post" action="{% url 'leads:toggle_partner_tag' p.listing_id row.tag %}" class="pl-tag-form">
+                                {% csrf_token %}
+                                <label class="pl-chip {% if row.checked %}pl-chip-on{% endif %}">
+                                    <input type="checkbox" {% if row.checked %}checked{% endif %} onchange="this.form.requestSubmit()">
+                                    <span class="pl-chip-dot"></span>
+                                    <span class="pl-chip-label">{{ row.label }}</span>
+                                    {% if row.date %}<span class="pl-chip-date">{{ row.date }}</span>{% endif %}
+                                </label>
+                            </form>
+                            {% endfor %}
+                        </div>
+                    </details>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="pl-empty">Koi partner lead nahi mila.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+</div>
+
+<style>
+.pl-wrap { color:#1f2430; }
+
+.pl-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px; }
+.pl-header h2 { margin:0 0 4px 0; font-size:22px; font-weight:700; }
+.pl-sub { margin:0; font-size:13px; color:#7b8494; }
+
+.pl-btn {
+    background:#fff; border:1px solid #dde1e8; color:#1f2430;
+    padding:9px 16px; border-radius:8px; font-size:14px; cursor:pointer;
+    transition:background .15s ease;
+}
+.pl-btn:hover { background:#f4f6f9; }
+.pl-btn-primary { background:#2f6feb; border-color:#2f6feb; color:#fff; }
+.pl-btn-primary:hover { background:#255ac2; }
+
+.pl-search { display:flex; gap:8px; margin-bottom:16px; }
+.pl-search input {
+    flex:1; max-width:340px; padding:9px 14px; border:1px solid #dde1e8;
+    border-radius:8px; font-size:14px; background:#fff;
+}
+.pl-search input:focus { outline:none; border-color:#2f6feb; }
+
+.pl-card {
+    background:#fff; border:1px solid #e7eaf0; border-radius:12px;
+    box-shadow:0 1px 3px rgba(20,25,40,0.04);
+}
+
+.pl-add-form { display:none; padding:20px; margin-bottom:18px; }
+.pl-add-form.open { display:block; }
+.pl-add-form p { margin:0 0 12px 0; }
+.pl-add-form input, .pl-add-form select {
+    width:100%; padding:8px 12px; border:1px solid #dde1e8; border-radius:7px;
+    font-size:14px; margin-top:4px; box-sizing:border-box;
+}
+.pl-add-form label { font-size:13px; color:#5a6272; font-weight:600; }
+
+.pl-table-wrap { overflow-x:auto; }
+.pl-table { width:100%; border-collapse:collapse; font-size:14px; }
+.pl-table th {
+    text-align:left; padding:12px 16px; background:#f8f9fb; color:#7b8494;
+    font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.03em;
+    border-bottom:1px solid #e7eaf0;
+}
+.pl-table td { padding:14px 16px; border-bottom:1px solid #f0f1f5; vertical-align:top; }
+.pl-table tr:last-child td { border-bottom:none; }
+.pl-table tr:hover td { background:#fafbfc; }
+
+.pl-mono { font-family:ui-monospace,monospace; color:#7b8494; font-size:13px; }
+.pl-strong { font-weight:600; }
+.pl-empty { text-align:center; color:#9aa2b1; padding:32px 0; }
+
+.pl-badge { padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600; }
+.pl-badge-active { background:#e4f6ea; color:#1f9d55; }
+.pl-badge-inactive { background:#eceff3; color:#6b7280; }
+
+.pl-tags summary {
+    cursor:pointer; font-size:13px; color:#2f6feb; font-weight:600;
+    list-style:none; display:inline-flex; align-items:center; gap:6px;
+}
+.pl-tags summary::-webkit-details-marker { display:none; }
+.pl-tags summary::before { content:"▸"; color:#9aa2b1; font-size:11px; }
+.pl-tags[open] summary::before { content:"▾"; }
+
+.pl-tag-list {
+    margin-top:10px; display:flex; flex-direction:column; gap:6px;
+    max-height:220px; overflow-y:auto; padding-right:4px;
+}
+.pl-chip {
+    display:flex; align-items:center; gap:8px; padding:6px 10px;
+    border:1px solid #e7eaf0; border-radius:8px; font-size:12.5px;
+    cursor:pointer; background:#fafbfc; transition:all .12s ease;
+}
+.pl-chip:hover { border-color:#c8cedb; }
+.pl-chip input { display:none; }
+.pl-chip-dot {
+    width:8px; height:8px; border-radius:50%; background:#d3d7e0; flex-shrink:0;
+}
+.pl-chip-on { background:#eaf6ee; border-color:#bfe6cb; }
+.pl-chip-on .pl-chip-dot { background:#1f9d55; }
+.pl-chip-on .pl-chip-label { color:#1f9d55; font-weight:600; }
+.pl-chip-label { flex:1; color:#3a3f4c; }
+.pl-chip-date { font-size:11px; color:#9aa2b1; }
+.pl-chip-on .pl-chip-date { color:#1f9d55; }
+</style>
+{% endblock %}

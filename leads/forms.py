@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Lead
+from .models import Lead,CustomerLead,PartnerLead
 
 
 class LoginForm(forms.Form):
@@ -42,3 +42,33 @@ class UpdateForm(forms.Form):
         choices=[("", "Isi ke saath status bhi badlein (optional)")] + Lead.STATUS_CHOICES,
         required=False,
     )
+
+
+
+
+# ============================================================
+# ADD THIS TO forms.py
+# Update the top import line to also pull in PartnerLead, CustomerLead:
+#   from .models import Lead, PartnerLead, CustomerLead
+# ============================================================
+
+class PartnerLeadForm(forms.ModelForm):
+    class Meta:
+        model = PartnerLead
+        fields = ["listing_id","partner_name", "phone", "location", "status"]
+        widgets = {
+            "partner_name": forms.TextInput(attrs={"placeholder": "Partner ka naam"}),
+            "phone": forms.TextInput(attrs={"placeholder": "98xxxxxxxx"}),
+            "location": forms.TextInput(attrs={"placeholder": "Kakadeo"}),
+        }
+
+
+class CustomerLeadForm(forms.ModelForm):
+    class Meta:
+        model = CustomerLead
+        fields = ["customer_name", "phone", "requirement"]
+        widgets = {
+            "customer_name": forms.TextInput(attrs={"placeholder": "Customer ka naam"}),
+            "phone": forms.TextInput(attrs={"placeholder": "98xxxxxxxx"}),
+            "requirement": forms.TextInput(attrs={"placeholder": "1 RK, Kanpur"}),
+        }

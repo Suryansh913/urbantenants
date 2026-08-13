@@ -1,0 +1,394 @@
+{% extends "leads/urbantents_layout.html" %}
+{% comment %}
+  If your urbantenants_layout.html uses a different block name than "content",
+  change {% block content %} below to match it.
+{% endcomment %}
+
+{% block content %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap');
+
+  .ut-scope {
+    --ink:        #12161d;
+    --panel:      #1a212b;
+    --panel-2:    #212936;
+    --line:       #2b3441;
+    --text:       #eceff3;
+    --text-muted: #8b94a3;
+    --accent:     #2f9e7a;
+    --accent-soft: rgba(47,158,122,0.14);
+    --accent-2:   #d9b382;
+    --danger:     #c96a5a;
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--text);
+  }
+
+  /* ---------- Header ---------- */
+  .ut-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+    background-image: repeating-linear-gradient(
+      to bottom, transparent 0 27px, var(--line) 27px 28px
+    );
+    background-position: bottom;
+    background-repeat: no-repeat;
+    background-size: 100% 4px;
+  }
+  .ut-eyebrow {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .ut-title {
+    font-family: 'Fraunces', serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-size: 30px;
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--text);
+  }
+  .ut-title .count {
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    margin-left: 10px;
+  }
+
+  .ut-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #0d1712;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  .ut-btn:hover { background: #3bb98e; transform: translateY(-1px); }
+  .ut-btn:active { transform: translateY(0); }
+  .ut-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* ---------- Search ---------- */
+  .ut-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 4px 6px 4px 14px;
+    margin-bottom: 20px;
+    max-width: 420px;
+    transition: border-color 0.15s ease;
+  }
+  .ut-search:focus-within { border-color: var(--accent); }
+  .ut-search svg { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+  .ut-search input[type="text"] {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 8px 0;
+  }
+  .ut-search input[type="text"]::placeholder { color: var(--text-muted); }
+  .ut-search button {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .ut-search button:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ---------- Add lead panel ---------- */
+  .ut-add-form {
+    display: none;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-bottom: 22px;
+  }
+  .ut-add-form.open { display: block; animation: ut-drop 0.18s ease; }
+  @keyframes ut-drop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .ut-add-form h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 18px;
+    margin: 0 0 16px 0;
+  }
+  .ut-add-form p { margin: 0 0 14px 0; }
+  .ut-add-form label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .ut-add-form input,
+  .ut-add-form select,
+  .ut-add-form textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+  .ut-add-form input:focus,
+  .ut-add-form select:focus,
+  .ut-add-form textarea:focus { border-color: var(--accent); }
+  .ut-add-form .ut-btn { margin-top: 4px; }
+
+  /* ---------- Table ---------- */
+  .ut-table-wrap {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .ut-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .ut-table thead th {
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 14px 16px;
+    background: var(--panel-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .ut-table tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+    color: var(--text);
+  }
+  .ut-table tbody tr:last-child td { border-bottom: none; }
+  .ut-table tbody tr { transition: background 0.12s ease; }
+  .ut-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  .ut-id { color: var(--text-muted); font-variant-numeric: tabular-nums; font-size: 13px; }
+
+  .ut-name-cell { display: flex; align-items: center; gap: 10px; }
+  .ut-avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .ut-name { font-weight: 500; }
+
+  .ut-phone { font-variant-numeric: tabular-nums; color: var(--text); }
+  .ut-phone a { color: inherit; text-decoration: none; }
+  .ut-phone a:hover { color: var(--accent); }
+
+  .ut-requirement {
+    color: var(--text-muted);
+    max-width: 260px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .ut-empty { text-align: center; padding: 40px 16px; color: var(--text-muted); }
+
+  /* ---------- Contacted toggle ---------- */
+  .contact-toggle-form { margin: 0; }
+  .contact-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .contact-check input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 34px;
+    height: 20px;
+    border-radius: 20px;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    flex-shrink: 0;
+  }
+  .contact-check input[type="checkbox"]::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  .contact-check input[type="checkbox"]:checked {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+  .contact-check input[type="checkbox"]:checked::after {
+    transform: translateX(14px);
+    background: var(--accent);
+  }
+  .contact-date {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .contact-history { margin-top: 8px; font-size: 12px; }
+  .contact-history summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 500;
+    list-style: none;
+  }
+  .contact-history summary::-webkit-details-marker { display: none; }
+  .contact-history summary::before { content: '›  '; }
+  .contact-history[open] summary::before { content: '⌄  '; }
+  .contact-history ul {
+    margin: 8px 0 0 0;
+    padding-left: 0;
+    list-style: none;
+    border-left: 1px solid var(--line);
+  }
+  .contact-history li {
+    position: relative;
+    padding: 0 0 8px 16px;
+    color: var(--text-muted);
+  }
+  .contact-history li::before {
+    content: '';
+    position: absolute;
+    left: -4px; top: 4px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+</style>
+
+<div class="ut-scope">
+
+  <div class="ut-header">
+    <div>
+      <span class="ut-eyebrow">Leads · Urban Tenants</span>
+      <h2 class="ut-title">Customer Leads<span class="count">{{ customers|length }}</span></h2>
+    </div>
+    <button type="button" onclick="document.getElementById('add-customer-form').classList.toggle('open')" class="ut-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Naya Customer
+    </button>
+  </div>
+
+  <form method="get" class="ut-search">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" name="q" value="{{ query }}" placeholder="Search: naam, phone, requirement, customer id...">
+    <button type="submit">Search</button>
+  </form>
+
+  <div id="add-customer-form" class="ut-add-form">
+    <h3>Add a customer lead</h3>
+    <form method="post" action="{% url 'leads:add_customer_lead' %}">
+      {% csrf_token %}
+      {{ customer_form.as_p }}
+      <button type="submit" class="ut-btn">Add Customer Lead</button>
+    </form>
+  </div>
+
+  <div class="ut-table-wrap">
+    <table class="ut-table">
+      <thead>
+        <tr>
+          <th>Customer ID</th>
+          <th>Customer</th>
+          <th>Phone</th>
+          <th>Requirement</th>
+          <th>Contacted</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in customers %}
+        <tr>
+          <td class="ut-id">{{ c.customer_id }}</td>
+          <td>
+            <div class="ut-name-cell">
+              <span class="ut-avatar">{{ c.customer_name|first|upper }}</span>
+              <span class="ut-name">{{ c.customer_name }}</span>
+            </div>
+          </td>
+          <td class="ut-phone"><a href="tel:{{ c.phone }}">{{ c.phone }}</a></td>
+          <td class="ut-requirement">{{ c.requirement }}</td>
+          <td>
+            <form method="post" action="{% url 'leads:toggle_customer_contacted' c.customer_id %}" class="contact-toggle-form">
+              {% csrf_token %}
+              <label class="contact-check">
+                <input
+                  type="checkbox"
+                  name="contacted"
+                  {% if c.contacted %}checked{% endif %}
+                  onchange="this.form.requestSubmit()"
+                >
+                {% if c.latest %}
+                  <span class="contact-date">{{ c.latest.contacted_date|date:"d M Y" }}</span>
+                {% endif %}
+              </label>
+            </form>
+
+            {% if c.history_data %}
+            <details class="contact-history">
+              <summary>History ({{ c.history_data|length }})</summary>
+              <ul>
+                {% for h in c.history_data %}
+                <li>{{ h.date }} — {{ h.who }}</li>
+                {% endfor %}
+              </ul>
+            </details>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="ut-empty">Koi customer lead nahi mila.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}

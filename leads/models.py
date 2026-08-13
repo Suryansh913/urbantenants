@@ -65,3 +65,109 @@ class StatusUpdate(models.Model):
 
     def __str__(self):
         return f"{self.lead.lead_id} · {self.status} · {self.created_at:%d %b %H:%M}"
+
+
+
+    # ============================================================
+# ADD THIS TO models.py (existing file already has Employee, Lead, StatusUpdate)
+# Uses the same `random`, `string`, `models` imports already at the top of models.py
+# Also needs: from django.utils import timezone
+# ============================================================
+
+from django.utils import timezone  # add this import at top of models.py if not already there
+
+
+def generate_partner_listing_id():
+    """UT10XX style unique id for a partner lead, e.g. UT1025"""
+    while True:
+        code = "UT" + "".join(random.choices(string.digits, k=4))
+        if not PartnerLead.objects.filter(listing_id=code).exists():
+            return code
+
+
+def generate_customer_lead_id():
+    """C10XX style unique id for a customer lead, e.g. C1021"""
+    while True:
+        code = "C" + "".join(random.choices(string.digits, k=4))
+        if not CustomerLead.objects.filter(customer_id=code).exists():
+            return code
+
+
+class PartnerLead(models.Model):
+    STATUS_ACTIVE = "active"
+    STATUS_INACTIVE = "inactive"
+    STATUS_CHOICES = [
+        (STATUS_ACTIVE, "Active"),
+        (STATUS_INACTIVE, "Inactive"),
+    ]
+
+    listing_id = models.CharField(max_length=20, unique=True, verbose_name="Listing ID")
+    partner_name = models.CharField(max_length=150, verbose_name="Partner Naam")
+    phone = models.CharField(max_length=20, verbose_name="Phone Number")
+    location = models.CharField(max_length=150, blank=True, verbose_name="Location")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_ACTIVE)
+
+    # quick-filter flag — always mirrors whether the latest action was a "tick"
+    contacted = models.BooleanField(default=False)
+    next_followup = models.DateField(null=True, blank=True, verbose_name="Next Follow-up")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.listing_id} · {self.partner_name}"
+
+    def latest_contact(self):
+        return self.contact_logs.order_by("-contacted_date", "-id").first()
+
+
+class PartnerContactLog(models.Model):
+    """One row per tick — full contact history, never overwritten."""
+    lead = models.ForeignKey(PartnerLead, on_delete=models.CASCADE, related_name="contact_logs")
+    contacted_date = models.DateField(default=timezone.localdate)
+    contacted_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    note = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        ordering = ["-contacted_date", "-id"]
+
+    def __str__(self):
+        return f"{self.lead.listing_id} · {self.contacted_date:%d %b %Y}"
+
+
+class CustomerLead(models.Model):
+    customer_id = models.CharField(max_length=20, unique=True, default=generate_customer_lead_id, editable=False)
+    customer_name = models.CharField(max_length=150, verbose_name="Customer Naam")
+    phone = models.CharField(max_length=20, verbose_name="Phone Number")
+    requirement = models.CharField(max_length=255, blank=True, verbose_name="Requirement")
+
+    contacted = models.BooleanField(default=False)
+    next_followup = models.DateField(null=True, blank=True, verbose_name="Next Follow-up")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.customer_id} · {self.customer_name}"
+
+    def latest_contact(self):
+        return self.contact_logs.order_by("-contacted_date", "-id").first()
+
+
+class CustomerContactLog(models.Model):
+    lead = models.ForeignKey(CustomerLead, on_delete=models.CASCADE, related_name="contact_logs")
+    contacted_date = models.DateField(default=timezone.localdate)
+    contacted_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    note = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        ordering = ["-contacted_date", "-id"]
+
+    def __str__(self):
+        return f"{self.lead.customer_id} · {self.contacted_date:%d %b %Y}"

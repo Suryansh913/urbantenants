@@ -14,6 +14,8 @@
       <span>Employee Lead Dashboard · {{ employee_name }}</span>
     </div>
   </div>
+  <a href="{% url 'leads:partner_leads' %}">Partner Leads</a>
+  <a href="{% url 'leads:customer_leads' %}">Customer Leads</a>
   <div class="stats">
     <div class="stat"><b>{{ total }}</b><small>Total</small></div>
     <div class="stat"><b>{{ leads_active|length }}</b><small>Active</small></div>

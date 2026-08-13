@@ -7,8 +7,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
-from .forms import LeadForm, LoginForm, UpdateForm
-from .models import Employee, Lead, StatusUpdate
+from .forms import LeadForm, LoginForm, UpdateForm,PartnerLeadForm,CustomerLeadForm
+from .models import Employee, Lead, StatusUpdate,PartnerLead,PartnerContactLog,CustomerLead,CustomerContactLog
 
 # Set URBANTENTS_PASSCODE in your project settings.py to override the default.
 EMPLOYEE_PASSCODE = getattr(settings, "URBANTENTS_PASSCODE", "URBANTENTS2026")
@@ -183,3 +183,152 @@ def add_update(request, lead_id):
     else:
         messages.error(request, "Update text likhna zaroori hai")
     return redirect("leads:dashboard")
+
+
+# ============================================================
+# ADD THIS TO views.py
+# Update the top imports:
+#   from .forms import LeadForm, LoginForm, UpdateForm, PartnerLeadForm, CustomerLeadForm
+#   from .models import (
+#       Employee, Lead, StatusUpdate,
+#       PartnerLead, PartnerContactLog, CustomerLead, CustomerContactLog,
+#   )
+# (employee_required decorator, Q, timezone, get_object_or_404, redirect, render,
+#  require_POST are already imported in your existing views.py)
+# ============================================================
+
+
+# ---------------- PARTNER LEADS ----------------
+
+@employee_required
+def partner_leads(request):
+    query = request.GET.get("q", "").strip()
+
+    partners = PartnerLead.objects.prefetch_related("contact_logs__contacted_by")
+    if query:
+        partners = partners.filter(
+            Q(partner_name__icontains=query)
+            | Q(phone__icontains=query)
+            | Q(location__icontains=query)
+            | Q(listing_id__icontains=query)
+        )
+    partners = list(partners)
+
+    for p in partners:
+        logs = list(p.contact_logs.all())
+        p.history_data = [
+            {
+                "date": log.contacted_date.strftime("%d %b %Y"),
+                "who": log.contacted_by.name if log.contacted_by else "Employee",
+            }
+            for log in logs
+        ]
+        p.latest = logs[0] if logs else None
+
+    context = {
+        "partners": partners,
+        "employee_name": request.session.get("employee_name"),
+        "query": query,
+        "partner_form": PartnerLeadForm(),
+    }
+    return render(request, "leads/partner_leads.html", context)
+
+
+@employee_required
+@require_POST
+def add_partner_lead(request):
+    form = PartnerLeadForm(request.POST)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Naya partner lead add ho gaya")
+    else:
+        messages.error(request, "Form me error hai — Naam aur Phone zaroori hain")
+    return redirect("leads:partner_leads")
+
+
+@employee_required
+@require_POST
+def toggle_partner_contacted(request, listing_id):
+    partner = get_object_or_404(PartnerLead, listing_id=listing_id)
+    employee = Employee.objects.filter(id=request.session["employee_id"]).first()
+    checked = request.POST.get("contacted") == "on"
+
+    partner.contacted = checked
+    partner.save(update_fields=["contacted", "updated_at"])
+
+    if checked:
+        # Every tick creates a new history row — nothing gets overwritten.
+        PartnerContactLog.objects.create(lead=partner, contacted_by=employee)
+        messages.success(request, f"{partner.partner_name} — contacted mark ho gaya ({timezone.localdate():%d %b %Y})")
+    else:
+        # Untick only flips the quick-filter flag; history stays intact for audit.
+        messages.success(request, f"{partner.partner_name} — unmark kar diya")
+
+    return redirect("leads:partner_leads")
+
+
+# ---------------- CUSTOMER LEADS ----------------
+
+@employee_required
+def customer_leads(request):
+    query = request.GET.get("q", "").strip()
+
+    customers = CustomerLead.objects.prefetch_related("contact_logs__contacted_by")
+    if query:
+        customers = customers.filter(
+            Q(customer_name__icontains=query)
+            | Q(phone__icontains=query)
+            | Q(requirement__icontains=query)
+            | Q(customer_id__icontains=query)
+        )
+    customers = list(customers)
+
+    for c in customers:
+        logs = list(c.contact_logs.all())
+        c.history_data = [
+            {
+                "date": log.contacted_date.strftime("%d %b %Y"),
+                "who": log.contacted_by.name if log.contacted_by else "Employee",
+            }
+            for log in logs
+        ]
+        c.latest = logs[0] if logs else None
+
+    context = {
+        "customers": customers,
+        "employee_name": request.session.get("employee_name"),
+        "query": query,
+        "customer_form": CustomerLeadForm(),
+    }
+    return render(request, "leads/customer_leads.html", context)
+
+
+@employee_required
+@require_POST
+def add_customer_lead(request):
+    form = CustomerLeadForm(request.POST)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Naya customer lead add ho gaya")
+    else:
+        messages.error(request, "Form me error hai — Naam aur Phone zaroori hain")
+    return redirect("leads:customer_leads")
+
+
+@employee_required
+@require_POST
+def toggle_customer_contacted(request, customer_id):
+    customer = get_object_or_404(CustomerLead, customer_id=customer_id)
+    employee = Employee.objects.filter(id=request.session["employee_id"]).first()
+    checked = request.POST.get("contacted") == "on"
+
+    customer.contacted = checked
+    customer.save(update_fields=["contacted", "updated_at"])
+
+    if checked:
+        CustomerContactLog.objects.create(lead=customer, contacted_by=employee)
+        messages.success(request, f"{customer.customer_name} — contacted mark ho gaya ({timezone.localdate():%d %b %Y})")
+    else:
+        messages.success(request, f"{customer.customer_name} — unmark kar diya")
+
+    return redirect("leads:customer_leads")
