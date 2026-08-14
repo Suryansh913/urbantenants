@@ -187,12 +187,15 @@ def room(request, id):
             'desc': f'Unlimited chats · valid {ChatSubscription.VALIDITY_DAYS} days',
         },
     ]
-
+    is_liked = False
+    if request.user.is_authenticated:
+        is_liked = roomd.likes.filter(user=request.user).exists()
     return render(request, "room.html", {
         'room': roomd,
         'images': images,
         'data': data,
         'reviews': reviews,
+        'is_liked': is_liked,
         'star_bars': star_bars,
         'final_price': final_price,
         'whatsapp_number': whatsapp_number,
@@ -1146,3 +1149,28 @@ def submit_score(request):
         return JsonResponse({'error': 'This phone number has already played'}, status=409)
 
     return JsonResponse({'id': participant.id})
+
+
+
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from listings.models import RoomLike
+
+@login_required
+@require_POST
+def toggle_like(request, room_id):
+    room = get_object_or_404(listings, id=room_id)
+    like, created = RoomLike.objects.get_or_create(room=room, user=request.user)
+
+    if not created:
+        like.delete()
+        liked = False
+    else:
+        liked = True
+
+    return JsonResponse({
+        'success': True,
+        'liked': liked,
+        'like_count': room.likes.count()
+    })

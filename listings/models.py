@@ -86,6 +86,9 @@ class listings(models.Model):
     @property
     def total_reviews(self):
         return self.ratings.count()
+    @property
+    def like_count(self):
+        return self.likes.count()
 
 class Booking(models.Model):
     listings = models.ForeignKey(listings, on_delete=models.CASCADE)
@@ -412,3 +415,17 @@ class ChatSubscription(models.Model):
         if sub and sub.is_active():
             return sub
         return None
+
+
+
+
+class RoomLike(models.Model):
+    room = models.ForeignKey(listings, on_delete=models.CASCADE, related_name='likes')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='room_likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('room', 'user')
+
+    def __str__(self):
+        return f"{self.user.username} liked {self.room.Room_title}"

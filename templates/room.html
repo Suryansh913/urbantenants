@@ -174,9 +174,14 @@
       font-weight: 700; pointer-events: none;
     }
 
+    /* GALLERY TOP-RIGHT ACTIONS (like + share) */
+    .gallery-actions {
+      position: absolute; top: 16px; right: 16px; z-index: 3;
+      display: flex; align-items: center; gap: 8px;
+    }
+
     /* SHARE BUTTON (on gallery) */
     .share-pill {
-      position: absolute; top: 16px; right: 16px; z-index: 3;
       display: flex; align-items: center; gap: 7px;
       background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
       color: var(--neutral-900); font-size: 13px; font-weight: 600;
@@ -185,6 +190,40 @@
     }
     .share-pill:hover { background: #fff; transform: translateY(-1px); }
     .share-pill svg { width: 16px; height: 16px; }
+
+    /* LIKE BUTTON (on gallery) */
+    .like-pill {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
+      color: var(--neutral-900); font-size: 13px; font-weight: 600;
+      padding: 9px 14px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.4);
+      cursor: pointer; box-shadow: var(--shadow-sm); transition: background 0.18s, transform 0.12s;
+    }
+    .like-pill:hover { background: #fff; transform: translateY(-1px); }
+    .like-pill svg { width: 18px; height: 18px; flex-shrink: 0; transition: transform 0.18s ease; }
+    .like-pill.liked svg { fill: #EF4444; stroke: #EF4444; }
+    .like-pill.liked .like-count { color: #EF4444; }
+    .like-pill.pop svg { animation: likePop 0.35s ease; }
+    @keyframes likePop {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.35); }
+      60%  { transform: scale(0.9); }
+      100% { transform: scale(1); }
+    }
+    .like-count { font-variant-numeric: tabular-nums; min-width: 8px; text-align: left; }
+
+    /* Inline like button next to title-row share button */
+    .like-btn-inline {
+      display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+      background: var(--blue-50); color: var(--blue-700); border: 1px solid var(--blue-100);
+      font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 100px;
+      cursor: pointer; transition: background 0.18s;
+    }
+    .like-btn-inline:hover { background: var(--blue-100); }
+    .like-btn-inline svg { width: 15px; height: 15px; transition: transform 0.18s ease; }
+    .like-btn-inline.liked { background: #FEF2F2; color: #EF4444; border-color: #FECACA; }
+    .like-btn-inline.liked svg { fill: #EF4444; stroke: #EF4444; }
+    .like-btn-inline.pop svg { animation: likePop 0.35s ease; }
 
     /* SHARE MENU */
     .share-menu-overlay {
@@ -339,6 +378,7 @@
       font-weight: 700; color: var(--neutral-900); letter-spacing: -0.5px;
       line-height: 1.25; margin-bottom: 0;
     }
+    .title-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .share-btn-inline {
       display: flex; align-items: center; gap: 6px; flex-shrink: 0;
       background: var(--blue-50); color: var(--blue-700); border: 1px solid var(--blue-100);
@@ -600,6 +640,8 @@
       .lb-thumbnails { bottom: 36px; }
       .share-pill span.share-label { display: none; }
       .share-pill { padding: 9px 11px; }
+      .like-pill span.like-label { display: none; }
+      .like-pill { padding: 9px 11px; }
     }
     @media (max-width: 400px) {
       .amenity-grid { grid-template-columns: repeat(2, 1fr); }
@@ -637,10 +679,18 @@
         {% endif %}
       {% endfor %}
       <div class="photo-pill">&#128247; {{ images|length }} Photos</div>
-      <button class="share-pill" id="shareTrigger" type="button" aria-label="Share this listing">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        <span class="share-label">Share</span>
-      </button>
+
+      <div class="gallery-actions">
+        <button class="like-pill" id="likeTrigger" type="button" aria-pressed="{% if is_liked %}true{% else %}false{% endif %}" data-liked="{% if is_liked %}true{% else %}false{% endif %}" aria-label="Like this listing">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="{% if is_liked %}#EF4444{% else %}none{% endif %}" stroke="{% if is_liked %}#EF4444{% else %}currentColor{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+          <span class="like-label">Like</span>
+          <span class="like-count" id="likeCount">{{ room.like_count|default:0 }}</span>
+        </button>
+        <button class="share-pill" id="shareTrigger" type="button" aria-label="Share this listing">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span class="share-label">Share</span>
+        </button>
+      </div>
     </div>
 
     <!-- Content grid -->
@@ -663,10 +713,16 @@
           </div>
           <div class="title-row">
             <h1 class="room-title">{{ room.Room_title }}</h1>
-            <button class="share-btn-inline" id="shareTriggerInline" type="button" aria-label="Share this listing">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-              Share
-            </button>
+            <div class="title-actions">
+              <button class="like-btn-inline" id="likeTriggerInline" type="button" aria-pressed="{% if is_liked %}true{% else %}false{% endif %}" data-liked="{% if is_liked %}true{% else %}false{% endif %}" aria-label="Like this listing">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="{% if is_liked %}#EF4444{% else %}none{% endif %}" stroke="{% if is_liked %}#EF4444{% else %}currentColor{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+                <span id="likeCountInline">{{ room.like_count|default:0 }}</span>
+              </button>
+              <button class="share-btn-inline" id="shareTriggerInline" type="button" aria-label="Share this listing">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Share
+              </button>
+            </div>
           </div>
 
           {% if room.offer.discount_percent %}
@@ -1542,6 +1598,124 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && overlay.classList.contains('active')) closeMenu();
   });
+})();
+
+// ---- LIKE FEATURE ----
+(function () {
+  function getCookie(name) {
+    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return m ? decodeURIComponent(m.pop()) : '';
+  }
+
+  function showLikeToast(text, type) {
+    const t = document.createElement('div');
+    t.className = 'room-toast ' + (type || 'error');
+    t.textContent = text;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  const roomId    = {{ room.id }};
+  const csrftoken = getCookie('csrftoken');
+  const isAuthenticated = {% if request.user.is_authenticated %}true{% else %}false{% endif %};
+
+  const likeBtns  = [document.getElementById('likeTrigger'), document.getElementById('likeTriggerInline')].filter(Boolean);
+  const countEls  = [document.getElementById('likeCount'), document.getElementById('likeCountInline')].filter(Boolean);
+
+  function heartSvg(filled) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="' + (filled ? '#EF4444' : 'none') + '" stroke="' + (filled ? '#EF4444' : 'currentColor') + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>';
+  }
+
+  function paint(liked) {
+    likeBtns.forEach(btn => {
+      btn.dataset.liked = liked ? 'true' : 'false';
+      btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
+      btn.classList.toggle('liked', liked);
+      const svg = btn.querySelector('svg');
+      if (svg) svg.outerHTML = heartSvg(liked);
+    });
+  }
+
+  function setCount(n) {
+    countEls.forEach(el => { el.textContent = n; });
+  }
+
+  function pop() {
+    likeBtns.forEach(btn => {
+      btn.classList.remove('pop');
+      // force reflow so the animation can restart
+      void btn.offsetWidth;
+      btn.classList.add('pop');
+    });
+  }
+
+  if (!likeBtns.length) return;
+
+  let liked = likeBtns[0].dataset.liked === 'true';
+  let busy  = false;
+
+  async function toggleLike() {
+    if (busy) return;
+
+    // If user isn't logged in, don't even attempt the request — tell them directly.
+    if (!isAuthenticated) {
+      showLikeToast('Please login to like this listing.', 'info');
+      return;
+    }
+
+    busy = true;
+
+    const prevLiked = liked;
+    const prevCount = parseInt(countEls[0] ? countEls[0].textContent : '0', 10) || 0;
+
+    // optimistic UI update
+    liked = !liked;
+    paint(liked);
+    setCount(prevCount + (liked ? 1 : -1));
+    pop();
+
+    try {
+      const resp = await fetch(`/room/${roomId}/like/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+
+      // Login redirect usually shows up as a redirected response to an accounts/login URL
+      if (resp.redirected && resp.url.indexOf('login') !== -1) {
+        throw new Error('Session expired. Please login again.');
+      }
+      if (resp.status === 403) {
+        throw new Error('Request blocked (CSRF). Please refresh the page and try again.');
+      }
+      if (resp.status === 404) {
+        throw new Error('Like endpoint not found (check urls.py).');
+      }
+      if (!resp.ok) {
+        throw new Error('Server error (' + resp.status + '). Check server logs.');
+      }
+
+      const data = await resp.json();
+      if (!data || data.success === false) throw new Error('Like could not be saved.');
+
+      // reconcile with server truth
+      if (typeof data.liked === 'boolean') { liked = data.liked; paint(liked); }
+      if (typeof data.like_count === 'number') { setCount(data.like_count); }
+    } catch (err) {
+      console.error('Like error:', err.message);
+      showLikeToast(err.message || 'Could not update like. Please try again.', 'error');
+      // revert on failure
+      liked = prevLiked;
+      paint(liked);
+      setCount(prevCount);
+    } finally {
+      busy = false;
+    }
+  }
+
+  likeBtns.forEach(btn => btn.addEventListener('click', toggleLike));
 })();
 </script>
 
