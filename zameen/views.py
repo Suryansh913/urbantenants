@@ -1080,10 +1080,24 @@ def listings_geojson(request):
     rooms = listings.objects.filter(
         latitude__isnull=False,
         longitude__isnull=False
-    ).only('id', 'Room_title', 'listing_id', 'location_name', 'Room_rent', 'latitude', 'longitude')
+    ).only(
+        'id', 'Room_title', 'listing_id', 'location_name', 'Room_rent',
+        'latitude', 'longitude',
+        'Room_images1', 'Room_images2', 'Room_images3'
+    )
 
     data = []
     for room in rooms:
+        # pick the first available image
+        image_url = None
+        for field in [room.Room_images1, room.Room_images2, room.Room_images3]:
+            if field:
+                try:
+                    image_url = field.url
+                    break
+                except Exception:
+                    continue
+
         data.append({
             'id': room.id,
             'title': room.Room_title,
@@ -1092,11 +1106,11 @@ def listings_geojson(request):
             'rent': room.Room_rent,
             'lat': float(room.latitude),
             'lng': float(room.longitude),
+            'image': image_url,
             'url': reverse('room', args=[room.id]),
         })
 
     return JsonResponse({'results': data})
-
 
 
 

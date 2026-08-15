@@ -267,7 +267,7 @@
     .search-box input {
       border: none; background: none; outline: none;
       font-family: var(--font-mono); font-size: 12.5px; color: var(--n-900);
-      width: 175px;
+      width: 185px;
     }
     .search-box input::placeholder { color: var(--n-400); font-family: var(--font-body); }
     .search-box button {
@@ -303,24 +303,60 @@
     .filter-label {
       font-family: var(--font-mono); font-size: 10.5px; color: var(--n-400);
       text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px;
+      flex-shrink: 0;
     }
     .chip {
       font-family: var(--font-body); font-size: 12.5px; font-weight: 600;
       color: var(--n-600);
       background: var(--n-50); border: 1.5px solid var(--n-200);
       padding: 6px 14px; border-radius: 100px; cursor: pointer;
-      transition: all 0.15s;
+      transition: all 0.15s; flex-shrink: 0;
     }
     .chip:hover { border-color: var(--brass-400); }
+    .chip:disabled { opacity: 0.55; cursor: not-allowed; }
     .chip.active {
       background: var(--ink-900); border-color: var(--ink-900); color: #fff;
     }
+    .chip.dist-chip.active { background: var(--sky-500); border-color: var(--sky-500); }
     .search-status {
       font-size: 12px; font-weight: 600; font-family: var(--font-mono);
       margin-left: auto;
     }
     .search-status.ok    { color: #16a34a; }
     .search-status.error { color: #dc2626; }
+    .search-status.info  { color: var(--sky-500); }
+
+    /* budget custom range row */
+    .budget-row {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-top: 12px; padding-top: 12px;
+      border-top: 1px solid var(--n-100);
+    }
+    .budget-inputs { display: flex; align-items: center; gap: 8px; }
+    .budget-field {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--n-50); border: 1.5px solid var(--n-200);
+      border-radius: var(--r-sm); padding: 6px 10px;
+    }
+    .budget-field span { font-family: var(--font-mono); font-size: 12px; color: var(--n-400); }
+    .budget-field input {
+      border: none; background: none; outline: none;
+      font-family: var(--font-mono); font-size: 12.5px; color: var(--n-900);
+      width: 78px;
+    }
+    .budget-apply-btn {
+      background: var(--brass-500); color: #fff; border: none;
+      font-family: var(--font-display); font-size: 12px; font-weight: 700;
+      padding: 8px 16px; border-radius: var(--r-sm); cursor: pointer;
+      transition: background 0.15s;
+    }
+    .budget-apply-btn:hover { background: var(--brass-600); }
+    .budget-reset-btn {
+      background: none; border: none; color: var(--n-400);
+      font-family: var(--font-body); font-size: 12px; font-weight: 600;
+      cursor: pointer; text-decoration: underline; padding: 4px 2px;
+    }
+    .budget-reset-btn:hover { color: var(--ink-900); }
 
     /* Fullscreen map mode */
     .workspace.is-fullscreen {
@@ -363,18 +399,29 @@
     .list-scroll { overflow-y: auto; flex: 1; }
 
     .listing-card {
-      display: flex; flex-direction: column; gap: 5px;
-      padding: 14px 18px;
+      display: flex; gap: 12px;
+      padding: 12px 18px;
       border-bottom: 1px solid var(--n-100);
       cursor: pointer;
       transition: background 0.15s;
     }
     .listing-card:hover, .listing-card.hovered { background: var(--n-50); }
     .listing-card.active { background: #EAF1FD; }
+
+    .lc-thumb {
+      width: 66px; height: 66px; border-radius: var(--r-sm);
+      background: var(--n-100); flex-shrink: 0; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lc-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lc-thumb .lc-noimg { color: var(--n-300); }
+
+    .lc-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
     .lc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .lc-title {
       font-family: var(--font-display); font-size: 13.5px; font-weight: 600;
       color: var(--n-900); line-height: 1.3;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .lc-id {
       font-family: var(--font-mono); font-size: 10px; color: var(--brass-600);
@@ -382,13 +429,25 @@
       flex-shrink: 0; white-space: nowrap;
     }
     .lc-meta { display: flex; justify-content: space-between; align-items: center; }
-    .lc-loc { font-size: 12px; color: var(--n-400); }
-    .lc-rent { font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: var(--ink-900); }
+    .lc-loc { font-size: 12px; color: var(--n-400); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .lc-rent { font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: var(--ink-900); flex-shrink: 0; }
     .lc-dist {
       font-family: var(--font-mono); font-size: 10.5px; color: var(--sky-500); font-weight: 600;
     }
+    .lc-track-btn {
+      align-self: flex-start; margin-top: 2px;
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--n-50); border: 1px solid var(--n-200); color: var(--sky-500);
+      font-family: var(--font-mono); font-size: 10.5px; font-weight: 700;
+      padding: 5px 10px; border-radius: 100px; cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .lc-track-btn:hover { background: #EAF1FD; }
+    .lc-track-btn.tracking { background: #16a34a; color: #fff; border-color: #16a34a; }
 
-    .skeleton-card { padding: 14px 18px; border-bottom: 1px solid var(--n-100); }
+    .skeleton-card { display: flex; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--n-100); }
+    .skel-thumb { width: 66px; height: 66px; border-radius: var(--r-sm); flex-shrink: 0; background: linear-gradient(90deg, var(--n-100) 25%, var(--n-200) 37%, var(--n-100) 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
+    .skel-body { flex: 1; }
     .skel-line {
       height: 11px; border-radius: 4px; margin-bottom: 8px;
       background: linear-gradient(90deg, var(--n-100) 25%, var(--n-200) 37%, var(--n-100) 63%);
@@ -425,18 +484,51 @@
     }
     .lm-loading .spin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--n-200); border-top-color: var(--sky-500); animation: spin 0.7s linear infinite; }
 
-    .leaflet-popup-content-wrapper { border-radius: var(--r-md); box-shadow: var(--shadow-md); padding: 2px; }
-    .leaflet-popup-content { margin: 14px 16px; }
+    /* map style toggle (streets / satellite) */
+    .lm-style-toggle {
+      position: absolute; top: 16px; right: 16px; z-index: 1000;
+      display: flex; background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(6px);
+      border-radius: 100px; box-shadow: var(--shadow-sm);
+      padding: 3px;
+    }
+    .lm-style-toggle button {
+      border: none; background: none; cursor: pointer;
+      font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+      color: var(--n-600); padding: 7px 14px; border-radius: 100px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .lm-style-toggle button.active { background: var(--ink-900); color: #fff; }
+
+    .leaflet-popup-content-wrapper { border-radius: var(--r-md); box-shadow: var(--shadow-md); padding: 2px; overflow: hidden; }
+    .leaflet-popup-content { margin: 0; width: 220px !important; }
     .leaflet-popup-tip { box-shadow: none; }
 
-    .lm-popup { min-width: 190px; font-family: var(--font-body); }
+    .lm-popup { font-family: var(--font-body); }
+    .lm-popup-img {
+      width: 100%; height: 120px; background: var(--n-100);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; color: var(--n-300);
+    }
+    .lm-popup-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .lm-popup-body { padding: 12px 14px 14px; }
     .lm-popup .lm-title { font-family: var(--font-display); font-weight: 700; font-size: 14.5px; color: var(--n-900); margin-bottom: 6px; line-height: 1.3; }
     .lm-popup .lm-id { display: inline-block; background: #FBF1DE; color: var(--brass-600); font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.2px; padding: 3px 9px; border-radius: 100px; margin-bottom: 8px; }
     .lm-popup .lm-loc { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--n-600); margin-bottom: 8px; }
     .lm-popup .lm-rent { font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--n-900); margin-bottom: 10px; }
     .lm-popup .lm-rent span { font-size: 11px; color: var(--n-400); font-weight: 400; font-family: var(--font-body); }
-    .lm-popup a { display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--ink-900); color: #fff; font-size: 12.5px; font-weight: 700; padding: 9px 0; border-radius: var(--r-sm); text-decoration: none; transition: background 0.15s; }
+    .lm-popup a { display: flex; align-items: center; justify-content: center; gap: 6px; background: var(--ink-900); color: #fff; font-size: 12.5px; font-weight: 700; padding: 9px 0; border-radius: var(--r-sm); text-decoration: none; transition: background 0.15s; margin-bottom: 8px; }
     .lm-popup a:hover { background: var(--ink-700); }
+
+    .track-btn {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      width: 100%; padding: 8px 0;
+      background: var(--sky-500); color: #fff; border: none; border-radius: var(--r-sm);
+      font-family: var(--font-display); font-size: 12.5px; font-weight: 700; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .track-btn:hover { background: #2f6ad0; }
+    .track-btn.tracking { background: #16a34a; }
 
     .lm-empty {
       position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
@@ -455,6 +547,36 @@
       font-family: var(--font-mono); font-weight: 700; font-size: 12px;
     }
 
+    /* live tracking floating panel */
+    .live-track-panel {
+      position: absolute; bottom: 16px; left: 16px; right: 16px; z-index: 1000;
+      max-width: 360px;
+      background: rgba(10,32,68,0.94); backdrop-filter: blur(8px);
+      color: #fff; border-radius: var(--r-md);
+      padding: 14px 16px; box-shadow: var(--shadow-md);
+      display: none; align-items: center; gap: 12px;
+      font-family: var(--font-body);
+    }
+    .live-track-panel.show { display: flex; }
+    .live-track-panel .ltp-dot {
+      width: 10px; height: 10px; border-radius: 50%; background: var(--sky-500); flex-shrink: 0;
+      box-shadow: 0 0 0 0 rgba(63,125,224,0.6); animation: pulse 1.6s infinite;
+    }
+    .live-track-panel .ltp-body { flex: 1; min-width: 0; }
+    .live-track-panel .ltp-title {
+      font-family: var(--font-display); font-size: 13px; font-weight: 700;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .live-track-panel .ltp-meta {
+      font-family: var(--font-mono); font-size: 11.5px; color: rgba(255,255,255,0.65); margin-top: 2px;
+    }
+    .live-track-panel .ltp-stop {
+      flex-shrink: 0; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+      color: #fff; font-size: 11px; font-weight: 700; padding: 7px 12px; border-radius: 100px; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .live-track-panel .ltp-stop:hover { background: rgba(255,255,255,0.22); }
+
     @media (max-width: 900px) {
       .hero { padding: 22px 18px 96px; }
       .chart-ticks, .chart-ticks-side, .hero-annot, .hero-route { display: none; }
@@ -471,6 +593,8 @@
       #allListingsMap { height: 440px; }
       .gauge { min-width: 100px; padding: 13px 16px; }
       .gauge .num { font-size: 21px; }
+      .budget-row { flex-direction: column; align-items: flex-start; }
+      .live-track-panel { left: 10px; right: 10px; max-width: none; }
     }
   </style>
 </head>
@@ -521,7 +645,7 @@
         Live listings &middot; plotted in real time
       </div>
       <h1>Every room, every <em>PG</em>,<br>charted on the map</h1>
-      <p class="hero-sub">Verified rooms and PGs across Kanpur, Unnao, Nawabganj and near Chandigarh University — pinned exactly where they stand. Filter by rent, find what's nearest you, tap any pin for details.</p>
+      <p class="hero-sub">Verified rooms and PGs across Kanpur, Unnao, Nawabganj and near Chandigarh University — pinned exactly where they stand. We'll show what's near you first, and can guide you there live.</p>
 
       <div class="hero-stats">
         <div class="gauge">
@@ -560,7 +684,7 @@
         <div class="control-right">
           <div class="search-box">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input type="text" id="lmSearchInput" placeholder="Search by Listing ID">
+            <input type="text" id="lmSearchInput" placeholder="Search Listing ID or Location">
             <button id="lmSearchBtn" type="button">Go</button>
           </div>
           <button id="lmLocateBtn" class="icon-btn" type="button" title="Show listings near me">
@@ -573,13 +697,38 @@
       </div>
 
       <div class="filter-row">
-        <span class="filter-label">Rent</span>
+        <span class="filter-label">Quick budget</span>
         <button class="chip active" data-min="0" data-max="999999999">All</button>
         <button class="chip" data-min="0" data-max="5000">Under &#8377;5k</button>
         <button class="chip" data-min="5000" data-max="10000">&#8377;5k&ndash;10k</button>
         <button class="chip" data-min="10000" data-max="20000">&#8377;10k&ndash;20k</button>
         <button class="chip" data-min="20000" data-max="999999999">&#8377;20k+</button>
         <span class="search-status" id="lmSearchStatus"></span>
+      </div>
+
+      <div class="budget-row">
+        <span class="filter-label">Custom budget</span>
+        <div class="budget-inputs">
+          <div class="budget-field">
+            <span>&#8377;</span>
+            <input type="number" id="budgetMinInput" placeholder="Min" min="0">
+          </div>
+          <span style="color:var(--n-400); font-family:var(--font-mono); font-size:12px;">to</span>
+          <div class="budget-field">
+            <span>&#8377;</span>
+            <input type="number" id="budgetMaxInput" placeholder="Max" min="0">
+          </div>
+        </div>
+        <button class="budget-apply-btn" id="budgetApplyBtn" type="button">Apply</button>
+        <button class="budget-reset-btn" id="budgetResetBtn" type="button">Reset</button>
+      </div>
+
+      <div class="filter-row" id="distanceRow">
+        <span class="filter-label">Distance from you</span>
+        <button class="chip dist-chip" data-radius="5">Within 5 km</button>
+        <button class="chip dist-chip" data-radius="10">Within 10 km</button>
+        <button class="chip dist-chip active" data-radius="0">All areas</button>
+        <span class="search-status" id="lmLocStatus">Finding listings near you&hellip;</span>
       </div>
     </div>
   </div>
@@ -594,22 +743,38 @@
         <span id="listPanelCount"></span>
       </div>
       <div class="list-scroll" id="listScroll">
-        <div class="skeleton-card"><div class="skel-line" style="width:70%"></div><div class="skel-line" style="width:45%"></div></div>
-        <div class="skeleton-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:40%"></div></div>
-        <div class="skeleton-card"><div class="skel-line" style="width:75%"></div><div class="skel-line" style="width:50%"></div></div>
-        <div class="skeleton-card"><div class="skel-line" style="width:55%"></div><div class="skel-line" style="width:35%"></div></div>
+        <div class="skeleton-card"><div class="skel-thumb"></div><div class="skel-body"><div class="skel-line" style="width:70%"></div><div class="skel-line" style="width:45%"></div></div></div>
+        <div class="skeleton-card"><div class="skel-thumb"></div><div class="skel-body"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:40%"></div></div></div>
+        <div class="skeleton-card"><div class="skel-thumb"></div><div class="skel-body"><div class="skel-line" style="width:75%"></div><div class="skel-line" style="width:50%"></div></div></div>
+        <div class="skeleton-card"><div class="skel-thumb"></div><div class="skel-body"><div class="skel-line" style="width:55%"></div><div class="skel-line" style="width:35%"></div></div></div>
       </div>
     </div>
 
     <!-- MAP -->
     <div class="map-shell">
       <div class="lm-loading" id="lmLoading"><span class="spin"></span> Loading listings&hellip;</div>
+
+      <div class="lm-style-toggle" id="lmStyleToggle">
+        <button type="button" class="active" data-style="streets">Streets</button>
+        <button type="button" data-style="satellite">Satellite</button>
+      </div>
+
       <div class="lm-empty" id="lmEmpty">
         <div class="lm-empty-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         </div>
         <p>No listings match this filter yet.</p>
       </div>
+
+      <div class="live-track-panel" id="liveTrackPanel">
+        <span class="ltp-dot"></span>
+        <div class="ltp-body">
+          <div class="ltp-title" id="ltpTitle">Tracking route&hellip;</div>
+          <div class="ltp-meta" id="ltpMeta">Getting your live location&hellip;</div>
+        </div>
+        <button class="ltp-stop" id="ltpStopBtn" type="button">Stop</button>
+      </div>
+
       <div id="allListingsMap"></div>
     </div>
 
@@ -620,10 +785,32 @@
   <script>
     var map = L.map('allListingsMap', { zoomControl: true }).setView([26.8467, 80.9462], 11); // Kanpur default center
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // ---- MAP STYLES (Streets / Satellite) — CartoDB used instead of raw OSM tiles,
+    // since tile.openstreetmap.org blocks production traffic without a proper referer policy ----
+    var streetsLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+      subdomains: 'abcd',
+      attribution: '&copy; OpenStreetMap contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+    });
+    var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
+    });
+    streetsLayer.addTo(map);
+
+    document.querySelectorAll('#lmStyleToggle button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('#lmStyleToggle button').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        if (btn.dataset.style === 'satellite') {
+          map.removeLayer(streetsLayer);
+          satelliteLayer.addTo(map);
+        } else {
+          map.removeLayer(satelliteLayer);
+          streetsLayer.addTo(map);
+        }
+      });
+    });
 
     var listingIcon = L.divIcon({
       className: 'listing-marker',
@@ -636,6 +823,8 @@
       html: '<div style="background:#3f7de0; width:16px; height:16px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 0 6px rgba(63,125,224,0.25);"></div>',
       iconSize: [16, 16], iconAnchor: [8, 8],
     });
+
+    var LOCATE_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>';
 
     var cluster = L.markerClusterGroup({
       maxClusterRadius: 46,
@@ -651,22 +840,40 @@
     var countEl        = document.getElementById('lmCount');
     var loadingEl       = document.getElementById('lmLoading');
     var emptyEl          = document.getElementById('lmEmpty');
-    var statTotal        = document.getElementById('statTotal');
-    var searchInput       = document.getElementById('lmSearchInput');
-    var searchBtn          = document.getElementById('lmSearchBtn');
-    var searchStatusEl      = document.getElementById('lmSearchStatus');
-    var fullscreenBtn        = document.getElementById('lmFullscreenBtn');
-    var locateBtn              = document.getElementById('lmLocateBtn');
-    var workspaceEl              = document.getElementById('workspace');
-    var listScrollEl               = document.getElementById('listScroll');
-    var listPanelCountEl            = document.getElementById('listPanelCount');
-    var listPanelLabelEl             = document.getElementById('listPanelLabel');
-    var chips                         = document.querySelectorAll('.chip');
+    var statTotal         = document.getElementById('statTotal');
+    var searchInput        = document.getElementById('lmSearchInput');
+    var searchBtn           = document.getElementById('lmSearchBtn');
+    var searchStatusEl       = document.getElementById('lmSearchStatus');
+    var fullscreenBtn         = document.getElementById('lmFullscreenBtn');
+    var locateBtn               = document.getElementById('lmLocateBtn');
+    var workspaceEl               = document.getElementById('workspace');
+    var listScrollEl                = document.getElementById('listScroll');
+    var listPanelCountEl             = document.getElementById('listPanelCount');
+    var listPanelLabelEl              = document.getElementById('listPanelLabel');
+    var chips                          = document.querySelectorAll('.chip:not(.dist-chip)');
+    var distChips                       = document.querySelectorAll('.dist-chip');
+    var lmLocStatusEl                    = document.getElementById('lmLocStatus');
+    var budgetMinInput                    = document.getElementById('budgetMinInput');
+    var budgetMaxInput                     = document.getElementById('budgetMaxInput');
+    var budgetApplyBtn                      = document.getElementById('budgetApplyBtn');
+    var budgetResetBtn                       = document.getElementById('budgetResetBtn');
+    var liveTrackPanelEl                      = document.getElementById('liveTrackPanel');
+    var ltpTitleEl                             = document.getElementById('ltpTitle');
+    var ltpMetaEl                               = document.getElementById('ltpMeta');
+    var ltpStopBtn                               = document.getElementById('ltpStopBtn');
 
     var allListings = [];      // { item, marker, id }
-    var byId = {};             // lowercased listing_id -> listing object
+    var byId = {};             // lowercased listing_id / record id -> listing record
     var activeFilter = { min: 0, max: 999999999 };
+    var activeRadius = 0;      // 0 = no distance limit
     var userLatLng = null;
+    var locationQuery = '';    // current free-text location filter
+
+    // ---- live-tracking state ----
+    var trackWatchId = null;
+    var trackRecord = null;
+    var trackRouteLine = null;
+    var trackLastFetch = 0;
 
     function haversineKm(lat1, lon1, lat2, lon2) {
       var R = 6371;
@@ -690,22 +897,52 @@
       requestAnimationFrame(step);
     }
 
-    function buildPopupHtml(item) {
+    function popupImageHtml(item) {
+      if (item.image) {
+        return '<div class="lm-popup-img"><img src="' + item.image + '" alt="' + item.title + '" loading="lazy"></div>';
+      }
+      return '<div class="lm-popup-img"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>';
+    }
+
+    function buildPopupHtml(item, recordId) {
       return '<div class="lm-popup">' +
-          '<div class="lm-title">' + item.title + '</div>' +
-          '<div class="lm-id">ID: ' + item.listing_id + '</div>' +
-          '<div class="lm-loc">' +
-            '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
-            item.location_name +
+          popupImageHtml(item) +
+          '<div class="lm-popup-body">' +
+            '<div class="lm-title">' + item.title + '</div>' +
+            '<div class="lm-id">ID: ' + item.listing_id + '</div>' +
+            '<div class="lm-loc">' +
+              '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' +
+              item.location_name +
+            '</div>' +
+            '<div class="lm-rent">\u20B9' + item.rent + ' <span>/ month</span></div>' +
+            '<a href="' + item.url + '">View Listing</a>' +
+            '<button class="track-btn" type="button" data-track-id="' + recordId + '">\uD83D\uDCCD Track live route</button>' +
           '</div>' +
-          '<div class="lm-rent">\u20B9' + item.rent + ' <span>/ month</span></div>' +
-          '<a href="' + item.url + '">View Listing</a>' +
         '</div>';
     }
 
     function matchesFilter(item) {
       var rent = parseFloat(item.rent) || 0;
-      return rent >= activeFilter.min && rent <= activeFilter.max;
+      var rentOk = rent >= activeFilter.min && rent <= activeFilter.max;
+      if (!rentOk) return false;
+
+      if (locationQuery) {
+        var haystack = ((item.location_name || '') + ' ' + (item.title || '')).toLowerCase();
+        if (haystack.indexOf(locationQuery) === -1) return false;
+      }
+
+      if (activeRadius > 0 && userLatLng) {
+        if (item.dist === undefined || item.dist > activeRadius) return false;
+      }
+
+      return true;
+    }
+
+    function listThumbHtml(item) {
+      if (item.image) {
+        return '<div class="lc-thumb"><img src="' + item.image + '" alt="' + item.title + '" loading="lazy"></div>';
+      }
+      return '<div class="lc-thumb"><svg class="lc-noimg" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>';
     }
 
     function renderList() {
@@ -713,7 +950,7 @@
 
       if (userLatLng) {
         filtered.sort(function (a, b) { return a.dist - b.dist; });
-        listPanelLabelEl.textContent = 'Nearest to you';
+        listPanelLabelEl.textContent = activeRadius > 0 ? ('Within ' + activeRadius + ' km') : 'Nearest to you';
       } else {
         listPanelLabelEl.textContent = 'All listings';
       }
@@ -721,16 +958,20 @@
       listPanelCountEl.textContent = filtered.length;
 
       if (filtered.length === 0) {
-        listScrollEl.innerHTML = '<div class="list-empty">No listings match this filter.<br>Try a wider rent range.</div>';
+        listScrollEl.innerHTML = '<div class="list-empty">No listings match this filter.<br>Try a wider budget or distance range.</div>';
         return;
       }
 
       listScrollEl.innerHTML = filtered.map(function (l) {
         var distHtml = (l.dist !== undefined) ? '<div class="lc-dist">' + l.dist.toFixed(1) + ' km away</div>' : '';
         return '<div class="listing-card" data-id="' + l.id + '">' +
-            '<div class="lc-top"><div class="lc-title">' + l.item.title + '</div><div class="lc-id">' + l.item.listing_id + '</div></div>' +
-            '<div class="lc-meta"><span class="lc-loc">' + l.item.location_name + '</span><span class="lc-rent">\u20B9' + l.item.rent + '</span></div>' +
-            distHtml +
+            listThumbHtml(l.item) +
+            '<div class="lc-body">' +
+              '<div class="lc-top"><div class="lc-title">' + l.item.title + '</div><div class="lc-id">' + l.item.listing_id + '</div></div>' +
+              '<div class="lc-meta"><span class="lc-loc">' + l.item.location_name + '</span><span class="lc-rent">\u20B9' + l.item.rent + '</span></div>' +
+              distHtml +
+              '<button class="lc-track-btn' + (trackRecord && trackRecord.id === l.id ? ' tracking' : '') + '" type="button" data-track-id="' + l.id + '">\uD83D\uDCCD ' + (trackRecord && trackRecord.id === l.id ? 'Stop tracking' : 'Track live') + '</button>' +
+            '</div>' +
           '</div>';
       }).join('');
 
@@ -741,9 +982,19 @@
           map.setView([l.item.lat, l.item.lng], 16, { animate: true });
           cluster.zoomToShowLayer(l.marker, function () { l.marker.openPopup(); });
         });
-        card.addEventListener('mouseenter', function () {
-          var l = byId[card.getAttribute('data-id')];
-          if (l) l.marker.openTooltip && null;
+      });
+
+      listScrollEl.querySelectorAll('.lc-track-btn').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var id = btn.getAttribute('data-track-id');
+          var record = byId[id];
+          if (!record) return;
+          if (trackRecord && trackRecord.id === id) {
+            stopTracking();
+          } else {
+            startTracking(record);
+          }
         });
       });
     }
@@ -756,6 +1007,26 @@
       renderList();
     }
 
+    // ---- wire up popup "Track live route" buttons whenever a popup opens ----
+    map.on('popupopen', function (e) {
+      var node = e.popup._contentNode;
+      if (!node) return;
+      var btn = node.querySelector('.track-btn');
+      if (!btn || btn.dataset.bound === '1') return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function (evt) {
+        evt.stopPropagation();
+        var id = btn.getAttribute('data-track-id');
+        var record = byId[id];
+        if (!record) return;
+        if (trackRecord && trackRecord.id === id) {
+          stopTracking();
+        } else {
+          startTracking(record);
+        }
+      });
+    });
+
     fetch("{% url 'listings_geojson' %}")
       .then(function (res) { return res.json(); })
       .then(function (data) {
@@ -766,18 +1037,19 @@
           statTotal.textContent = '0';
           listScrollEl.innerHTML = '<div class="list-empty">No listings yet.</div>';
           emptyEl.classList.add('show');
+          lmLocStatusEl.textContent = '';
           return;
         }
 
         var bounds = [];
 
         data.results.forEach(function (item, idx) {
+          var id = 'lst-' + idx;
           var marker = L.marker([item.lat, item.lng], { icon: listingIcon });
-          marker.bindPopup(buildPopupHtml(item));
+          marker.bindPopup(buildPopupHtml(item, id));
           cluster.addLayer(marker);
           bounds.push([item.lat, item.lng]);
 
-          var id = 'lst-' + idx;
           var record = { item: item, marker: marker, id: id };
           allListings.push(record);
           if (item.listing_id) byId[item.listing_id.toLowerCase()] = record;
@@ -791,76 +1063,303 @@
         if (bounds.length) map.fitBounds(bounds, { padding: [50, 50] });
 
         renderList();
+
+        // ---- auto-locate on load, default to a 5km radius when granted ----
+        locateUser(function (success) {
+          if (success) {
+            var fiveChip = document.querySelector('.dist-chip[data-radius="5"]');
+            var allChip  = document.querySelector('.dist-chip[data-radius="0"]');
+            activeRadius = 5;
+            distChips.forEach(function (c) { c.classList.remove('active'); });
+            if (fiveChip) fiveChip.classList.add('active');
+
+            var matched = allListings.filter(function (l) { return matchesFilter(l.item); });
+
+            if (matched.length === 0) {
+              // nothing nearby — don't show an empty map, fall back to all areas
+              activeRadius = 0;
+              distChips.forEach(function (c) { c.classList.remove('active'); });
+              if (allChip) allChip.classList.add('active');
+              lmLocStatusEl.textContent = 'No listings within 5 km of you — showing all areas.';
+              lmLocStatusEl.className = 'search-status info';
+              applyFilterToMap();
+            } else {
+              lmLocStatusEl.textContent = matched.length + ' listing' + (matched.length !== 1 ? 's' : '') + ' within 5 km of you';
+              lmLocStatusEl.className = 'search-status ok';
+              applyFilterToMap();
+              var b = matched.map(function (l) { return [l.item.lat, l.item.lng]; });
+              b.push([userLatLng.lat, userLatLng.lng]);
+              map.fitBounds(b, { padding: [50, 50] });
+            }
+          } else {
+            lmLocStatusEl.textContent = 'Enable location access to see listings near you.';
+            lmLocStatusEl.className = 'search-status';
+          }
+        }, true);
       })
       .catch(function () {
         loadingEl.innerHTML = 'Could not load listings.';
         listScrollEl.innerHTML = '<div class="list-empty">Could not load listings.</div>';
+        lmLocStatusEl.textContent = '';
       });
 
-    // ---- FILTER CHIPS ----
+    // ---- QUICK BUDGET CHIPS ----
     chips.forEach(function (chip) {
       chip.addEventListener('click', function () {
         chips.forEach(function (c) { c.classList.remove('active'); });
         chip.classList.add('active');
         activeFilter = { min: parseFloat(chip.getAttribute('data-min')), max: parseFloat(chip.getAttribute('data-max')) };
+        budgetMinInput.value = '';
+        budgetMaxInput.value = '';
         applyFilterToMap();
       });
     });
 
-    // ---- SEARCH BY LISTING ID ----
+    // ---- CUSTOM BUDGET RANGE ----
+    budgetApplyBtn.addEventListener('click', function () {
+      var minVal = parseFloat(budgetMinInput.value);
+      var maxVal = parseFloat(budgetMaxInput.value);
+      activeFilter = {
+        min: isNaN(minVal) ? 0 : minVal,
+        max: isNaN(maxVal) ? 999999999 : maxVal
+      };
+      chips.forEach(function (c) { c.classList.remove('active'); });
+      applyFilterToMap();
+    });
+    budgetResetBtn.addEventListener('click', function () {
+      budgetMinInput.value = '';
+      budgetMaxInput.value = '';
+      activeFilter = { min: 0, max: 999999999 };
+      chips.forEach(function (c, i) { c.classList.toggle('active', i === 0); });
+      applyFilterToMap();
+    });
+
+    // ---- DISTANCE CHIPS (5km / 10km / All areas) ----
+    distChips.forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        var radius = parseFloat(chip.getAttribute('data-radius'));
+
+        if (radius > 0 && !userLatLng) {
+          chip.disabled = true;
+          lmLocStatusEl.textContent = 'Getting your location…';
+          lmLocStatusEl.className = 'search-status info';
+          locateUser(function (success) {
+            chip.disabled = false;
+            if (success) {
+              distChips.forEach(function (c) { c.classList.remove('active'); });
+              chip.classList.add('active');
+              activeRadius = radius;
+              lmLocStatusEl.textContent = '';
+              applyFilterToMap();
+            } else {
+              lmLocStatusEl.textContent = 'Location access denied.';
+              lmLocStatusEl.className = 'search-status error';
+            }
+          }, false);
+          return;
+        }
+
+        distChips.forEach(function (c) { c.classList.remove('active'); });
+        chip.classList.add('active');
+        activeRadius = radius;
+        lmLocStatusEl.textContent = '';
+        applyFilterToMap();
+      });
+    });
+
+    // ---- SEARCH BY LISTING ID OR LOCATION ----
     function runSearch() {
       var query = searchInput.value.trim().toLowerCase();
-      if (!query) { searchStatusEl.textContent = ''; searchStatusEl.className = 'search-status'; return; }
+      if (!query) {
+        searchStatusEl.textContent = '';
+        searchStatusEl.className = 'search-status';
+        locationQuery = '';
+        applyFilterToMap();
+        return;
+      }
 
+      // 1) exact listing-ID match — zoom straight to it
       var found = byId[query];
       if (found) {
+        locationQuery = '';
+        applyFilterToMap();
         map.setView([found.item.lat, found.item.lng], 16, { animate: true });
         cluster.zoomToShowLayer(found.marker, function () { found.marker.openPopup(); });
         searchStatusEl.textContent = 'Found: ' + found.item.listing_id;
         searchStatusEl.className = 'search-status ok';
+        return;
+      }
+
+      // 2) otherwise treat it as a location / area search
+      locationQuery = query;
+      applyFilterToMap();
+      var matchCount = allListings.filter(function (l) { return matchesFilter(l.item); }).length;
+
+      if (matchCount > 0) {
+        searchStatusEl.textContent = matchCount + ' listing' + (matchCount !== 1 ? 's' : '') + ' near "' + searchInput.value.trim() + '"';
+        searchStatusEl.className = 'search-status ok';
+        var matchedBounds = allListings.filter(function (l) { return matchesFilter(l.item); }).map(function (l) { return [l.item.lat, l.item.lng]; });
+        if (matchedBounds.length) map.fitBounds(matchedBounds, { padding: [50, 50] });
       } else {
-        searchStatusEl.textContent = 'No listing found with that ID';
+        searchStatusEl.textContent = 'No listings found for "' + searchInput.value.trim() + '"';
         searchStatusEl.className = 'search-status error';
       }
     }
     searchBtn.addEventListener('click', runSearch);
     searchInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') runSearch(); });
     searchInput.addEventListener('input', function () {
-      if (searchInput.value.trim() === '') { searchStatusEl.textContent = ''; searchStatusEl.className = 'search-status'; }
+      if (searchInput.value.trim() === '') {
+        searchStatusEl.textContent = '';
+        searchStatusEl.className = 'search-status';
+        locationQuery = '';
+        applyFilterToMap();
+      }
     });
 
-    // ---- LOCATE ME ----
+    // ---- LOCATE ME (shared by auto-load, distance chips, and the button) ----
     var userMarker = null;
-    locateBtn.addEventListener('click', function () {
+
+    function locateUser(callback, isAuto) {
       if (!navigator.geolocation) {
-        searchStatusEl.textContent = 'Geolocation not supported';
-        searchStatusEl.className = 'search-status error';
+        if (callback) callback(false);
         return;
       }
-      locateBtn.innerHTML = '<span class="spin-ring"></span>';
-      locateBtn.classList.add('active');
+      if (!isAuto) {
+        locateBtn.innerHTML = '<span class="spin-ring"></span>';
+        locateBtn.classList.add('active');
+      }
 
       navigator.geolocation.getCurrentPosition(function (pos) {
         userLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
 
         allListings.forEach(function (l) {
           l.dist = haversineKm(userLatLng.lat, userLatLng.lng, l.item.lat, l.item.lng);
+          l.item.dist = l.dist;
         });
 
         if (userMarker) map.removeLayer(userMarker);
         userMarker = L.marker([userLatLng.lat, userLatLng.lng], { icon: userIcon }).addTo(map);
-        userMarker.bindPopup('You are here').openPopup();
-        map.setView([userLatLng.lat, userLatLng.lng], 13, { animate: true });
 
-        locateBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>';
+        if (!isAuto) {
+          userMarker.bindPopup('You are here').openPopup();
+          map.setView([userLatLng.lat, userLatLng.lng], 13, { animate: true });
+          locateBtn.classList.remove('active');
+          locateBtn.innerHTML = LOCATE_ICON_SVG;
+        }
+
         renderList();
+        if (callback) callback(true);
       }, function () {
-        locateBtn.classList.remove('active');
-        locateBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>';
-        searchStatusEl.textContent = 'Location access denied';
-        searchStatusEl.className = 'search-status error';
+        if (!isAuto) {
+          locateBtn.classList.remove('active');
+          locateBtn.innerHTML = LOCATE_ICON_SVG;
+          searchStatusEl.textContent = 'Location access denied';
+          searchStatusEl.className = 'search-status error';
+        }
+        if (callback) callback(false);
+      }, { enableHighAccuracy: true, timeout: 10000 });
+    }
+
+    locateBtn.addEventListener('click', function () { locateUser(null, false); });
+
+    // ---- LIVE ROUTE TRACKING ----
+    function updateTrackButtonStates(id, isTracking) {
+      document.querySelectorAll('[data-track-id="' + id + '"]').forEach(function (btn) {
+        btn.classList.toggle('tracking', isTracking);
+        if (btn.classList.contains('lc-track-btn')) {
+          btn.innerHTML = '\uD83D\uDCCD ' + (isTracking ? 'Stop tracking' : 'Track live');
+        } else {
+          btn.innerHTML = '\uD83D\uDCCD ' + (isTracking ? 'Stop tracking' : 'Track live route');
+        }
       });
-    });
+    }
+
+    function stopTrackingSilently() {
+      if (trackWatchId !== null) {
+        navigator.geolocation.clearWatch(trackWatchId);
+        trackWatchId = null;
+      }
+      if (trackRecord) updateTrackButtonStates(trackRecord.id, false);
+      if (trackRouteLine) {
+        map.removeLayer(trackRouteLine);
+        trackRouteLine = null;
+      }
+    }
+
+    function stopTracking() {
+      stopTrackingSilently();
+      trackRecord = null;
+      liveTrackPanelEl.classList.remove('show');
+    }
+
+    function handleTrackingPosition(pos) {
+      userLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      if (userMarker) map.removeLayer(userMarker);
+      userMarker = L.marker([userLatLng.lat, userLatLng.lng], { icon: userIcon }).addTo(map);
+
+      if (!trackRecord) return;
+
+      var now = Date.now();
+      var km = haversineKm(userLatLng.lat, userLatLng.lng, trackRecord.item.lat, trackRecord.item.lng);
+
+      // throttle OSRM route re-fetching to avoid hammering the free routing API
+      if (trackRouteLine && (now - trackLastFetch < 8000)) {
+        ltpMetaEl.textContent = '~' + km.toFixed(1) + ' km straight-line \u00B7 updating route\u2026';
+        return;
+      }
+      trackLastFetch = now;
+
+      fetch("https://router.project-osrm.org/route/v1/driving/" + userLatLng.lng + "," + userLatLng.lat + ";" + trackRecord.item.lng + "," + trackRecord.item.lat + "?overview=full&geometries=geojson")
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (!trackRecord) return;
+          if (!data.routes || !data.routes.length) {
+            ltpMetaEl.textContent = '~' + km.toFixed(1) + ' km away \u00B7 route unavailable';
+            return;
+          }
+          var route = data.routes[0];
+          var coords = route.geometry.coordinates.map(function (c) { return [c[1], c[0]]; });
+
+          if (trackRouteLine) map.removeLayer(trackRouteLine);
+          trackRouteLine = L.polyline(coords, { color: '#3f7de0', weight: 5, opacity: 0.85 }).addTo(map);
+
+          var routeKm = (route.distance / 1000).toFixed(1);
+          var mins = Math.round(route.duration / 60);
+          ltpMetaEl.textContent = routeKm + ' km \u00B7 ~' + mins + ' min away';
+
+          var b = L.latLngBounds(coords);
+          b.extend([userLatLng.lat, userLatLng.lng]);
+          b.extend([trackRecord.item.lat, trackRecord.item.lng]);
+          map.fitBounds(b, { padding: [60, 60] });
+        })
+        .catch(function () {
+          ltpMetaEl.textContent = '~' + km.toFixed(1) + ' km away \u00B7 could not fetch route';
+        });
+    }
+
+    function startTracking(record) {
+      if (!navigator.geolocation) {
+        alert('Geolocation is not supported in this browser.');
+        return;
+      }
+      stopTrackingSilently();
+      trackRecord = record;
+
+      liveTrackPanelEl.classList.add('show');
+      ltpTitleEl.textContent = 'Tracking route to ' + record.item.title;
+      ltpMetaEl.textContent = 'Getting your live location\u2026';
+      updateTrackButtonStates(record.id, true);
+
+      trackWatchId = navigator.geolocation.watchPosition(
+        handleTrackingPosition,
+        function () {
+          ltpMetaEl.textContent = 'Location access denied or unavailable.';
+        },
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
+      );
+    }
+
+    ltpStopBtn.addEventListener('click', stopTracking);
 
     // ---- FULLSCREEN MAP TOGGLE ----
     var isFullscreen = false;
