@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9BEL45D5Z3"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+      gtag('config', 'G-9BEL45D5Z3');
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2357487058280395"
@@ -1561,14 +1573,57 @@
   if (overlay) overlay.addEventListener('click', e => { if (e.target === overlay) closeMenu(); });
 
   const waBtn = document.getElementById('shareWhatsapp');
-  if (waBtn) waBtn.addEventListener('click', () => {
-    window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(shareText + ' ' + shareUrl), '_blank');
-  });
+
+  if (waBtn) {
+    waBtn.addEventListener('click', () => {
+
+      // Google Analytics — WhatsApp share tracking
+      if (typeof gtag === 'function') {
+        gtag('event', 'listing_shared', {
+          room_id: '{{ room.id }}',
+          listing_id: '{{ room.listing_id|default:""|escapejs }}',
+          listing_name: '{{ room.Room_title|escapejs }}',
+          location: '{{ room.location_name|escapejs }}',
+          share_platform: 'whatsapp'
+        });
+      }
+
+      // Existing WhatsApp share functionality
+      window.open(
+        'https://api.whatsapp.com/send?text=' +
+        encodeURIComponent(shareText + ' ' + shareUrl),
+        '_blank'
+      );
+
+    });
+  }
 
   const fbBtn = document.getElementById('shareFacebook');
-  if (fbBtn) fbBtn.addEventListener('click', () => {
-    window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl), '_blank', 'width=600,height=500');
-  });
+
+  if (fbBtn) {
+    fbBtn.addEventListener('click', () => {
+
+      // Google Analytics — Facebook share tracking
+      if (typeof gtag === 'function') {
+        gtag('event', 'listing_shared', {
+          room_id: '{{ room.id }}',
+          listing_id: '{{ room.listing_id|default:""|escapejs }}',
+          listing_name: '{{ room.Room_title|escapejs }}',
+          location: '{{ room.location_name|escapejs }}',
+          share_platform: 'facebook'
+        });
+      }
+
+      // Existing Facebook share functionality
+      window.open(
+        'https://www.facebook.com/sharer/sharer.php?u=' +
+        encodeURIComponent(shareUrl),
+        '_blank',
+        'width=600,height=500'
+      );
+
+    });
+  }
 
   const tgBtn = document.getElementById('shareTelegram');
   if (tgBtn) tgBtn.addEventListener('click', () => {
@@ -1813,6 +1868,206 @@
       payBtn.disabled = false;
     }
   });
+
+})();
+</script>
+<script>
+(function () {
+
+    // ================================
+    // URBANTENANTS ANALYTICS
+    // ================================
+
+    const listingData = {
+        room_id: "{{ room.id }}",
+        listing_id: "{{ room.listing_id|default:''|escapejs }}",
+        listing_name: "{{ room.Room_title|escapejs }}",
+        location: "{{ room.location_name|escapejs }}",
+        room_type: "{{ room.Room_type|escapejs }}",
+        price: "{{ final_price|default:room.Room_rent }}",
+        availability: "{% if room.Room_available %}available{% else %}not_available{% endif %}"
+    };
+
+    function trackEvent(eventName, params = {}) {
+    if (typeof gtag === "function") {
+        gtag("event", eventName, {
+            ...params,
+
+            room_id: "{{ room.id }}",
+            listing_id: "{{ room.listing_id|default:''|escapejs }}",
+            listing_name: "{{ room.Room_title|escapejs }}",
+            location: "{{ room.location_name|escapejs }}"
+        });
+    }
+}
+
+    // ==========================================
+    // 1. LISTING VIEW
+    // ==========================================
+
+    trackEvent("listing_view");
+
+
+    // ==========================================
+    // 2. WHATSAPP CLICK
+    // ==========================================
+
+    const whatsappBtn = document.getElementById("waUnlockedBtn");
+
+    if (whatsappBtn) {
+        whatsappBtn.addEventListener("click", function () {
+
+            trackEvent("whatsapp_click", {
+                contact_type: "owner"
+            });
+
+        });
+    }
+
+    // ==========================================
+    // 3. URBANTENANTS SUPPORT WHATSAPP
+    // ==========================================
+
+   const supportWhatsapp = document.getElementById("supportWaBtn");
+
+    if (supportWhatsapp) {
+        supportWhatsapp.addEventListener("click", function () {
+
+            trackEvent("support_whatsapp_click", {
+                contact_type: "support"
+            });
+
+        });
+    }
+
+
+    // ==========================================
+    // 4. BOOKING START
+    // ==========================================
+
+    const bookingBtn = document.querySelector(".btn-book");
+
+    if (bookingBtn) {
+        bookingBtn.addEventListener("click", function () {
+
+            trackEvent("booking_start");
+
+        });
+    }
+
+
+    // ==========================================
+    // 5. SHARE LISTING
+    // ==========================================
+
+    const shareButtons = [
+        "shareTrigger",
+        "shareTriggerInline",
+        "shareTriggerPanel"
+    ];
+
+    shareButtons.forEach(function (id) {
+
+        const btn = document.getElementById(id);
+
+        if (btn) {
+            btn.addEventListener("click", function () {
+
+                trackEvent("listing_share_open");
+
+            });
+        }
+
+    });
+
+
+    // ==========================================
+    // 6. GALLERY / PHOTOS
+    // ==========================================
+
+    const gallery = document.getElementById("gallery");
+
+    if (gallery) {
+
+        gallery.addEventListener("click", function () {
+
+            trackEvent("listing_photo_view");
+
+        });
+
+    }
+
+
+    // ==========================================
+    // 7. NEIGHBORHOOD BOARD
+    // ==========================================
+
+    const neighborhoodBtn =
+        document.querySelector('a[href*="neighborhood_board"]');
+
+    if (neighborhoodBtn) {
+
+        neighborhoodBtn.addEventListener("click", function () {
+
+            trackEvent("neighborhood_board_click");
+
+        });
+
+    }
+
+
+    // ==========================================
+    // 8. NEARBY SERVICES
+    // ==========================================
+
+    document.querySelectorAll(".nb-cat-btn[data-category]")
+        .forEach(function (btn) {
+
+            btn.addEventListener("click", function () {
+
+                trackEvent("nearby_category_click", {
+                    nearby_category: this.dataset.category
+                });
+
+            });
+
+        });
+
+
+    // ==========================================
+    // 9. ROUTE / DISTANCE
+    // ==========================================
+
+    const routeBtn = document.getElementById("trackRouteBtn");
+
+    if (routeBtn) {
+
+        routeBtn.addEventListener("click", function () {
+
+            trackEvent("route_check");
+
+        });
+
+    }
+
+
+    // ==========================================
+    // 10. VIDEO WATCH
+    // ==========================================
+
+    document.querySelectorAll("video")
+        .forEach(function (video, index) {
+
+            video.addEventListener("play", function () {
+
+                trackEvent("listing_video_play", {
+                    video_number: index + 1
+                });
+
+            }, { once: true });
+
+        });
+
 
 })();
 </script>
