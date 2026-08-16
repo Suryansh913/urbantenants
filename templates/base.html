@@ -903,9 +903,20 @@
                     {% endif %}
                     <span class="price-unit">per month</span>
                 </div>
-                <a href="{% url 'room' n.id %}" class="card-cta">
-                    View Details
-                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+               <a href="{% url 'room' n.id %}"
+                    class="card-cta"
+                    onclick="trackListingClick(
+                        '{{ n.id }}',
+                        '{{ n.Room_title|escapejs }}',
+                        '{{ n.location_name|escapejs }}'
+                    )">
+
+                        View Details
+
+                        <svg width="12" height="12" fill="none" stroke="currentColor"
+                            stroke-width="2.5" viewBox="0 0 24 24">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
                 </a>
             </div>
         </div>
@@ -1169,8 +1180,22 @@
         });
     });
 })();
-</script>
 
+</script>
+<script>
+function trackListingClick(listingId, listingName, location) {
+
+    if (typeof gtag === 'function') {
+
+        gtag('event', 'listing_click', {
+            listing_id: listingId,
+            listing_name: listingName,
+            location: location
+        });
+
+    }
+}
+</script>
 
 </body>
 </html>
