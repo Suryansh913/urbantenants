@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9BEL45D5Z3"></script>
+  <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+          dataLayer.push(arguments);
+      }
+
+      gtag('js', new Date());
+      gtag('config', 'G-9BEL45D5Z3');
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2357487058280395"
@@ -174,9 +186,14 @@
       font-weight: 700; pointer-events: none;
     }
 
+    /* GALLERY TOP-RIGHT ACTIONS (like + share) */
+    .gallery-actions {
+      position: absolute; top: 16px; right: 16px; z-index: 3;
+      display: flex; align-items: center; gap: 8px;
+    }
+
     /* SHARE BUTTON (on gallery) */
     .share-pill {
-      position: absolute; top: 16px; right: 16px; z-index: 3;
       display: flex; align-items: center; gap: 7px;
       background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
       color: var(--neutral-900); font-size: 13px; font-weight: 600;
@@ -185,6 +202,40 @@
     }
     .share-pill:hover { background: #fff; transform: translateY(-1px); }
     .share-pill svg { width: 16px; height: 16px; }
+
+    /* LIKE BUTTON (on gallery) */
+    .like-pill {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
+      color: var(--neutral-900); font-size: 13px; font-weight: 600;
+      padding: 9px 14px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.4);
+      cursor: pointer; box-shadow: var(--shadow-sm); transition: background 0.18s, transform 0.12s;
+    }
+    .like-pill:hover { background: #fff; transform: translateY(-1px); }
+    .like-pill svg { width: 18px; height: 18px; flex-shrink: 0; transition: transform 0.18s ease; }
+    .like-pill.liked svg { fill: #EF4444; stroke: #EF4444; }
+    .like-pill.liked .like-count { color: #EF4444; }
+    .like-pill.pop svg { animation: likePop 0.35s ease; }
+    @keyframes likePop {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.35); }
+      60%  { transform: scale(0.9); }
+      100% { transform: scale(1); }
+    }
+    .like-count { font-variant-numeric: tabular-nums; min-width: 8px; text-align: left; }
+
+    /* Inline like button next to title-row share button */
+    .like-btn-inline {
+      display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+      background: var(--blue-50); color: var(--blue-700); border: 1px solid var(--blue-100);
+      font-size: 13px; font-weight: 600; padding: 8px 14px; border-radius: 100px;
+      cursor: pointer; transition: background 0.18s;
+    }
+    .like-btn-inline:hover { background: var(--blue-100); }
+    .like-btn-inline svg { width: 15px; height: 15px; transition: transform 0.18s ease; }
+    .like-btn-inline.liked { background: #FEF2F2; color: #EF4444; border-color: #FECACA; }
+    .like-btn-inline.liked svg { fill: #EF4444; stroke: #EF4444; }
+    .like-btn-inline.pop svg { animation: likePop 0.35s ease; }
 
     /* SHARE MENU */
     .share-menu-overlay {
@@ -339,6 +390,7 @@
       font-weight: 700; color: var(--neutral-900); letter-spacing: -0.5px;
       line-height: 1.25; margin-bottom: 0;
     }
+    .title-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .share-btn-inline {
       display: flex; align-items: center; gap: 6px; flex-shrink: 0;
       background: var(--blue-50); color: var(--blue-700); border: 1px solid var(--blue-100);
@@ -600,6 +652,8 @@
       .lb-thumbnails { bottom: 36px; }
       .share-pill span.share-label { display: none; }
       .share-pill { padding: 9px 11px; }
+      .like-pill span.like-label { display: none; }
+      .like-pill { padding: 9px 11px; }
     }
     @media (max-width: 400px) {
       .amenity-grid { grid-template-columns: repeat(2, 1fr); }
@@ -637,10 +691,18 @@
         {% endif %}
       {% endfor %}
       <div class="photo-pill">&#128247; {{ images|length }} Photos</div>
-      <button class="share-pill" id="shareTrigger" type="button" aria-label="Share this listing">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-        <span class="share-label">Share</span>
-      </button>
+
+      <div class="gallery-actions">
+        <button class="like-pill" id="likeTrigger" type="button" aria-pressed="{% if is_liked %}true{% else %}false{% endif %}" data-liked="{% if is_liked %}true{% else %}false{% endif %}" aria-label="Like this listing">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="{% if is_liked %}#EF4444{% else %}none{% endif %}" stroke="{% if is_liked %}#EF4444{% else %}currentColor{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+          <span class="like-label">Like</span>
+          <span class="like-count" id="likeCount">{{ room.like_count|default:0 }}</span>
+        </button>
+        <button class="share-pill" id="shareTrigger" type="button" aria-label="Share this listing">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span class="share-label">Share</span>
+        </button>
+      </div>
     </div>
 
     <!-- Content grid -->
@@ -663,10 +725,16 @@
           </div>
           <div class="title-row">
             <h1 class="room-title">{{ room.Room_title }}</h1>
-            <button class="share-btn-inline" id="shareTriggerInline" type="button" aria-label="Share this listing">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-              Share
-            </button>
+            <div class="title-actions">
+              <button class="like-btn-inline" id="likeTriggerInline" type="button" aria-pressed="{% if is_liked %}true{% else %}false{% endif %}" data-liked="{% if is_liked %}true{% else %}false{% endif %}" aria-label="Like this listing">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="{% if is_liked %}#EF4444{% else %}none{% endif %}" stroke="{% if is_liked %}#EF4444{% else %}currentColor{% endif %}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+                <span id="likeCountInline">{{ room.like_count|default:0 }}</span>
+              </button>
+              <button class="share-btn-inline" id="shareTriggerInline" type="button" aria-label="Share this listing">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                Share
+              </button>
+            </div>
           </div>
 
           {% if room.offer.discount_percent %}
@@ -928,6 +996,11 @@
 
         <hr class="panel-divider" />
 
+        <a href="https://wa.me/918574741001?text=Hi%2C%20I%20want%20help%20regarding%20UrbanTenants." target="_blank" class="btn-whatsapp" style="background:#185FA5;" id="supportWaBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          UrbanTenants Support
+        </a>
+
         {% if chat_sub %}
           <a href="https://wa.me/{{ whatsapp_number }}?text=Hi%2C%20I%20came%20from%20UrbanTenants.%20I%20want%20more%20information%20about%20your%20room." target="_blank" class="btn-whatsapp" id="waUnlockedBtn">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
@@ -947,6 +1020,8 @@
             Login to Chat on WhatsApp
           </a>
         {% endif %}
+
+        <hr class="panel-divider" />
 
         <a href="{% url 'bookingform' room.id %}" class="btn-book">Pay &amp; Book</a>
 
@@ -1039,6 +1114,7 @@
         <button type="button" class="nb-cat-btn" data-category="laundry">🧺 Laundry</button>
         <button type="button" class="nb-cat-btn" data-category="shopping_mart">🛍️ Shopping Mart</button>
         <button type="button" class="nb-cat-btn" data-category="food_supplier">🛒 Food Supplier</button>
+        <button type="button" class="nb-cat-btn" data-category="school">🏫 Schools &amp; Colleges</button>
       </div>
 
       <div class="nb-status-row">
@@ -1050,6 +1126,9 @@
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
         <button type="button" id="trackRouteBtn" class="nb-cat-btn" style="background:var(--blue-600); color:#fff; border-color:var(--blue-600);">
           📍 Track Route from My Location
+        </button>
+        <button type="button" id="liveTrackBtn" class="nb-cat-btn" style="background:#fff; color:var(--blue-600); border-color:var(--blue-600);">
+          🛰️ Start Live Tracking
         </button>
         <span id="routeInfo" style="font-size:13px; color:var(--neutral-600); font-weight:500;"></span>
       </div>
@@ -1064,6 +1143,10 @@
         <span style="display:flex; align-items:center; gap:6px;">
           <span style="width:10px; height:10px; border-radius:50%; background:#22C55E; display:inline-block; border:2px solid #fff; box-shadow:0 0 0 1px #22C55E;"></span>
           Nearby services
+        </span>
+        <span style="display:flex; align-items:center; gap:6px;">
+          <span style="width:10px; height:10px; border-radius:50%; background:#F97316; display:inline-block; border:2px solid #fff; box-shadow:0 0 0 1px #F97316;"></span>
+          Other listings (5km)
         </span>
         <span style="display:flex; align-items:center; gap:6px;">
           <span style="width:10px; height:10px; border-radius:50%; background:#2563eb; display:inline-block; border:2px solid #fff; box-shadow:0 0 0 1px #2563eb;"></span>
@@ -1258,11 +1341,35 @@
   var lng = {{ room.longitude }};
 
   // ---- SINGLE MERGED MAP (property location + nearby places) ----
-  // Zoom bumped to 17 so the exact building/plot is clearly visible instead of the whole neighborhood.
-  var map = L.map('propertyMap').setView([lat, lng], 17);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
+  // Zoom bumped up so the exact building/plot is clearly visible — closest
+  // level the free tile providers reliably render at for most Indian cities.
+  var map = L.map('propertyMap').setView([lat, lng], 18);
+
+  // CARTO's free basemap tiles — unlike raw tile.openstreetmap.org, this is
+  // meant for production use and won't 403-block real site traffic.
+  var streetLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom: 20,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd'
+  });
+
+  // Satellite imagery (free, no API key needed)
+  var satelliteImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
+  });
+
+  // Roads + place-name labels overlaid on top of the satellite imagery —
+  // this is what makes it look like Google's "Satellite" (hybrid) view
+  // instead of plain unlabeled imagery.
+  var satelliteLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19
+  });
+
+  // Combine imagery + labels into a single "Satellite" option for the layer switcher
+  var satelliteLayer = L.layerGroup([satelliteImagery, satelliteLabels]);
+
+  streetLayer.addTo(map);
 
   var propertyIcon = L.divIcon({
     className: 'property-marker',
@@ -1282,8 +1389,105 @@
     iconAnchor: [7, 7],
   });
 
+  // Orange marker for other UrbanTenants listings within 5km
+  var otherListingIcon = L.divIcon({
+    className: 'other-listing-marker',
+    html: '<div style="background:#F97316; width:15px; height:15px; border-radius:50%; border:2.5px solid #fff; box-shadow:0 2px 5px rgba(0,0,0,0.3);"></div>',
+    iconSize: [15, 15],
+    iconAnchor: [8, 8],
+  });
+
   var nbMarkersLayer = L.layerGroup().addTo(map);
   var nbStatus = document.getElementById('nbStatus');
+
+  function _haversineKm(lat1, lng1, lat2, lng2) {
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+  }
+
+  // ---- OTHER LISTINGS WITHIN 5KM ----
+  var otherListingsLayer = L.layerGroup().addTo(map);
+  var currentRoomId = {{ room.id }};
+
+  fetch('/api/listings-geojson/')
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      var results = (data && data.results) || [];
+      results.forEach(function (r) {
+        if (r.id === currentRoomId) return;
+        if (typeof r.lat !== 'number' || typeof r.lng !== 'number') return;
+        var dist = _haversineKm(lat, lng, r.lat, r.lng);
+        if (dist > 5) return;
+        var marker = L.marker([r.lat, r.lng], { icon: otherListingIcon }).addTo(otherListingsLayer);
+        var priceStr = r.rent ? ('&#8377;' + r.rent + '/mo') : '';
+        marker.bindPopup(
+          '<div style="min-width:170px; max-width:220px; font-family:Sora,sans-serif;">' +
+            '<div style="font-weight:700; font-size:13.5px; color:#111827; margin-bottom:3px;">' + r.title + '</div>' +
+            '<div style="font-size:12px; color:#506180; margin-bottom:4px;">' + (r.location_name || '') + ' &middot; ' + dist.toFixed(1) + ' km away</div>' +
+            (priceStr ? '<div style="font-size:12.5px; font-weight:700; color:#16a34a; margin-bottom:6px;">' + priceStr + '</div>' : '') +
+            '<a href="' + r.url + '" style="display:inline-block; font-size:12px; font-weight:600; color:#fff; background:#185FA5; padding:5px 10px; border-radius:6px; text-decoration:none;">View Listing</a>' +
+          '</div>'
+        );
+      });
+    })
+    .catch(function () { /* silently ignore — don't block the rest of the map */ });
+
+  // ---- NEARBY AREAS / LOCALITIES (villages, cities, colonies, e.g. Kalyanpur, Govind Nagar) ----
+  // Shown as plain text labels (no marker dot) so the map reads like a
+  // real place — this helps renters recognise the surrounding neighbourhoods.
+  var localityLabelsLayer = L.layerGroup().addTo(map);
+
+  // Bigger places (city, town, village) get a bolder, larger label;
+  // smaller areas (colony, suburb, neighbourhood, locality) get a subtler one.
+  var BIG_PLACE_TYPES = ['City', 'Town', 'Village'];
+
+  fetch('/api/nearby-localities/?lat=' + lat + '&lng=' + lng + '&radius=8000')
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      var results = (data && data.results) || [];
+      results.forEach(function (loc) {
+        var isBig = BIG_PLACE_TYPES.indexOf(loc.place_type) !== -1;
+        var isColony = loc.place_type === 'Colony';
+
+        var fontSize = isBig ? '13px' : '11.5px';
+        var fontWeight = isBig ? '800' : '700';
+        var textColor = isBig ? '#042C53' : (isColony ? '#7C2D12' : '#0E4A84');
+        var bgColor = isBig ? 'rgba(255,255,255,0.95)' : (isColony ? 'rgba(255,247,237,0.9)' : 'rgba(255,255,255,0.85)');
+        var borderColor = isBig ? 'rgba(4,44,83,0.35)' : (isColony ? 'rgba(194,65,12,0.3)' : 'rgba(24,95,165,0.25)');
+
+        var labelIcon = L.divIcon({
+          className: 'locality-label',
+          html:
+            '<div style="font-family:Sora,sans-serif; font-size:' + fontSize + '; font-weight:' + fontWeight + '; ' +
+            'color:' + textColor + '; background:' + bgColor + '; padding:2px 8px; border-radius:6px; ' +
+            'border:1px solid ' + borderColor + '; white-space:nowrap; box-shadow:0 1px 3px rgba(0,0,0,0.1);">' +
+              loc.name +
+              (isColony ? ' <span style="font-size:9px; font-weight:600; opacity:0.7;">(Colony)</span>' : '') +
+            '</div>',
+          iconSize: null,
+          iconAnchor: [0, 0],
+        });
+        L.marker([loc.lat, loc.lng], { icon: labelIcon, interactive: false, zIndexOffset: isBig ? -50 : -100 })
+          .addTo(localityLabelsLayer);
+      });
+    })
+    .catch(function () { /* silently ignore */ });
+
+  // Layer switcher — base maps (Street/Satellite) + toggleable overlays
+  L.control.layers(
+    { 'Street': streetLayer, 'Satellite': satelliteLayer },
+    {
+      'Nearby services': nbMarkersLayer,
+      'Other listings (5km)': otherListingsLayer,
+      'Area names': localityLabelsLayer,
+    },
+    { position: 'topright', collapsed: true }
+  ).addTo(map);
 
   function buildPopupHtml(place) {
     var rows = [];
@@ -1338,7 +1542,8 @@
 
   var nbLabels = {
     hotel: "hotels", restaurant: "restaurants", laundry: "laundry services",
-    shopping_mart: "shopping marts", food_supplier: "food suppliers"
+    shopping_mart: "shopping marts", food_supplier: "food suppliers",
+    school: "schools & colleges"
   };
 
   function loadNearby(category) {
@@ -1450,6 +1655,82 @@
       }, { enableHighAccuracy: true, timeout: 10000 });
     });
   }
+
+  // ---- LIVE TRACKING (continuously updates user's position on the map) ----
+  var liveTrackBtn = document.getElementById('liveTrackBtn');
+  var liveWatchId = null;
+  var liveTracking = false;
+
+  function stopLiveTracking() {
+    if (liveWatchId !== null) {
+      navigator.geolocation.clearWatch(liveWatchId);
+      liveWatchId = null;
+    }
+    liveTracking = false;
+    if (liveTrackBtn) {
+      liveTrackBtn.textContent = '🛰️ Start Live Tracking';
+      liveTrackBtn.style.background = '#fff';
+      liveTrackBtn.style.color = 'var(--blue-600)';
+    }
+  }
+
+  function startLiveTracking() {
+    if (!navigator.geolocation) {
+      routeInfoEl.textContent = "Geolocation not supported in this browser.";
+      return;
+    }
+
+    var userIcon = L.divIcon({
+      className: 'user-marker',
+      html: '<div style="background:#2563eb; width:16px; height:16px; border-radius:50%; border:3px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.35);"></div>',
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+    });
+
+    liveTracking = true;
+    if (liveTrackBtn) {
+      liveTrackBtn.textContent = '🛑 Stop Live Tracking';
+      liveTrackBtn.style.background = '#dc2626';
+      liveTrackBtn.style.color = '#fff';
+      liveTrackBtn.style.borderColor = '#dc2626';
+    }
+
+    var firstFix = true;
+
+    liveWatchId = navigator.geolocation.watchPosition(function (pos) {
+      var userLat = pos.coords.latitude;
+      var userLng = pos.coords.longitude;
+
+      if (userMarker) map.removeLayer(userMarker);
+      userMarker = L.marker([userLat, userLng], { icon: userIcon, zIndexOffset: 900 })
+        .addTo(map)
+        .bindPopup("<b>Your live location</b>");
+
+      var distKm = _haversineKm(userLat, userLng, lat, lng);
+      routeInfoEl.textContent = "🛰️ Live &middot; " + distKm.toFixed(2) + " km from this property";
+
+      if (firstFix) {
+        map.setView([userLat, userLng], 16);
+        firstFix = false;
+      }
+    }, function () {
+      routeInfoEl.textContent = "Location access denied or unavailable.";
+      stopLiveTracking();
+    }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
+  }
+
+  if (liveTrackBtn) {
+    liveTrackBtn.addEventListener('click', function () {
+      if (liveTracking) {
+        stopLiveTracking();
+      } else {
+        startLiveTracking();
+      }
+    });
+  }
+
+  // Stop watching the position once the person navigates away from the page
+  window.addEventListener('beforeunload', stopLiveTracking);
   {% endif %}
 })();
 
@@ -1513,14 +1794,57 @@
   if (overlay) overlay.addEventListener('click', e => { if (e.target === overlay) closeMenu(); });
 
   const waBtn = document.getElementById('shareWhatsapp');
-  if (waBtn) waBtn.addEventListener('click', () => {
-    window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(shareText + ' ' + shareUrl), '_blank');
-  });
+
+  if (waBtn) {
+    waBtn.addEventListener('click', () => {
+
+      // Google Analytics — WhatsApp share tracking
+      if (typeof gtag === 'function') {
+        gtag('event', 'listing_shared', {
+          room_id: '{{ room.id }}',
+          listing_id: '{{ room.listing_id|default:""|escapejs }}',
+          listing_name: '{{ room.Room_title|escapejs }}',
+          location: '{{ room.location_name|escapejs }}',
+          share_platform: 'whatsapp'
+        });
+      }
+
+      // Existing WhatsApp share functionality
+      window.open(
+        'https://api.whatsapp.com/send?text=' +
+        encodeURIComponent(shareText + ' ' + shareUrl),
+        '_blank'
+      );
+
+    });
+  }
 
   const fbBtn = document.getElementById('shareFacebook');
-  if (fbBtn) fbBtn.addEventListener('click', () => {
-    window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl), '_blank', 'width=600,height=500');
-  });
+
+  if (fbBtn) {
+    fbBtn.addEventListener('click', () => {
+
+      // Google Analytics — Facebook share tracking
+      if (typeof gtag === 'function') {
+        gtag('event', 'listing_shared', {
+          room_id: '{{ room.id }}',
+          listing_id: '{{ room.listing_id|default:""|escapejs }}',
+          listing_name: '{{ room.Room_title|escapejs }}',
+          location: '{{ room.location_name|escapejs }}',
+          share_platform: 'facebook'
+        });
+      }
+
+      // Existing Facebook share functionality
+      window.open(
+        'https://www.facebook.com/sharer/sharer.php?u=' +
+        encodeURIComponent(shareUrl),
+        '_blank',
+        'width=600,height=500'
+      );
+
+    });
+  }
 
   const tgBtn = document.getElementById('shareTelegram');
   if (tgBtn) tgBtn.addEventListener('click', () => {
@@ -1550,6 +1874,124 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && overlay.classList.contains('active')) closeMenu();
   });
+})();
+
+// ---- LIKE FEATURE ----
+(function () {
+  function getCookie(name) {
+    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return m ? decodeURIComponent(m.pop()) : '';
+  }
+
+  function showLikeToast(text, type) {
+    const t = document.createElement('div');
+    t.className = 'room-toast ' + (type || 'error');
+    t.textContent = text;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+
+  const roomId    = {{ room.id }};
+  const csrftoken = getCookie('csrftoken');
+  const isAuthenticated = {% if request.user.is_authenticated %}true{% else %}false{% endif %};
+
+  const likeBtns  = [document.getElementById('likeTrigger'), document.getElementById('likeTriggerInline')].filter(Boolean);
+  const countEls  = [document.getElementById('likeCount'), document.getElementById('likeCountInline')].filter(Boolean);
+
+  function heartSvg(filled) {
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="' + (filled ? '#EF4444' : 'none') + '" stroke="' + (filled ? '#EF4444' : 'currentColor') + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>';
+  }
+
+  function paint(liked) {
+    likeBtns.forEach(btn => {
+      btn.dataset.liked = liked ? 'true' : 'false';
+      btn.setAttribute('aria-pressed', liked ? 'true' : 'false');
+      btn.classList.toggle('liked', liked);
+      const svg = btn.querySelector('svg');
+      if (svg) svg.outerHTML = heartSvg(liked);
+    });
+  }
+
+  function setCount(n) {
+    countEls.forEach(el => { el.textContent = n; });
+  }
+
+  function pop() {
+    likeBtns.forEach(btn => {
+      btn.classList.remove('pop');
+      // force reflow so the animation can restart
+      void btn.offsetWidth;
+      btn.classList.add('pop');
+    });
+  }
+
+  if (!likeBtns.length) return;
+
+  let liked = likeBtns[0].dataset.liked === 'true';
+  let busy  = false;
+
+  async function toggleLike() {
+    if (busy) return;
+
+    // If user isn't logged in, don't even attempt the request — tell them directly.
+    if (!isAuthenticated) {
+      showLikeToast('Please login to like this listing.', 'info');
+      return;
+    }
+
+    busy = true;
+
+    const prevLiked = liked;
+    const prevCount = parseInt(countEls[0] ? countEls[0].textContent : '0', 10) || 0;
+
+    // optimistic UI update
+    liked = !liked;
+    paint(liked);
+    setCount(prevCount + (liked ? 1 : -1));
+    pop();
+
+    try {
+      const resp = await fetch(`/room/${roomId}/like/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+
+      // Login redirect usually shows up as a redirected response to an accounts/login URL
+      if (resp.redirected && resp.url.indexOf('login') !== -1) {
+        throw new Error('Session expired. Please login again.');
+      }
+      if (resp.status === 403) {
+        throw new Error('Request blocked (CSRF). Please refresh the page and try again.');
+      }
+      if (resp.status === 404) {
+        throw new Error('Like endpoint not found (check urls.py).');
+      }
+      if (!resp.ok) {
+        throw new Error('Server error (' + resp.status + '). Check server logs.');
+      }
+
+      const data = await resp.json();
+      if (!data || data.success === false) throw new Error('Like could not be saved.');
+
+      // reconcile with server truth
+      if (typeof data.liked === 'boolean') { liked = data.liked; paint(liked); }
+      if (typeof data.like_count === 'number') { setCount(data.like_count); }
+    } catch (err) {
+      console.error('Like error:', err.message);
+      showLikeToast(err.message || 'Could not update like. Please try again.', 'error');
+      // revert on failure
+      liked = prevLiked;
+      paint(liked);
+      setCount(prevCount);
+    } finally {
+      busy = false;
+    }
+  }
+
+  likeBtns.forEach(btn => btn.addEventListener('click', toggleLike));
 })();
 </script>
 
@@ -1656,6 +2098,206 @@
       keepalive: true,
     }).catch(() => {});
   });
+})();
+</script>
+<script>
+(function () {
+
+    // ================================
+    // URBANTENANTS ANALYTICS
+    // ================================
+
+    const listingData = {
+        room_id: "{{ room.id }}",
+        listing_id: "{{ room.listing_id|default:''|escapejs }}",
+        listing_name: "{{ room.Room_title|escapejs }}",
+        location: "{{ room.location_name|escapejs }}",
+        room_type: "{{ room.Room_type|escapejs }}",
+        price: "{{ final_price|default:room.Room_rent }}",
+        availability: "{% if room.Room_available %}available{% else %}not_available{% endif %}"
+    };
+
+    function trackEvent(eventName, params = {}) {
+    if (typeof gtag === "function") {
+        gtag("event", eventName, {
+            ...params,
+
+            room_id: "{{ room.id }}",
+            listing_id: "{{ room.listing_id|default:''|escapejs }}",
+            listing_name: "{{ room.Room_title|escapejs }}",
+            location: "{{ room.location_name|escapejs }}"
+        });
+    }
+}
+
+    // ==========================================
+    // 1. LISTING VIEW
+    // ==========================================
+
+    trackEvent("listing_view");
+
+
+    // ==========================================
+    // 2. WHATSAPP CLICK
+    // ==========================================
+
+    const whatsappBtn = document.getElementById("waUnlockedBtn");
+
+    if (whatsappBtn) {
+        whatsappBtn.addEventListener("click", function () {
+
+            trackEvent("whatsapp_click", {
+                contact_type: "owner"
+            });
+
+        });
+    }
+
+    // ==========================================
+    // 3. URBANTENANTS SUPPORT WHATSAPP
+    // ==========================================
+
+   const supportWhatsapp = document.getElementById("supportWaBtn");
+
+    if (supportWhatsapp) {
+        supportWhatsapp.addEventListener("click", function () {
+
+            trackEvent("support_whatsapp_click", {
+                contact_type: "support"
+            });
+
+        });
+    }
+
+
+    // ==========================================
+    // 4. BOOKING START
+    // ==========================================
+
+    const bookingBtn = document.querySelector(".btn-book");
+
+    if (bookingBtn) {
+        bookingBtn.addEventListener("click", function () {
+
+            trackEvent("booking_start");
+
+        });
+    }
+
+
+    // ==========================================
+    // 5. SHARE LISTING
+    // ==========================================
+
+    const shareButtons = [
+        "shareTrigger",
+        "shareTriggerInline",
+        "shareTriggerPanel"
+    ];
+
+    shareButtons.forEach(function (id) {
+
+        const btn = document.getElementById(id);
+
+        if (btn) {
+            btn.addEventListener("click", function () {
+
+                trackEvent("listing_share_open");
+
+            });
+        }
+
+    });
+
+
+    // ==========================================
+    // 6. GALLERY / PHOTOS
+    // ==========================================
+
+    const gallery = document.getElementById("gallery");
+
+    if (gallery) {
+
+        gallery.addEventListener("click", function () {
+
+            trackEvent("listing_photo_view");
+
+        });
+
+    }
+
+
+    // ==========================================
+    // 7. NEIGHBORHOOD BOARD
+    // ==========================================
+
+    const neighborhoodBtn =
+        document.querySelector('a[href*="neighborhood_board"]');
+
+    if (neighborhoodBtn) {
+
+        neighborhoodBtn.addEventListener("click", function () {
+
+            trackEvent("neighborhood_board_click");
+
+        });
+
+    }
+
+
+    // ==========================================
+    // 8. NEARBY SERVICES
+    // ==========================================
+
+    document.querySelectorAll(".nb-cat-btn[data-category]")
+        .forEach(function (btn) {
+
+            btn.addEventListener("click", function () {
+
+                trackEvent("nearby_category_click", {
+                    nearby_category: this.dataset.category
+                });
+
+            });
+
+        });
+
+
+    // ==========================================
+    // 9. ROUTE / DISTANCE
+    // ==========================================
+
+    const routeBtn = document.getElementById("trackRouteBtn");
+
+    if (routeBtn) {
+
+        routeBtn.addEventListener("click", function () {
+
+            trackEvent("route_check");
+
+        });
+
+    }
+
+
+    // ==========================================
+    // 10. VIDEO WATCH
+    // ==========================================
+
+    document.querySelectorAll("video")
+        .forEach(function (video, index) {
+
+            video.addEventListener("play", function () {
+
+                trackEvent("listing_video_play", {
+                    video_number: index + 1
+                });
+
+            }, { once: true });
+
+        });
+
+
 })();
 </script>
 

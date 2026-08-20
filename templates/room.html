@@ -1001,10 +1001,10 @@
           UrbanTenants Support
         </a>
 
-          <a href="https://wa.me/{{ whatsapp_number }}?text=Hi%2C%20I%20came%20from%20UrbanTenants.%20I%20want%20more%20information%20about%20your%20room." target="_blank" class="btn-whatsapp" id="waUnlockedBtn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
-            Chat on WhatsApp
-          </a>
+        <a href="https://wa.me/{{ whatsapp_number }}?text=Hi%2C%20I%20came%20from%20UrbanTenants.%20I%20want%20more%20information%20about%20your%20room." target="_blank" class="btn-whatsapp" id="waUnlockedBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+          Chat on WhatsApp
+        </a>
 
         <hr class="panel-divider" />
 
@@ -1099,6 +1099,7 @@
         <button type="button" class="nb-cat-btn" data-category="laundry">🧺 Laundry</button>
         <button type="button" class="nb-cat-btn" data-category="shopping_mart">🛍️ Shopping Mart</button>
         <button type="button" class="nb-cat-btn" data-category="food_supplier">🛒 Food Supplier</button>
+        <button type="button" class="nb-cat-btn" data-category="school">🏫 Schools &amp; Colleges</button>
       </div>
 
       <div class="nb-status-row">
@@ -1110,6 +1111,9 @@
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
         <button type="button" id="trackRouteBtn" class="nb-cat-btn" style="background:var(--blue-600); color:#fff; border-color:var(--blue-600);">
           📍 Track Route from My Location
+        </button>
+        <button type="button" id="liveTrackBtn" class="nb-cat-btn" style="background:#fff; color:var(--blue-600); border-color:var(--blue-600);">
+          🛰️ Start Live Tracking
         </button>
         <span id="routeInfo" style="font-size:13px; color:var(--neutral-600); font-weight:500;"></span>
       </div>
@@ -1126,10 +1130,28 @@
           Nearby services
         </span>
         <span style="display:flex; align-items:center; gap:6px;">
+          <span style="width:10px; height:10px; border-radius:50%; background:#F97316; display:inline-block; border:2px solid #fff; box-shadow:0 0 0 1px #F97316;"></span>
+          Other listings (5km)
+        </span>
+        <span style="display:flex; align-items:center; gap:6px;">
           <span style="width:10px; height:10px; border-radius:50%; background:#2563eb; display:inline-block; border:2px solid #fff; box-shadow:0 0 0 1px #2563eb;"></span>
           Your location
         </span>
       </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="map-section">
+    <div class="map-card" style="text-align:center; padding:36px 24px;">
+      <div style="width:52px; height:52px; border-radius:50%; background:var(--neutral-100); display:flex; align-items:center; justify-content:center; margin:0 auto 14px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--neutral-400);"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+      </div>
+      <p class="map-label" style="justify-content:center; margin-bottom:6px;">Location is not available yet</p>
+      <p class="map-sub" style="margin-bottom:20px;">This listing's exact map location hasn't been added. Please contact the owner on WhatsApp for directions.</p>
+      <a href="https://wa.me/{{ whatsapp_number }}?text=Hi%2C%20I%20came%20from%20UrbanTenants.%20Could%20you%20please%20share%20the%20exact%20location%20of%20your%20room%3F" target="_blank" class="btn-whatsapp" style="max-width:280px; margin:0 auto;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        Ask Owner on WhatsApp
+      </a>
     </div>
   </div>
   {% endif %}
@@ -1137,31 +1159,6 @@
   <div class="feet"></div>
 
 </main>
-
-<!-- CHAT UNLOCK MODAL -->
-<div class="chat-unlock-overlay" id="chatUnlockOverlay">
-  <div class="chat-unlock-modal">
-    <button class="chat-unlock-close" id="chatUnlockClose" type="button" aria-label="Close">&times;</button>
-    <div class="chat-unlock-title">Unlock WhatsApp Chat</div>
-    <div class="chat-unlock-sub">Choose a plan to message the owner directly on WhatsApp.</div>
-
-    <div id="chatPlanList">
-      {% for plan in chat_plans %}
-      <div class="chat-plan-card" data-plan="{{ plan.key }}">
-        <div class="chat-plan-top">
-          <span class="chat-plan-name">{{ plan.label }}</span>
-          <span class="chat-plan-price">&#8377;{{ plan.price }}</span>
-        </div>
-        <div class="chat-plan-desc">{{ plan.desc }}</div>
-      </div>
-      {% endfor %}
-    </div>
-
-    <button class="chat-unlock-pay-btn" id="chatUnlockPayBtn" type="button" disabled>Select a plan</button>
-    <div class="chat-unlock-loading" id="chatUnlockLoading">Processing, please wait&hellip;</div>
-    <div class="chat-unlock-error" id="chatUnlockError"></div>
-  </div>
-</div>
 
 <!-- SHARE MENU -->
 <div class="share-menu-overlay" id="shareOverlay">
@@ -1318,11 +1315,35 @@
   var lng = {{ room.longitude }};
 
   // ---- SINGLE MERGED MAP (property location + nearby places) ----
-  // Zoom bumped to 17 so the exact building/plot is clearly visible instead of the whole neighborhood.
-  var map = L.map('propertyMap').setView([lat, lng], 17);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19, attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
+  // Zoom bumped up so the exact building/plot is clearly visible — closest
+  // level the free tile providers reliably render at for most Indian cities.
+  var map = L.map('propertyMap').setView([lat, lng], 18);
+
+  // CARTO's free basemap tiles — unlike raw tile.openstreetmap.org, this is
+  // meant for production use and won't 403-block real site traffic.
+  var streetLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom: 20,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd'
+  });
+
+  // Satellite imagery (free, no API key needed)
+  var satelliteImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
+  });
+
+  // Roads + place-name labels overlaid on top of the satellite imagery —
+  // this is what makes it look like Google's "Satellite" (hybrid) view
+  // instead of plain unlabeled imagery.
+  var satelliteLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19
+  });
+
+  // Combine imagery + labels into a single "Satellite" option for the layer switcher
+  var satelliteLayer = L.layerGroup([satelliteImagery, satelliteLabels]);
+
+  streetLayer.addTo(map);
 
   var propertyIcon = L.divIcon({
     className: 'property-marker',
@@ -1342,8 +1363,105 @@
     iconAnchor: [7, 7],
   });
 
+  // Orange marker for other UrbanTenants listings within 5km
+  var otherListingIcon = L.divIcon({
+    className: 'other-listing-marker',
+    html: '<div style="background:#F97316; width:15px; height:15px; border-radius:50%; border:2.5px solid #fff; box-shadow:0 2px 5px rgba(0,0,0,0.3);"></div>',
+    iconSize: [15, 15],
+    iconAnchor: [8, 8],
+  });
+
   var nbMarkersLayer = L.layerGroup().addTo(map);
   var nbStatus = document.getElementById('nbStatus');
+
+  function _haversineKm(lat1, lng1, lat2, lng2) {
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+  }
+
+  // ---- OTHER LISTINGS WITHIN 5KM ----
+  var otherListingsLayer = L.layerGroup().addTo(map);
+  var currentRoomId = {{ room.id }};
+
+  fetch('/api/listings-geojson/')
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      var results = (data && data.results) || [];
+      results.forEach(function (r) {
+        if (r.id === currentRoomId) return;
+        if (typeof r.lat !== 'number' || typeof r.lng !== 'number') return;
+        var dist = _haversineKm(lat, lng, r.lat, r.lng);
+        if (dist > 5) return;
+        var marker = L.marker([r.lat, r.lng], { icon: otherListingIcon }).addTo(otherListingsLayer);
+        var priceStr = r.rent ? ('&#8377;' + r.rent + '/mo') : '';
+        marker.bindPopup(
+          '<div style="min-width:170px; max-width:220px; font-family:Sora,sans-serif;">' +
+            '<div style="font-weight:700; font-size:13.5px; color:#111827; margin-bottom:3px;">' + r.title + '</div>' +
+            '<div style="font-size:12px; color:#506180; margin-bottom:4px;">' + (r.location_name || '') + ' &middot; ' + dist.toFixed(1) + ' km away</div>' +
+            (priceStr ? '<div style="font-size:12.5px; font-weight:700; color:#16a34a; margin-bottom:6px;">' + priceStr + '</div>' : '') +
+            '<a href="' + r.url + '" style="display:inline-block; font-size:12px; font-weight:600; color:#fff; background:#185FA5; padding:5px 10px; border-radius:6px; text-decoration:none;">View Listing</a>' +
+          '</div>'
+        );
+      });
+    })
+    .catch(function () { /* silently ignore — don't block the rest of the map */ });
+
+  // ---- NEARBY AREAS / LOCALITIES (villages, cities, colonies, e.g. Kalyanpur, Govind Nagar) ----
+  // Shown as plain text labels (no marker dot) so the map reads like a
+  // real place — this helps renters recognise the surrounding neighbourhoods.
+  var localityLabelsLayer = L.layerGroup().addTo(map);
+
+  // Bigger places (city, town, village) get a bolder, larger label;
+  // smaller areas (colony, suburb, neighbourhood, locality) get a subtler one.
+  var BIG_PLACE_TYPES = ['City', 'Town', 'Village'];
+
+  fetch('/api/nearby-localities/?lat=' + lat + '&lng=' + lng + '&radius=8000')
+    .then(function (res) { return res.json(); })
+    .then(function (data) {
+      var results = (data && data.results) || [];
+      results.forEach(function (loc) {
+        var isBig = BIG_PLACE_TYPES.indexOf(loc.place_type) !== -1;
+        var isColony = loc.place_type === 'Colony';
+
+        var fontSize = isBig ? '13px' : '11.5px';
+        var fontWeight = isBig ? '800' : '700';
+        var textColor = isBig ? '#042C53' : (isColony ? '#7C2D12' : '#0E4A84');
+        var bgColor = isBig ? 'rgba(255,255,255,0.95)' : (isColony ? 'rgba(255,247,237,0.9)' : 'rgba(255,255,255,0.85)');
+        var borderColor = isBig ? 'rgba(4,44,83,0.35)' : (isColony ? 'rgba(194,65,12,0.3)' : 'rgba(24,95,165,0.25)');
+
+        var labelIcon = L.divIcon({
+          className: 'locality-label',
+          html:
+            '<div style="font-family:Sora,sans-serif; font-size:' + fontSize + '; font-weight:' + fontWeight + '; ' +
+            'color:' + textColor + '; background:' + bgColor + '; padding:2px 8px; border-radius:6px; ' +
+            'border:1px solid ' + borderColor + '; white-space:nowrap; box-shadow:0 1px 3px rgba(0,0,0,0.1);">' +
+              loc.name +
+              (isColony ? ' <span style="font-size:9px; font-weight:600; opacity:0.7;">(Colony)</span>' : '') +
+            '</div>',
+          iconSize: null,
+          iconAnchor: [0, 0],
+        });
+        L.marker([loc.lat, loc.lng], { icon: labelIcon, interactive: false, zIndexOffset: isBig ? -50 : -100 })
+          .addTo(localityLabelsLayer);
+      });
+    })
+    .catch(function () { /* silently ignore */ });
+
+  // Layer switcher — base maps (Street/Satellite) + toggleable overlays
+  L.control.layers(
+    { 'Street': streetLayer, 'Satellite': satelliteLayer },
+    {
+      'Nearby services': nbMarkersLayer,
+      'Other listings (5km)': otherListingsLayer,
+      'Area names': localityLabelsLayer,
+    },
+    { position: 'topright', collapsed: true }
+  ).addTo(map);
 
   function buildPopupHtml(place) {
     var rows = [];
@@ -1398,7 +1516,8 @@
 
   var nbLabels = {
     hotel: "hotels", restaurant: "restaurants", laundry: "laundry services",
-    shopping_mart: "shopping marts", food_supplier: "food suppliers"
+    shopping_mart: "shopping marts", food_supplier: "food suppliers",
+    school: "schools & colleges"
   };
 
   function loadNearby(category) {
@@ -1510,6 +1629,82 @@
       }, { enableHighAccuracy: true, timeout: 10000 });
     });
   }
+
+  // ---- LIVE TRACKING (continuously updates user's position on the map) ----
+  var liveTrackBtn = document.getElementById('liveTrackBtn');
+  var liveWatchId = null;
+  var liveTracking = false;
+
+  function stopLiveTracking() {
+    if (liveWatchId !== null) {
+      navigator.geolocation.clearWatch(liveWatchId);
+      liveWatchId = null;
+    }
+    liveTracking = false;
+    if (liveTrackBtn) {
+      liveTrackBtn.textContent = '🛰️ Start Live Tracking';
+      liveTrackBtn.style.background = '#fff';
+      liveTrackBtn.style.color = 'var(--blue-600)';
+    }
+  }
+
+  function startLiveTracking() {
+    if (!navigator.geolocation) {
+      routeInfoEl.textContent = "Geolocation not supported in this browser.";
+      return;
+    }
+
+    var userIcon = L.divIcon({
+      className: 'user-marker',
+      html: '<div style="background:#2563eb; width:16px; height:16px; border-radius:50%; border:3px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.35);"></div>',
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+    });
+
+    liveTracking = true;
+    if (liveTrackBtn) {
+      liveTrackBtn.textContent = '🛑 Stop Live Tracking';
+      liveTrackBtn.style.background = '#dc2626';
+      liveTrackBtn.style.color = '#fff';
+      liveTrackBtn.style.borderColor = '#dc2626';
+    }
+
+    var firstFix = true;
+
+    liveWatchId = navigator.geolocation.watchPosition(function (pos) {
+      var userLat = pos.coords.latitude;
+      var userLng = pos.coords.longitude;
+
+      if (userMarker) map.removeLayer(userMarker);
+      userMarker = L.marker([userLat, userLng], { icon: userIcon, zIndexOffset: 900 })
+        .addTo(map)
+        .bindPopup("<b>Your live location</b>");
+
+      var distKm = _haversineKm(userLat, userLng, lat, lng);
+      routeInfoEl.textContent = "🛰️ Live &middot; " + distKm.toFixed(2) + " km from this property";
+
+      if (firstFix) {
+        map.setView([userLat, userLng], 16);
+        firstFix = false;
+      }
+    }, function () {
+      routeInfoEl.textContent = "Location access denied or unavailable.";
+      stopLiveTracking();
+    }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
+  }
+
+  if (liveTrackBtn) {
+    liveTrackBtn.addEventListener('click', function () {
+      if (liveTracking) {
+        stopLiveTracking();
+      } else {
+        startLiveTracking();
+      }
+    });
+  }
+
+  // Stop watching the position once the person navigates away from the page
+  window.addEventListener('beforeunload', stopLiveTracking);
   {% endif %}
 })();
 
@@ -1774,103 +1969,6 @@
 })();
 </script>
 
-<!-- CHAT UNLOCK: Cashfree checkout -->
-<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-<script>
-(function () {
-  function getCookie(name) {
-    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return m ? decodeURIComponent(m.pop()) : '';
-  }
-
-  function showToast(text, type) {
-    const t = document.createElement('div');
-    t.className = 'room-toast ' + (type || '');
-    t.textContent = text;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 4000);
-  }
-
-  {% if messages %}
-    {% for message in messages %}
-      showToast({{ message|escapejs }}, "{{ message.tags }}");
-    {% endfor %}
-  {% endif %}
-
-  const lockedBtn   = document.getElementById('waLockedBtn');
-  const unlockedBtn = document.getElementById('waUnlockedBtn');
-  const overlay     = document.getElementById('chatUnlockOverlay');
-  const closeBtn    = document.getElementById('chatUnlockClose');
-  const planCards   = document.querySelectorAll('.chat-plan-card');
-  const payBtn      = document.getElementById('chatUnlockPayBtn');
-  const loadingEl   = document.getElementById('chatUnlockLoading');
-  const errorEl     = document.getElementById('chatUnlockError');
-  const roomId      = {{ room.id }};
-  const csrftoken   = getCookie('csrftoken');
-
-  let selectedPlan = null;
-
-  function openModal() {
-    if (!overlay) return;
-    overlay.classList.add('open');
-    errorEl.style.display = 'none';
-    loadingEl.style.display = 'none';
-  }
-  function closeModal() {
-    if (!overlay) return;
-    overlay.classList.remove('open');
-  }
-
-  if (lockedBtn) lockedBtn.addEventListener('click', openModal);
-  if (closeBtn) closeBtn.addEventListener('click', closeModal);
-  if (overlay) overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
-
-  planCards.forEach(card => {
-    card.addEventListener('click', () => {
-      planCards.forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      selectedPlan = card.dataset.plan;
-      payBtn.disabled = false;
-      payBtn.textContent = 'Continue to Pay';
-    });
-  });
-
-  if (payBtn) payBtn.addEventListener('click', async () => {
-    if (!selectedPlan) return;
-    payBtn.disabled = true;
-    loadingEl.style.display = 'block';
-    errorEl.style.display = 'none';
-
-    try {
-      const resp = await fetch(`/room/${roomId}/chat-unlock/order/`, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': csrftoken,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'plan=' + encodeURIComponent(selectedPlan),
-      });
-      const data = await resp.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Something went wrong. Please try again.');
-      }
-
-      const cashfree = Cashfree({ mode: data.is_test ? 'sandbox' : 'production' });
-      cashfree.checkout({
-        paymentSessionId: data.payment_session_id,
-        redirectTarget: '_self',
-      });
-    } catch (err) {
-      loadingEl.style.display = 'none';
-      errorEl.textContent = err.message || 'Payment could not be started. Please try again.';
-      errorEl.style.display = 'block';
-      payBtn.disabled = false;
-    }
-  });
-
-})();
-</script>
 <script>
 (function () {
 

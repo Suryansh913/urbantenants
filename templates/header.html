@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2357487058280395"
+    crossorigin="anonymous"></script>
     <title>UrbanTenants</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
@@ -395,8 +396,11 @@
         <a class="s-link {% if request.resolver_match.url_name == 'Terms-condition' %}active-s{% endif %}" href="{% url 'Terms-condition' %}">
             <i class="ti ti-file-text" aria-hidden="true"></i>Terms & Conditions
         </a>
-        <a class="s-link {% if request.resolver_match.url_name == 'privacy-policy' %}active-s{% endif %}" href="{% url 'privacy-policy' %}">
+        <a class="s-link {% if request.resolver_match.url_name == 'refund_cancellation' %}active-s{% endif %}" href="{% url 'privacy-policy' %}">
             <i class="ti ti-shield-check" aria-hidden="true"></i>Refund & Cancellation
+        </a>
+        <a class="s-link {% if request.resolver_match.url_name == 'privacy-policy' %}active-s{% endif %}" href="{% url 'privacypolicy' %}">
+            <i class="ti ti-shield-check" aria-hidden="true"></i>Privacy-policy
         </a>
 
         <div class="s-label">Support</div>

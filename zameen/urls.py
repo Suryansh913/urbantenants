@@ -49,7 +49,8 @@ urlpatterns = [
     path('2bhk/', views.bhk2, name="bhk2"),
     path('About-Us/', views.AboutUs,name="aboutus"),
     path('Terms-condition/', views.terms_conditions,name="Terms-condition"),
-    path('Privacy-policy/', views.privacy_policy,name="privacy-policy"),
+    path('refund_cancellation/', views.refund_cancellation,name="privacy-policy"),
+    path('privacy-policy/', views.privacy_policy,name="privacypolicy"),
     path('3bhk/', views.bhk3, name="bhk3"),
     path('pg/', views.pg, name="pg"),
     path('bookingconfirm/<int:id>', views.bookingcon, name="bookingconfirm"),
@@ -103,6 +104,7 @@ urlpatterns = [
     path('api/submit-score/', views.submit_score, name='submit_score'),
     path("leads/", include("leads.urls")),
     path('room/<int:room_id>/like/', views.toggle_like, name='room_like'),
+    path("api/nearby-localities/", views.nearby_localities_api, name="nearby_localities_api"),
 
 
 

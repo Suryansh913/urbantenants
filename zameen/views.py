@@ -814,7 +814,29 @@ PLACE_TAG_MAP = {
         ("shop", "supermarket"), ("shop", "convenience"),
         ("shop", "grocery"), ("shop", "greengrocer"),
     ],
+    "school": [
+        ("amenity", "school"), ("amenity", "college"),
+        ("amenity", "university"), ("amenity", "kindergarten"),
+        ("amenity", "coaching_centre"),
+    ],
 }
+
+# OSM place tags used to build the "areas & localities" label layer
+# (things like Kalyanpur, Govind Nagar, villages, cities, etc.)
+LOCALITY_TAG_PAIRS = [
+    ("place", "suburb"), ("place", "neighbourhood"),
+    ("place", "quarter"), ("place", "locality"),
+    ("place", "hamlet"), ("place", "town"),
+    ("place", "village"), ("place", "city"),
+    ("place", "city_block"), ("place", "borough"),
+]
+
+# Colonies in Indian cities are usually mapped as *named residential
+# landuse areas* (not "place" nodes), so they need a separate query
+# that includes ways/relations (polygons), not just point nodes.
+COLONY_TAG_PAIRS = [
+    ("landuse", "residential"),
+]
 
 # Multiple public Overpass mirrors — if one is down/slow/blocking us,
 # we automatically try the next one.
@@ -920,6 +942,7 @@ def nearby_places_api(request):
     category_display = {
         "hotel": "Hotel", "restaurant": "Restaurant", "laundry": "Laundry",
         "shopping_mart": "Shopping Mart", "food_supplier": "Store",
+        "school": "School",
     }
 
     results = []
@@ -958,6 +981,130 @@ def nearby_places_api(request):
         })
 
     return JsonResponse({"results": results, "category": category})
+
+
+def _build_locality_query(lat, lng, radius, tag_pairs):
+    """place=* tags are almost always nodes (single points)."""
+    clauses = []
+    for key, value in tag_pairs:
+        clauses.append(f'node["{key}"="{value}"](around:{radius},{lat},{lng});')
+    return f"""
+    [out:json][timeout:25];
+    (
+        {''.join(clauses)}
+    );
+    out body;
+    """
+
+
+def _build_colony_query(lat, lng, radius, tag_pairs):
+    """
+    Colonies are usually mapped as named residential landuse *areas*
+    (ways/relations), so we need their centroid via 'out center'.
+    """
+    clauses = []
+    for key, value in tag_pairs:
+        clauses.append(f'way["{key}"="{value}"]["name"](around:{radius},{lat},{lng});')
+        clauses.append(f'relation["{key}"="{value}"]["name"](around:{radius},{lat},{lng});')
+    return f"""
+    [out:json][timeout:25];
+    (
+        {''.join(clauses)}
+    );
+    out center;
+    """
+
+
+def nearby_localities_api(request):
+    """
+    AJAX endpoint that returns named areas / localities / villages / cities /
+    colonies around a given point (e.g. Kalyanpur, Govind Nagar), so they can
+    be shown as text labels on the property map.
+
+    Query params:
+        lat, lng  (required)
+        radius    (optional, default=8000 meters — localities need a wider radius than shops)
+    """
+    lat = request.GET.get("lat")
+    lng = request.GET.get("lng")
+    radius = request.GET.get("radius", 8000)
+
+    if not lat or not lng:
+        return JsonResponse({"error": "lat and lng are required"}, status=400)
+
+    place_query = _build_locality_query(lat, lng, radius, LOCALITY_TAG_PAIRS)
+    colony_query = _build_colony_query(lat, lng, radius, COLONY_TAG_PAIRS)
+
+    try:
+        place_data = _query_overpass(place_query)
+    except Exception as e:
+        return JsonResponse(
+            {"error": f"Could not reach any Overpass server: {e}"},
+            status=502,
+        )
+
+    # Colonies are a best-effort extra — if this call fails, we still
+    # return the place-node results rather than failing the whole request.
+    try:
+        colony_data = _query_overpass(colony_query)
+    except Exception:
+        colony_data = {"elements": []}
+
+    place_type_display = {
+        "suburb": "Suburb", "neighbourhood": "Neighbourhood",
+        "quarter": "Quarter", "locality": "Locality",
+        "hamlet": "Hamlet", "town": "Town",
+        "village": "Village", "city": "City",
+        "city_block": "Block", "borough": "Borough",
+    }
+
+    results = []
+    seen_names = set()
+
+    for element in place_data.get("elements", []):
+        tags = element.get("tags", {})
+        name = tags.get("name")
+        if not name or name in seen_names:
+            continue
+        place_lat = element.get("lat")
+        place_lng = element.get("lon")
+        if place_lat is None or place_lng is None:
+            continue
+        seen_names.add(name)
+        results.append({
+            "name": name,
+            "place_type": place_type_display.get(tags.get("place"), "Area"),
+            "lat": place_lat,
+            "lng": place_lng,
+        })
+
+    for element in colony_data.get("elements", []):
+        tags = element.get("tags", {})
+        name = tags.get("name")
+        if not name or name in seen_names:
+            continue
+
+        if element["type"] == "way" or element["type"] == "relation":
+            center = element.get("center", {})
+            place_lat = center.get("lat")
+            place_lng = center.get("lon")
+        else:
+            place_lat = element.get("lat")
+            place_lng = element.get("lon")
+
+        if place_lat is None or place_lng is None:
+            continue
+
+        seen_names.add(name)
+        results.append({
+            "name": name,
+            "place_type": "Colony",
+            "lat": place_lat,
+            "lng": place_lng,
+        })
+
+    return JsonResponse({"results": results})
+
 
 import math
 from django.contrib.auth.decorators import login_required
@@ -1188,3 +1335,24 @@ def toggle_like(request, room_id):
         'liked': liked,
         'like_count': room.likes.count()
     })
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        "",
+        "Disallow: /admin/",
+        "Disallow: /business/dashboard/",
+        "Disallow: /support/dashboard/",
+        "",
+        f"Sitemap: {request.scheme}://{request.get_host()}/sitemap.xml",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+def refund_cancellation(request):
+    return render(request, "refund-cancellation.html")
+
+def ads_txt(request):
+    # Google AdSense verification file - must be served at domain root exactly as /ads.txt
+    lines = [
+        "google.com, pub-2357487058280395, DIRECT, f08c47fec0942fa0",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
