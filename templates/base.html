@@ -548,6 +548,27 @@
             .quiz-promo { padding: 18px 18px; max-width: 100%; }
             .qp-title { font-size: 20px; }
         }
+
+        /* ===================== AD BLOCKS ===================== */
+        .ad-slot {
+            text-align: center;
+            margin: 20px auto;
+        }
+        .ad-slot .ad-label {
+            font-size: 11px;
+            color: #999;
+            display: block;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .ad-slot-top {
+            max-width: 1300px;
+            padding: 0 1.5rem;
+        }
+        .ad-slot-grid {
+            grid-column: 1 / -1;
+        }
     </style>
     <script src="https://pl30952486.effectivecpmnetwork.com/19/f7/21/19f7214935789d460138fbbc976d7beb.js"></script>
 
@@ -865,6 +886,13 @@
     <span>Showing {{ listingdata|length }} listings</span>
 </div>
 
+<!-- ===== BANNER AD - TOP OF LISTINGS (native container format) ===== -->
+<div class="ad-slot ad-slot-top">
+    <span class="ad-label">Advertisement</span>
+    <script async="async" data-cfasync="false" src="https://pl30962904.profitableratecpmnetwork.com/ab5ad89de4536f6a4c91618ed6d31e2b/invoke.js"></script>
+    <div id="container-ab5ad89de4536f6a4c91618ed6d31e2b"></div>
+</div>
+
 <div class="listings-grid">
     {% for n in listingdata %}
     <article class="card">
@@ -922,6 +950,16 @@
             </div>
         </div>
     </article>
+    {% if forloop.counter|divisibleby:5 %}
+    <!-- ===== BANNER AD - EVERY 5TH LISTING (fixed 320x50 iframe format) ===== -->
+    <div class="ad-slot ad-slot-grid">
+        <span class="ad-label">Advertisement</span>
+        <script>
+            atOptions = { 'key' : 'd3c62eb7f315e5f34d8796885f15746b', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+        </script>
+        <script src="https://www.highrevenueformat.com/d3c62eb7f315e5f34d8796885f15746b/invoke.js"></script>
+    </div>
+    {% endif %}
     {% empty %}
     <p class="no-results">No rooms found. Try a different search.</p>
     {% endfor %}
