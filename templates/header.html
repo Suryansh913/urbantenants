@@ -1,242 +1,233 @@
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2357487058280395"
-    crossorigin="anonymous"></script>
-    <title>UrbanTenants</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-    <link rel="stylesheet" href="{% static 'header.css' %}">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2357487058280395"
+crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="{% static 'header.css' %}">
 
-    <style>
-        /* ===== Brand mark animation: house silhouette morphs into the UT logo ===== */
-        .brand-anim-bg{
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;
-            background:#fbfaf7;
-            border-radius:10px;
-            flex-shrink:0;
-            overflow:visible;
-        }
-        .brand-anim-bg.nav-size{ width:52px; height:52px; padding:4px; }
-        .brand-anim-bg.side-size{ width:40px; height:40px; padding:3px; }
+<style>
+    /* ===== Brand mark animation: house silhouette morphs into the UT logo ===== */
+    .brand-anim-bg{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        background:#fbfaf7;
+        border-radius:10px;
+        flex-shrink:0;
+        overflow:visible;
+    }
+    .brand-anim-bg.nav-size{ width:52px; height:52px; padding:4px; }
+    .brand-anim-bg.side-size{ width:40px; height:40px; padding:3px; }
 
-        .brand-anim{ width:100%; height:100%; overflow:visible; }
+    .brand-anim{ width:100%; height:100%; overflow:visible; }
 
-        .m-line{ fill:none; stroke-linecap:round; animation-fill-mode:forwards; }
-        @keyframes drawLine{ to{ stroke-dashoffset:0; } }
+    .m-line{ fill:none; stroke-linecap:round; animation-fill-mode:forwards; }
+    @keyframes drawLine{ to{ stroke-dashoffset:0; } }
 
-        .wall{
-            stroke:#16305c; stroke-width:10;
-            animation: drawLine 0.45s cubic-bezier(.65,0,.35,1) forwards, thickenWall 1.3s ease-in-out forwards;
-        }
-        @keyframes thickenWall{ 0%,68%{ stroke-width:10; } 100%{ stroke-width:28; } }
+    .wall{
+        stroke:#16305c; stroke-width:10;
+        animation: drawLine 0.45s cubic-bezier(.65,0,.35,1) forwards, thickenWall 1.3s ease-in-out forwards;
+    }
+    @keyframes thickenWall{ 0%,68%{ stroke-width:10; } 100%{ stroke-width:28; } }
 
-        .roofline{
-            stroke:#16305c; stroke-width:10;
-            animation: drawLine 0.5s cubic-bezier(.65,0,.35,1) forwards, roofToGold 1.3s ease-in-out forwards;
-        }
-        @keyframes roofToGold{ 0%,68%{ stroke:#16305c; stroke-width:10; } 100%{ stroke:#c8963e; stroke-width:24; } }
+    .roofline{
+        stroke:#16305c; stroke-width:10;
+        animation: drawLine 0.5s cubic-bezier(.65,0,.35,1) forwards, roofToGold 1.3s ease-in-out forwards;
+    }
+    @keyframes roofToGold{ 0%,68%{ stroke:#16305c; stroke-width:10; } 100%{ stroke:#c8963e; stroke-width:24; } }
 
-        .stem{
-            stroke:#c8963e; stroke-width:10;
-            animation: drawLine 0.4s cubic-bezier(.65,0,.35,1) forwards, thickenStem 1.3s ease-in-out forwards;
-        }
-        @keyframes thickenStem{ 0%,68%{ stroke-width:10; } 100%{ stroke-width:22; } }
+    .stem{
+        stroke:#c8963e; stroke-width:10;
+        animation: drawLine 0.4s cubic-bezier(.65,0,.35,1) forwards, thickenStem 1.3s ease-in-out forwards;
+    }
+    @keyframes thickenStem{ 0%,68%{ stroke-width:10; } 100%{ stroke-width:22; } }
 
-        .fade-bar{
-            stroke:#c8963e; stroke-width:10;
-            animation: drawLine 0.4s cubic-bezier(.65,0,.35,1) forwards, barFade 0.6s ease-in forwards;
-        }
-        @keyframes barFade{ 0%,68%{ opacity:1; } 100%{ opacity:0; } }
+    .fade-bar{
+        stroke:#c8963e; stroke-width:10;
+        animation: drawLine 0.4s cubic-bezier(.65,0,.35,1) forwards, barFade 0.6s ease-in forwards;
+    }
+    @keyframes barFade{ 0%,68%{ opacity:1; } 100%{ opacity:0; } }
 
-        .win-dot{
-            fill:#c8963e; opacity:0;
-            transform-box: fill-box; transform-origin:center; transform:scale(0);
-            animation: dotPop 0.3s cubic-bezier(.34,1.56,.64,1) forwards;
-        }
-        @keyframes dotPop{ 0%{opacity:0; transform:scale(0);} 100%{opacity:1; transform:scale(1);} }
+    .win-dot{
+        fill:#c8963e; opacity:0;
+        transform-box: fill-box; transform-origin:center; transform:scale(0);
+        animation: dotPop 0.3s cubic-bezier(.34,1.56,.64,1) forwards;
+    }
+    @keyframes dotPop{ 0%{opacity:0; transform:scale(0);} 100%{opacity:1; transform:scale(1);} }
 
-        .morphGroup{
-            animation: morphOut 0.4s ease-in forwards;
-            animation-delay:6.0s;
-        }
-        @keyframes morphOut{ to{ opacity:0; } }
+    .morphGroup{
+        animation: morphOut 0.4s ease-in forwards;
+        animation-delay:6.0s;
+    }
+    @keyframes morphOut{ to{ opacity:0; } }
 
-        .finalLogo{
-            opacity:0;
-            animation: logoIn 0.4s ease-out forwards, settleGlow 1.3s ease-out forwards;
-            animation-delay:6.0s, 6.4s;
-        }
-        @keyframes logoIn{ to{ opacity:1; } }
-        @keyframes settleGlow{
-            0%{ filter:drop-shadow(0 0 0 rgba(200,150,62,0)); }
-            45%{ filter:drop-shadow(0 0 10px rgba(200,150,62,0.35)); }
-            100%{ filter:drop-shadow(0 0 0 rgba(200,150,62,0)); }
-        }
+    .finalLogo{
+        opacity:0;
+        animation: logoIn 0.4s ease-out forwards, settleGlow 1.3s ease-out forwards;
+        animation-delay:6.0s, 6.4s;
+    }
+    @keyframes logoIn{ to{ opacity:1; } }
+    @keyframes settleGlow{
+        0%{ filter:drop-shadow(0 0 0 rgba(200,150,62,0)); }
+        45%{ filter:drop-shadow(0 0 10px rgba(200,150,62,0.35)); }
+        100%{ filter:drop-shadow(0 0 0 rgba(200,150,62,0)); }
+    }
 
-        /* ===== PROFILE DROPDOWN (top navbar, logged-in state) ===== */
-        .profile-wrap{
-            position:relative;
-            display:inline-flex;
-            align-items:center;
-        }
-        .profile-trigger{
-            display:flex;
-            align-items:center;
-            gap:9px;
-            background:#fff;
-            border:1px solid #e5e0d5;
-            border-radius:100px;
-            padding:5px 14px 5px 5px;
-            cursor:pointer;
-            transition:box-shadow 0.18s, border-color 0.18s;
-            font-family:'Outfit', sans-serif;
-        }
-        .profile-trigger:hover{
-            border-color:#c8963e;
-            box-shadow:0 2px 10px rgba(200,150,62,0.18);
-        }
-        .profile-avatar{
-            width:32px;
-            height:32px;
-            border-radius:50%;
-            background:linear-gradient(135deg,#16305c,#1e3a5f);
-            color:#fff;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-family:'Playfair Display',serif;
-            font-weight:700;
-            font-size:14px;
-            text-transform:uppercase;
-            flex-shrink:0;
-        }
-        .profile-trigger-name{
-            font-size:13.5px;
-            font-weight:600;
-            color:#16305c;
-            max-width:110px;
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
-        }
-        .profile-trigger .ti-chevron-down{
-            font-size:13px;
-            color:#8a8574;
-            transition:transform 0.2s;
-        }
-        .profile-wrap.open .profile-trigger .ti-chevron-down{
-            transform:rotate(180deg);
-        }
+    /* ===== PROFILE DROPDOWN (top navbar, logged-in state) ===== */
+    .profile-wrap{
+        position:relative;
+        display:inline-flex;
+        align-items:center;
+    }
+    .profile-trigger{
+        display:flex;
+        align-items:center;
+        gap:9px;
+        background:#fff;
+        border:1px solid #e5e0d5;
+        border-radius:100px;
+        padding:5px 14px 5px 5px;
+        cursor:pointer;
+        transition:box-shadow 0.18s, border-color 0.18s;
+        font-family:'Outfit', sans-serif;
+    }
+    .profile-trigger:hover{
+        border-color:#c8963e;
+        box-shadow:0 2px 10px rgba(200,150,62,0.18);
+    }
+    .profile-avatar{
+        width:32px;
+        height:32px;
+        border-radius:50%;
+        background:linear-gradient(135deg,#16305c,#1e3a5f);
+        color:#fff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-family:'Playfair Display',serif;
+        font-weight:700;
+        font-size:14px;
+        text-transform:uppercase;
+        flex-shrink:0;
+    }
+    .profile-trigger-name{
+        font-size:13.5px;
+        font-weight:600;
+        color:#16305c;
+        max-width:110px;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+    .profile-trigger .ti-chevron-down{
+        font-size:13px;
+        color:#8a8574;
+        transition:transform 0.2s;
+    }
+    .profile-wrap.open .profile-trigger .ti-chevron-down{
+        transform:rotate(180deg);
+    }
 
-        .profile-dropdown{
-            position:absolute;
-            top:calc(100% + 10px);
-            right:0;
-            width:260px;
-            background:#fff;
-            border-radius:14px;
-            border:1px solid #eee9db;
-            box-shadow:0 14px 40px rgba(22,48,92,0.18);
-            opacity:0;
-            visibility:hidden;
-            transform:translateY(-8px);
-            transition:opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
-            z-index:999;
-            overflow:hidden;
-        }
-        .profile-wrap.open .profile-dropdown{
-            opacity:1;
-            visibility:visible;
-            transform:translateY(0);
-        }
-        .profile-dropdown-head{
-            display:flex;
-            align-items:center;
-            gap:12px;
-            padding:16px 18px;
-            background:#fbfaf7;
-            border-bottom:1px solid #f0ece0;
-        }
-        .profile-dropdown-avatar{
-            width:44px;
-            height:44px;
-            border-radius:50%;
-            background:linear-gradient(135deg,#16305c,#1e3a5f);
-            color:#fff;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-family:'Playfair Display',serif;
-            font-weight:700;
-            font-size:17px;
-            text-transform:uppercase;
-            flex-shrink:0;
-        }
-        .profile-dropdown-info{ min-width:0; }
-        .profile-dropdown-info .p-name{
-            font-size:14.5px;
-            font-weight:700;
-            color:#16305c;
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
-        }
-        .profile-dropdown-info .p-email{
-            font-size:12px;
-            color:#8a8574;
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
-            margin-top:2px;
-        }
-        .profile-dropdown-body{ padding:8px; }
-        .profile-dropdown-link{
-            display:flex;
-            align-items:center;
-            gap:10px;
-            padding:10px 12px;
-            border-radius:9px;
-            color:#c8963e;
-            font-size:13.5px;
-            font-weight:600;
-            text-decoration:none;
-            transition:background 0.15s;
-        }
-        .profile-dropdown-link:hover{ background:#f6f3ea; }
-        .profile-dropdown-link i{ font-size:16px; color:#c8963e; width:18px; text-align:center; }
-        .profile-dropdown-divider{ height:1px; background:#f0ece0; margin:6px 4px; }
-        .profile-dropdown-link.logout-link{ color:#c8963e; }
-        .profile-dropdown-link.logout-link i{ color:#c8963e; }
-        .profile-dropdown-link.logout-link:hover{ background:#fdf1ef; }
-        .profile-dropdown-badge{
-            font-size:10px;
-            font-weight:700;
-            color:#16a34a;
-            background:#f0fdf4;
-            border:1px solid #bbf7d0;
-            padding:2px 8px;
-            border-radius:100px;
-            margin-left:auto;
-            text-transform:uppercase;
-            letter-spacing:0.3px;
-        }
+    .profile-dropdown{
+        position:absolute;
+        top:calc(100% + 10px);
+        right:0;
+        width:260px;
+        background:#fff;
+        border-radius:14px;
+        border:1px solid #eee9db;
+        box-shadow:0 14px 40px rgba(22,48,92,0.18);
+        opacity:0;
+        visibility:hidden;
+        transform:translateY(-8px);
+        transition:opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+        z-index:999;
+        overflow:hidden;
+    }
+    .profile-wrap.open .profile-dropdown{
+        opacity:1;
+        visibility:visible;
+        transform:translateY(0);
+    }
+    .profile-dropdown-head{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        padding:16px 18px;
+        background:#fbfaf7;
+        border-bottom:1px solid #f0ece0;
+    }
+    .profile-dropdown-avatar{
+        width:44px;
+        height:44px;
+        border-radius:50%;
+        background:linear-gradient(135deg,#16305c,#1e3a5f);
+        color:#fff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-family:'Playfair Display',serif;
+        font-weight:700;
+        font-size:17px;
+        text-transform:uppercase;
+        flex-shrink:0;
+    }
+    .profile-dropdown-info{ min-width:0; }
+    .profile-dropdown-info .p-name{
+        font-size:14.5px;
+        font-weight:700;
+        color:#16305c;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+    }
+    .profile-dropdown-info .p-email{
+        font-size:12px;
+        color:#8a8574;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        margin-top:2px;
+    }
+    .profile-dropdown-body{ padding:8px; }
+    .profile-dropdown-link{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        padding:10px 12px;
+        border-radius:9px;
+        color:#c8963e;
+        font-size:13.5px;
+        font-weight:600;
+        text-decoration:none;
+        transition:background 0.15s;
+    }
+    .profile-dropdown-link:hover{ background:#f6f3ea; }
+    .profile-dropdown-link i{ font-size:16px; color:#c8963e; width:18px; text-align:center; }
+    .profile-dropdown-divider{ height:1px; background:#f0ece0; margin:6px 4px; }
+    .profile-dropdown-link.logout-link{ color:#c8963e; }
+    .profile-dropdown-link.logout-link i{ color:#c8963e; }
+    .profile-dropdown-link.logout-link:hover{ background:#fdf1ef; }
+    .profile-dropdown-badge{
+        font-size:10px;
+        font-weight:700;
+        color:#16a34a;
+        background:#f0fdf4;
+        border:1px solid #bbf7d0;
+        padding:2px 8px;
+        border-radius:100px;
+        margin-left:auto;
+        text-transform:uppercase;
+        letter-spacing:0.3px;
+    }
 
-        @media (max-width: 640px){
-            .profile-trigger-name{ display:none; }
-            .profile-trigger{ padding:5px; border-radius:50%; }
-            .profile-dropdown{ width:240px; }
-        }
-    </style>
-    <script src="https://pl30952486.effectivecpmnetwork.com/19/f7/21/19f7214935789d460138fbbc976d7beb.js"></script>
-</head>
-<body>
+    @media (max-width: 640px){
+        .profile-trigger-name{ display:none; }
+        .profile-trigger{ padding:5px; border-radius:50%; }
+        .profile-dropdown{ width:240px; }
+    }
+</style>
 
 <!-- ── OVERLAY (closes sidebar on click) ── -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -698,6 +689,3 @@
     });
 }());
 </script>
-
-</body>
-</html>

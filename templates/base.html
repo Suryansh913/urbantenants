@@ -73,7 +73,6 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Outfit:wght@300;400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'basemedia.css' %}">
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
         window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -296,20 +295,17 @@
         .loc-chip:hover { background:#e9edf3; }
         .loc-chip.active { background:var(--h-ink); border-color:var(--h-ink); color:#fff; }
 
-        @media (max-width: 1024px) { .listings-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 980px) {
             .hero-flex { flex-direction:column-reverse; text-align:left; }
             .hero-content { max-width:100%; }
             .hero-illustration { width:360px; margin:0 auto 0.5rem; }
         }
         @media (max-width: 768px) {
-            .listings-grid { grid-template-columns: repeat(2, 1fr); }
             .hero { padding: 2.5rem 1.5rem; min-height:auto; }
             .hero h1 { font-size: 30px; }
             .hero-illustration { width:300px; }
         }
         @media (max-width: 480px) {
-            .listings-grid { grid-template-columns: 1fr; }
             .hero h1 { font-size: 26px !important; }
             .hero-tagline { font-size: 12px !important; padding: 8px 14px !important; }
             .hero { padding: 2rem 1.25rem !important; }
@@ -334,7 +330,24 @@
         .listings-header h2 { font-size:18px; font-weight:500; color:#1a1a2e; }
         .listings-header span { font-size:13px; color:#888; }
 
-        .listings-grid { max-width:1300px; margin:0 auto; padding:0 1.5rem 2rem; display:grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap:20px; }
+        /* ===== RESPONSIVE LISTINGS GRID (single source of truth) ===== */
+        .listings-grid {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 1.5rem 2rem;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        @media (max-width: 1024px) {
+            .listings-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .listings-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .listings-grid { grid-template-columns: 1fr; }
+        }
         .no-results { grid-column:1/-1; text-align:center; color:#888; padding:3rem; font-size:15px; }
 
         .card {
@@ -549,28 +562,45 @@
             .qp-title { font-size: 20px; }
         }
 
-        /* ===================== AD BLOCKS ===================== */
-        .ad-slot {
-            text-align: center;
-            margin: 20px auto;
+        /* ===================== RED BANNER (ad slot before each yellow section) ===================== */
+        .red-banner {
+            width: 100%;
+            min-height: 300px;
+            background: #E63946;
+            border-radius: var(--radius-lg);
+            margin: 0 auto 32px;
+            max-width: 1300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
         }
-        .ad-slot .ad-label {
+        .red-banner .ad-label {
             font-size: 11px;
-            color: #999;
-            display: block;
-            margin-bottom: 6px;
+            color: rgba(255,255,255,0.85);
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            margin-bottom: 10px;
         }
-        .ad-slot-top {
+        @media (max-width: 600px) {
+            .red-banner { min-height: 220px; }
+        }
+
+        /* ===================== LISTING SECTIONS (groups of 8, light yellow bg) ===================== */
+        .section-block {
             max-width: 1300px;
-            padding: 0 1.5rem;
+            margin: 0 auto 32px;
+            padding: 24px 1.5rem;
+            background: #FEF9E7;
+            border-radius: var(--radius-lg);
         }
-        .ad-slot-grid {
-            grid-column: 1 / -1;
+        .section-block .listings-grid {
+            max-width: none;
+            margin: 0;
+            padding: 0;
         }
     </style>
-    <script src="https://pl30952486.effectivecpmnetwork.com/19/f7/21/19f7214935789d460138fbbc976d7beb.js"></script>
 
 </head>
 <body>
@@ -886,13 +916,13 @@
     <span>Showing {{ listingdata|length }} listings</span>
 </div>
 
-<!-- ===== BANNER AD - TOP OF LISTINGS (native container format) ===== -->
-<div class="ad-slot ad-slot-top">
+<div class="red-banner">
     <span class="ad-label">Advertisement</span>
     <script async="async" data-cfasync="false" src="https://pl30962904.profitableratecpmnetwork.com/ab5ad89de4536f6a4c91618ed6d31e2b/invoke.js"></script>
     <div id="container-ab5ad89de4536f6a4c91618ed6d31e2b"></div>
 </div>
 
+<div class="section-block">
 <div class="listings-grid">
     {% for n in listingdata %}
     <article class="card">
@@ -950,20 +980,22 @@
             </div>
         </div>
     </article>
-    {% if forloop.counter|divisibleby:5 %}
-    <!-- ===== BANNER AD - EVERY 5TH LISTING (fixed 320x50 iframe format) ===== -->
-    <div class="ad-slot ad-slot-grid">
+    {% if forloop.counter|divisibleby:8 and not forloop.last %}
+    </div></div><!-- close listings-grid + section-block: 8 cards done -->
+
+    <div class="red-banner">
         <span class="ad-label">Advertisement</span>
-        <script>
-            atOptions = { 'key' : 'd3c62eb7f315e5f34d8796885f15746b', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
-        </script>
-        <script src="https://www.highrevenueformat.com/d3c62eb7f315e5f34d8796885f15746b/invoke.js"></script>
+        <script async="async" data-cfasync="false" src="https://pl30962904.profitableratecpmnetwork.com/ab5ad89de4536f6a4c91618ed6d31e2b/invoke.js"></script>
+        <div id="container-ab5ad89de4536f6a4c91618ed6d31e2b"></div>
     </div>
+
+    <div class="section-block">
+    <div class="listings-grid"><!-- new section for the next batch of 8 -->
     {% endif %}
     {% empty %}
     <p class="no-results">No rooms found. Try a different search.</p>
     {% endfor %}
-</div>
+</div></div><!-- close final listings-grid + section-block -->
 
 <div class="pagination" style="margin:30px 0;display:flex;gap:10px;justify-content:center;">
     {% if page_obj.has_previous %}
