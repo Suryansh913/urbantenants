@@ -33,6 +33,7 @@ from django.contrib.sitemaps.views import sitemap
 from .sitemaps import ListingSitemap, StaticViewSitemap
 app_name = 'room_hunt'
 from django.views.generic import TemplateView
+from .views import hilltopads
 sitemaps = {
     'listings': ListingSitemap,
     'static': StaticViewSitemap,
@@ -105,6 +106,8 @@ urlpatterns = [
     path("leads/", include("leads.urls")),
     path('room/<int:room_id>/like/', views.toggle_like, name='room_like'),
     path("api/nearby-localities/", views.nearby_localities_api, name="nearby_localities_api"),
+    path("hilltopads.txt", hilltopads),
+
 
 
 

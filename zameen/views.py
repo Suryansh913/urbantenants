@@ -1356,3 +1356,9 @@ def ads_txt(request):
         "google.com, pub-2357487058280395, DIRECT, f08c47fec0942fa0",
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
+
+from django.http import FileResponse
+
+def hilltopads(request):
+    file_path = os.path.join(settings.BASE_DIR, "hilltopads.txt")
+    return FileResponse(open(file_path, "rb"), content_type="text/plain")
