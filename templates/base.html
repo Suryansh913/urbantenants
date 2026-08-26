@@ -118,6 +118,7 @@
             --h-lav-d:    #d9d5f5;
             --h-cream:    #fff6e6;
             --h-skin:     #f3c199;
+            --h-maroon:   #8a2942;
 
             --radius-sm:  6px;
             --radius-md:  10px;
@@ -512,54 +513,67 @@
             .review-modal { padding: 26px 20px 22px; }
         }
 
-        /* ===================== QUIZ PROMO ===================== */
-        .quiz-promo {
+        /* ===================== RAKHI CHALLENGE PROMO (v2) ===================== */
+        .rakhi-promo {
             position: relative; display: block; text-decoration: none;
-            background: linear-gradient(135deg, var(--h-ink) 0%, #2a2a45 100%);
-            border-radius: 18px; padding: 22px 24px; margin-bottom: 1.5rem;
-            overflow: hidden; max-width: 480px;
-            box-shadow: 0 14px 34px rgba(28,28,46,0.28), 0 4px 10px rgba(28,28,46,0.16);
+            background:
+                radial-gradient(360px 200px at 100% 0%, rgba(255,178,32,0.22) 0%, transparent 60%),
+                linear-gradient(135deg, #5c1220 0%, #2c0a12 100%);
+            border-radius: 20px; padding: 0; margin-bottom: 1.5rem;
+            overflow: hidden; max-width: 500px;
+            box-shadow: 0 16px 38px rgba(44,10,18,0.35), 0 4px 12px rgba(44,10,18,0.2);
             transition: transform 0.22s ease, box-shadow 0.22s ease;
             animation: rise 0.55s 0.02s ease both; opacity: 0; animation-fill-mode: forwards;
+            border: 1px solid rgba(255,178,32,0.22);
         }
-        .quiz-promo:hover { transform: translateY(-3px); box-shadow: 0 20px 42px rgba(28,28,46,0.34), 0 6px 14px rgba(28,28,46,0.2); }
-        .quiz-promo::before {
-            content: ""; position: absolute; width: 160px; height: 160px; border-radius: 50%;
-            background: rgba(255,201,60,0.14); top: -60px; right: -50px;
+        .rakhi-promo:hover { transform: translateY(-3px); box-shadow: 0 22px 46px rgba(44,10,18,0.4), 0 6px 16px rgba(44,10,18,0.24); }
+
+        .rp-thread-border {
+            height: 6px; width: 100%;
+            background-image: repeating-linear-gradient(90deg, #ffb020 0, #ffb020 10px, transparent 10px, transparent 18px);
+            opacity: 0.85;
         }
-        .qp-badge {
+
+        .rp-body { position: relative; padding: 22px 24px 24px; }
+
+        .rp-illustration { position: absolute; top: -8px; right: 6px; z-index: 0; opacity: 0.95; pointer-events: none; }
+
+        .rp-badge {
             display: inline-flex; align-items: center; gap: 6px;
-            background: var(--h-yellow); color: var(--h-ink);
+            background: #ffb020; color: #3d0f1a;
             font-family: var(--font-head); font-weight: 700; font-size: 11.5px;
             text-transform: uppercase; letter-spacing: 0.05em;
-            padding: 6px 12px; border-radius: 30px; margin-bottom: 12px;
+            padding: 6px 12px; border-radius: 30px; margin-bottom: 14px;
             position: relative; z-index: 1;
         }
-        .qp-title {
-            font-family: var(--font-head); font-weight: 700; font-size: 24px; color: #fff;
-            line-height: 1.2; margin-bottom: 8px; position: relative; z-index: 1;
+        .rp-title {
+            font-family: var(--font-head); font-weight: 700; font-size: 23px; color: #fff;
+            line-height: 1.28; margin-bottom: 9px; position: relative; z-index: 1; max-width: 78%;
         }
-        .qp-title em { font-style: normal; color: var(--h-yellow); }
-        .qp-sub {
-            font-size: 13.5px; color: rgba(255,255,255,0.72); line-height: 1.6;
-            margin-bottom: 16px; max-width: 40ch; position: relative; z-index: 1;
+        .rp-title em { font-style: normal; color: #ffc93c; }
+        .rp-sub {
+            font-size: 13.5px; color: rgba(255,255,255,0.75); line-height: 1.65;
+            margin-bottom: 16px; max-width: 78%; position: relative; z-index: 1;
         }
-        .qp-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; position: relative; z-index: 1; }
-        .qp-chip {
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
+        .rp-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; position: relative; z-index: 1; }
+        .rp-chip {
+            background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.18);
             color: #fff; font-size: 11.5px; font-weight: 600; padding: 6px 12px; border-radius: 20px;
         }
-        .qp-cta {
+        .rp-chip.gold { background: rgba(255,178,32,0.18); border-color: rgba(255,178,32,0.4); color: #ffc93c; }
+        .rp-cta {
             display: inline-flex; align-items: center; gap: 8px;
-            background: var(--h-yellow); color: var(--h-ink);
+            background: #ffb020; color: #3d0f1a;
             font-family: var(--font-head); font-weight: 700; font-size: 14px;
             padding: 12px 22px; border-radius: 12px; position: relative; z-index: 1;
             transition: background 0.2s ease, transform 0.2s ease;
         }
-        .quiz-promo:hover .qp-cta { background: var(--h-yellow-d); transform: translateX(2px); }
+        .rakhi-promo:hover .rp-cta { background: #ffc93c; transform: translateX(2px); }
         @media (max-width: 480px) {
-            .quiz-promo { padding: 18px 18px; max-width: 100%; }
-            .qp-title { font-size: 20px; }
+            .rp-body { padding: 20px 18px 20px; }
+            .rp-title { font-size: 19px; max-width: 100%; }
+            .rp-sub { max-width: 100%; }
+            .rp-illustration { opacity: 0.5; transform: scale(0.85); top: -14px; right: -6px; }
         }
 
         /* ===================== RED BANNER (ad slot before each yellow section) ===================== */
@@ -616,16 +630,49 @@
     <div class="hero-flex">
         <div class="hero-content">
 
-            <a href="{% url 'index' %}" class="quiz-promo">
-                <span class="qp-badge">🎯 New Challenge Live</span>
-                <div class="qp-title">Solve the Quiz.<br>Win <em>Cash &amp; Discounts.</em></div>
-                <p class="qp-sub">Guess the rent on 5 real rooms. Top scorers win cash prizes — everyone else still gets a discount voucher.</p>
-                <div class="qp-chips">
-                    <span class="qp-chip">🥇 Up to ₹5,000</span>
-                    <span class="qp-chip">🎟 ₹500 voucher for all</span>
-                    <span class="qp-chip">Free to play</span>
+            <a href="{% url 'rakhi_idea' %}" class="rakhi-promo">
+                <div class="rp-thread-border"></div>
+                <div class="rp-body">
+                    <svg class="rp-illustration" width="150" height="140" viewBox="0 0 150 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- wrist thread arc -->
+                        <path d="M0 70 C 30 40, 90 40, 120 70" stroke="#ffb020" stroke-width="2.5" stroke-dasharray="4 5" opacity="0.55" fill="none"/>
+                        <!-- pendant outer ring -->
+                        <circle cx="98" cy="46" r="30" fill="#3d0f1a" stroke="#ffb020" stroke-width="2"/>
+                        <circle cx="98" cy="46" r="23" fill="none" stroke="#ffc93c" stroke-width="1.5" opacity="0.6"/>
+                        <!-- petal mandala -->
+                        <g opacity="0.9">
+                            <circle cx="98" cy="46" r="7" fill="#ffb020"/>
+                            <circle cx="98" cy="30" r="5" fill="#ffc93c" opacity="0.85"/>
+                            <circle cx="98" cy="62" r="5" fill="#ffc93c" opacity="0.85"/>
+                            <circle cx="82" cy="46" r="5" fill="#ffc93c" opacity="0.85"/>
+                            <circle cx="114" cy="46" r="5" fill="#ffc93c" opacity="0.85"/>
+                            <circle cx="87" cy="35" r="4" fill="#ffc93c" opacity="0.7"/>
+                            <circle cx="109" cy="35" r="4" fill="#ffc93c" opacity="0.7"/>
+                            <circle cx="87" cy="57" r="4" fill="#ffc93c" opacity="0.7"/>
+                            <circle cx="109" cy="57" r="4" fill="#ffc93c" opacity="0.7"/>
+                        </g>
+                        <circle cx="98" cy="46" r="3.5" fill="#5c1220"/>
+                        <!-- tassels hanging below pendant -->
+                        <line x1="88" y1="74" x2="84" y2="112" stroke="#ffb020" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="98" y1="76" x2="98" y2="118" stroke="#ffc93c" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="108" y1="74" x2="112" y2="112" stroke="#ffb020" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="84" cy="116" r="4" fill="#ffb020"/>
+                        <circle cx="98" cy="122" r="4.5" fill="#ffc93c"/>
+                        <circle cx="112" cy="116" r="4" fill="#ffb020"/>
+                        <!-- sparkle -->
+                        <path d="M32 20l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#ffc93c" opacity="0.8"/>
+                    </svg>
+
+                    <span class="rp-badge">🪢 Raksha Bandhan Special</span>
+                    <div class="rp-title">AI Rakhi Challenge —<br>Design a Home, <em>Win Free Rent</em></div>
+                    <p class="rp-sub">Use Gemini to design your sibling's perfect room and a Rakhi surprise. Score 80+ and win a month of free rent on UrbanTenants.</p>
+                    <div class="rp-chips">
+                        <span class="rp-chip gold">🏠 1 Month Free Rent</span>
+                        <span class="rp-chip">🤖 Powered by Gemini</span>
+                        <span class="rp-chip">Free to enter</span>
+                    </div>
+                    <span class="rp-cta">Join the Challenge →</span>
                 </div>
-                <span class="qp-cta">Play Room Hunt Quiz →</span>
             </a>
 
             <div class="hero-badge">
