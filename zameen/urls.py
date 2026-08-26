@@ -107,6 +107,10 @@ urlpatterns = [
     path('room/<int:room_id>/like/', views.toggle_like, name='room_like'),
     path("api/nearby-localities/", views.nearby_localities_api, name="nearby_localities_api"),
     path("hilltopads.txt", hilltopads),
+    path('ai-rakhi-challenge/', views.rakhi_idea, name='rakhi_idea'),
+    path('ai-rakhi-challenge/register/', views.rakhi_register, name='rakhi_register'),
+    path('ai-rakhi-challenge/submit/', views.rakhi_submit, name='rakhi_submit'),
+    path('ai-rakhi-challenge/success/', views.rakhi_success, name='rakhi_success'),
 
 
 

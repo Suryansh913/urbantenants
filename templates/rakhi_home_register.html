@@ -1,0 +1,69 @@
+{# ---- rakhi_home_register.html ---- #}
+{# Apne homepage template me jahan dikhana hai wahan ye line likho: #}
+{# {% include 'rakhi_home_register.html' %} #}
+{# CSS class prefix "rhr-" hai taaki homepage ke existing CSS se clash na ho #}
+
+<style>
+  .rhr-section{
+    background: radial-gradient(1200px 500px at 15% -10%, #16336e 0%, #0b2545 55%), #0b2545;
+    color:#fff; padding:64px 24px; border-radius:20px; margin:40px auto; max-width:1080px;
+    font-family:'DM Sans', sans-serif;
+  }
+  .rhr-inner{ display:grid; grid-template-columns:1.1fr 1fr; gap:40px; align-items:center; }
+  @media (max-width:800px){ .rhr-inner{ grid-template-columns:1fr; } }
+  .rhr-eyebrow{ font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#f5a623; margin-bottom:14px; }
+  .rhr-title{ font-family:'Sora', sans-serif; font-weight:800; font-size:clamp(24px,4vw,34px); line-height:1.15; color:#fff; margin-bottom:12px; }
+  .rhr-title span{ color:#f5a623; }
+  .rhr-sub{ color:#c9d4ea; font-size:15px; margin-bottom:20px; max-width:440px; }
+  .rhr-link{ color:#f5a623; font-size:13.5px; font-weight:600; text-decoration:none; }
+  .rhr-link:hover{ text-decoration:underline; }
+
+  .rhr-form{ background:#fff; border-radius:14px; padding:26px; }
+  .rhr-field{ margin-bottom:14px; }
+  .rhr-field label{ display:block; font-family:'Sora',sans-serif; font-weight:600; font-size:12.5px; color:#0b2545; margin-bottom:6px; }
+  .rhr-field input{ width:100%; padding:11px 13px; border:1.5px solid #ddd2b8; border-radius:8px; font-size:14px; font-family:'DM Sans',sans-serif; }
+  .rhr-field input:focus{ outline:none; border-color:#f5a623; }
+  .rhr-btn{ width:100%; background:#f5a623; color:#0b2545; font-family:'Sora',sans-serif; font-weight:700; font-size:14.5px; padding:13px; border:none; border-radius:8px; cursor:pointer; margin-top:4px; }
+  .rhr-btn:hover{ background:#e6981c; }
+  .rhr-msg{ margin-top:12px; padding:10px 12px; border-radius:8px; font-size:13px; }
+  .rhr-msg.ok{ background:#e8f5e9; color:#2e7d32; }
+  .rhr-msg.err{ background:#fdecea; color:#c62828; }
+</style>
+
+<section class="rhr-section">
+  <div class="rhr-inner">
+    <div>
+      <div class="rhr-eyebrow">UrbanTenants × Gemini · Raksha Bandhan Special</div>
+      <div class="rhr-title">AI <span>Rakhi</span> Challenge — apne sibling ke liye ek perfect ghar design karo</div>
+      <p class="rhr-sub">Gemini ki madad se ek room aur ek Rakhi surprise design karo. 80+ score karo aur jeeto 1 month free rent.</p>
+      <a href="{% url 'rakhi_idea' %}" class="rhr-link">Poora concept dekho →</a>
+    </div>
+
+    <form class="rhr-form" method="post" action="{% url 'rakhi_register' %}">
+      {% csrf_token %}
+      <div class="rhr-field">
+        <label>Name / Team Name *</label>
+        <input type="text" name="r_name" required placeholder="e.g. Ayesha Khan">
+      </div>
+      <div class="rhr-field">
+        <label>College / City</label>
+        <input type="text" name="r_college" placeholder="e.g. Chandigarh University">
+      </div>
+      <div class="rhr-field">
+        <label>Phone / Email</label>
+        <input type="text" name="r_contact" placeholder="For updates about the challenge">
+      </div>
+      <div class="rhr-field">
+        <label>Instagram Handle</label>
+        <input type="text" name="r_handle" placeholder="@yourhandle">
+      </div>
+      <button type="submit" class="rhr-btn">Register Now</button>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="rhr-msg {% if message.tags == 'error' %}err{% else %}ok{% endif %}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    </form>
+  </div>
+</section>

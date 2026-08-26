@@ -1362,3 +1362,92 @@ from django.http import FileResponse
 def hilltopads(request):
     file_path = os.path.join(settings.BASE_DIR, "hilltopads.txt")
     return FileResponse(open(file_path, "rb"), content_type="text/plain")
+
+
+
+# rakhi
+from listings.models import RakhiRegistration, RakhiSubmission
+
+def rakhi_idea(request):
+    """Concept / instructions page — batata hai user ko kya karna hai."""
+    return render(request, 'rakhi_idea.html')
+ 
+ 
+def rakhi_register(request):
+    """Registration page — halka form, event start karne ke liye."""
+    if request.method == 'POST':
+        name = request.POST.get('r_name', '').strip()
+        college = request.POST.get('r_college', '').strip()
+        contact = request.POST.get('r_contact', '').strip()
+        handle = request.POST.get('r_handle', '').strip()
+ 
+        if not name:
+            messages.error(request, 'Naam daalna zaroori hai.')
+            return redirect(request.META.get('HTTP_REFERER', 'rakhi_register'))
+ 
+        RakhiRegistration.objects.create(
+            name=name, college=college, contact=contact, instagram_handle=handle
+        )
+        return redirect('rakhi_success')
+ 
+    return render(request, 'rakhi_register.html')
+ 
+ 
+def rakhi_success(request):
+    """Registration ke turant baad dikhne wala page — concept recap + submitted entries gallery."""
+    submitted_images = (
+        RakhiSubmission.objects
+        .exclude(output_file__isnull=True)
+        .order_by('-submitted_at')[:12]
+    )
+    return render(request, 'rakhi_success.html', {'submitted_images': submitted_images})
+ 
+def rakhi_submit(request):
+    """Final submission page — poster/reel/image upload + rakhi story proof."""
+    if request.method == 'POST':
+        name = request.POST.get('s_name', '').strip()
+        college = request.POST.get('s_college', '').strip()
+        handle = request.POST.get('s_handle', '').strip()
+        prompt = request.POST.get('s_prompt', '').strip()
+        room = request.POST.get('s_room', '').strip()
+        rakhi = request.POST.get('s_rakhi', '').strip()
+        output_type = request.POST.get('s_output_type', '').strip()
+        output_file = request.FILES.get('s_output_file')
+        output_link = request.POST.get('s_output_link', '').strip()
+        proof_screenshot = request.FILES.get('s_proof_screenshot')
+        proof_link = request.POST.get('s_proof_link', '').strip()
+ 
+        if not all([name, prompt, room, rakhi, output_type]):
+            messages.error(request, 'Please fill all required fields marked with *')
+            return redirect('rakhi_submit')
+ 
+        if not output_file and not output_link:
+            messages.error(request, 'Apna poster/reel/image upload karo ya uska link daalo.')
+            return redirect('rakhi_submit')
+ 
+        if not proof_screenshot and not proof_link:
+            messages.error(request, 'Instagram story ya WhatsApp status ka screenshot upload karo ya link daalo.')
+            return redirect('rakhi_submit')
+ 
+        entry = RakhiSubmission(
+            name=name,
+            college=college,
+            instagram_handle=handle,
+            gemini_prompt=prompt,
+            room_summary=room,
+            rakhi_concept=rakhi,
+            output_type=output_type,
+            output_link=output_link,
+            proof_link=proof_link,
+        )
+        if output_file:
+            entry.output_file = output_file
+        if proof_screenshot:
+            entry.proof_screenshot = proof_screenshot
+        entry.save()
+ 
+        messages.success(request, "Entry submit ho gayi! Neeche entries wall pe dekh sakte ho.")
+        return redirect('rakhi_submit')
+ 
+    entries = RakhiSubmission.objects.all()[:200]
+    return render(request, 'rakhi_submit.html', {'entries': entries})

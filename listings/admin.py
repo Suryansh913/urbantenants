@@ -52,3 +52,23 @@ class ParticipantAdmin(admin.ModelAdmin):
     list_display = ("name", "score", "created_at")
     search_fields = ("name",)
     ordering = ("-score", "created_at")
+
+
+
+
+from .models import RakhiRegistration, RakhiSubmission
+
+@admin.register(RakhiRegistration)
+class RakhiRegistrationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'college', 'contact', 'instagram_handle', 'registered_at')
+    search_fields = ('name', 'college', 'contact', 'instagram_handle')
+    list_filter = ('registered_at',)
+ 
+ 
+@admin.register(RakhiSubmission)
+class RakhiSubmissionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'college', 'output_type', 'submitted_at')
+    list_filter = ('output_type', 'submitted_at')
+    search_fields = ('name', 'college', 'instagram_handle', 'gemini_prompt')
+    readonly_fields = ('submitted_at',)
+ 

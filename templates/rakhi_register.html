@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — AI Rakhi Challenge</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:'DM Sans',sans-serif; background:#faf6ee; color:#14213d; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .card{ background:#fff; border:1px solid #e9e2d3; border-radius:18px; padding:44px; max-width:480px; width:100%; }
+  .eyebrow{ font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#f5a623; margin-bottom:12px; }
+  h1{ font-family:'Sora',sans-serif; font-weight:800; font-size:26px; color:#0b2545; margin-bottom:10px; }
+  p.sub{ color:#5a6178; font-size:14.5px; margin-bottom:26px; }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-family:'Sora',sans-serif; font-weight:600; font-size:13px; color:#0b2545; margin-bottom:6px; }
+  .field input{ width:100%; padding:12px 14px; border:1.5px solid #ddd2b8; border-radius:9px; font-size:14.5px; }
+  .field input:focus{ outline:none; border-color:#f5a623; }
+  .btn{ width:100%; background:#0b2545; color:#fff; font-family:'Sora',sans-serif; font-weight:700; font-size:15px; padding:14px; border:none; border-radius:9px; cursor:pointer; margin-top:6px; }
+  .btn:hover{ background:#153468; }
+  .msg{ margin-top:16px; padding:12px 14px; border-radius:9px; font-size:13.5px; }
+  .msg.ok{ background:#e8f5e9; color:#2e7d32; }
+  .msg.err{ background:#fdecea; color:#c62828; }
+  .back{ display:block; text-align:center; margin-top:20px; font-size:13px; color:#2563eb; text-decoration:none; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="eyebrow">AI Rakhi Challenge</div>
+    <h1>Register Karo</h1>
+    <p class="sub">Registration ke baad apni entry "Submit Entry" page se jama karna hoga.</p>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="msg {% if message.tags == 'error' %}err{% else %}ok{% endif %}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" action="">
+      {% csrf_token %}
+      <div class="field">
+        <label>Name / Team Name *</label>
+        <input type="text" name="r_name" required placeholder="e.g. Ayesha Khan">
+      </div>
+      <div class="field">
+        <label>College / City</label>
+        <input type="text" name="r_college" placeholder="e.g. Chandigarh University">
+      </div>
+      <div class="field">
+        <label>Phone / Email</label>
+        <input type="text" name="r_contact" placeholder="For updates about the challenge">
+      </div>
+      <div class="field">
+        <label>Instagram Handle</label>
+        <input type="text" name="r_handle" placeholder="@yourhandle">
+      </div>
+      <button type="submit" class="btn">Register Now</button>
+    </form>
+
+    <a href="{% url 'rakhi_idea' %}" class="back">← Concept dobara dekho</a>
+  </div>
+</body>
+</html>

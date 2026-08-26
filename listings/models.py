@@ -429,3 +429,66 @@ class RoomLike(models.Model):
 
     def __str__(self):
         return f"{self.user.username} liked {self.room.Room_title}"
+
+
+# rakhi
+
+# ---- rakhi_models.py ----
+# Ye code apne existing app ke models.py me PASTE karo (end me add kar dena)
+# CloudinaryField already tumhare project me use ho raha hai, isliye same use kiya hai
+
+from django.db import models
+from cloudinary.models import CloudinaryField
+
+
+class RakhiRegistration(models.Model):
+    name = models.CharField(max_length=150)
+    college = models.CharField(max_length=200, blank=True)
+    contact = models.CharField(max_length=100, blank=True, help_text="Phone ya Email")
+    instagram_handle = models.CharField(max_length=100, blank=True)
+    registered_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-registered_at']
+
+    def __str__(self):
+        return self.name
+
+
+class RakhiSubmission(models.Model):
+    OUTPUT_CHOICES = [
+        ('poster', 'Poster'),
+        ('reel', '30-sec Reel'),
+        ('image', 'Room / Rakhi Image Concept'),
+        ('mini_ad', 'Mini Advertisement'),
+    ]
+
+    # Participant details
+    name = models.CharField(max_length=150)
+    college = models.CharField(max_length=200, blank=True)
+    instagram_handle = models.CharField(max_length=100, blank=True)
+
+    # Round 1 & 2 content
+    gemini_prompt = models.TextField(help_text="Exact Gemini prompt used")
+    room_summary = models.TextField(help_text="Perfect room design summary")
+    rakhi_concept = models.TextField(help_text="Rakhi surprise concept")
+
+    # Final output — either an uploaded file OR a link (for reels/large videos)
+    output_type = models.CharField(max_length=20, choices=OUTPUT_CHOICES)
+    output_file = CloudinaryField('output_file', resource_type='auto', blank=True, null=True)
+    output_link = models.URLField(max_length=500, blank=True)
+
+    # Instagram story / WhatsApp status proof — screenshot OR link
+    proof_screenshot = CloudinaryField('proof_screenshot', resource_type='auto', blank=True, null=True)
+    proof_link = models.URLField(
+        max_length=500, blank=True,
+        help_text="Instagram story highlight / WhatsApp status link, agar abhi bhi live hai"
+    )
+
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-submitted_at']
+
+    def __str__(self):
+        return f"{self.name} - {self.get_output_type_display()}"

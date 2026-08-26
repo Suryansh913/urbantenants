@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Submit Entry — AI Rakhi Challenge</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap');
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:'DM Sans',sans-serif; background:#faf6ee; color:#14213d; line-height:1.6; }
+  .wrap{ max-width:840px; margin:0 auto; padding:50px 24px 90px; }
+  .eyebrow{ font-size:12.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:#f5a623; margin-bottom:12px; }
+  h1{ font-family:'Sora',sans-serif; font-weight:800; font-size:clamp(26px,4vw,34px); color:#0b2545; margin-bottom:8px; }
+  p.sub{ color:#5a6178; font-size:15px; margin-bottom:30px; max-width:560px; }
+  .back{ font-size:13px; color:#2563eb; text-decoration:none; }
+
+  .msg{ margin-bottom:20px; padding:13px 16px; border-radius:9px; font-size:14px; }
+  .msg.ok{ background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9; }
+  .msg.err{ background:#fdecea; color:#c62828; border:1px solid #f5c6cb; }
+
+  .form-card{ background:#fff; border:1px solid #e9e2d3; border-radius:16px; padding:36px; }
+  .field{ margin-bottom:18px; }
+  .field label{ display:block; font-family:'Sora',sans-serif; font-weight:600; font-size:13px; color:#0b2545; margin-bottom:6px; }
+  .field .hint{ font-weight:400; font-size:11.5px; color:#8a8f9c; margin-left:6px; }
+  .field input, .field textarea, .field select{ width:100%; padding:11px 13px; border:1.5px solid #ddd2b8; border-radius:8px; font-size:14.5px; font-family:'DM Sans',sans-serif; }
+  .field input:focus, .field textarea:focus, .field select:focus{ outline:none; border-color:#f5a623; }
+  .field textarea{ min-height:76px; resize:vertical; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:560px){ .row2{ grid-template-columns:1fr; } }
+  .section-tag{ font-family:'Sora',sans-serif; font-weight:700; font-size:12.5px; text-transform:uppercase; letter-spacing:.05em; color:#7a1f2b; margin:24px 0 12px; padding-top:6px; border-top:1px solid #e9e2d3; }
+  .section-tag:first-of-type{ border-top:none; margin-top:0; padding-top:0; }
+  .or-divider{ display:flex; align-items:center; gap:10px; color:#8a8f9c; font-size:12px; margin:8px 0; }
+  .or-divider::before, .or-divider::after{ content:''; flex:1; height:1px; background:#e9e2d3; }
+  .submit-btn{ width:100%; margin-top:8px; background:#0b2545; color:#fff; font-family:'Sora',sans-serif; font-weight:700; font-size:15px; padding:15px; border:none; border-radius:9px; cursor:pointer; }
+  .submit-btn:hover{ background:#153468; }
+  .submit-btn:disabled{ opacity:.6; }
+
+  .entries-head{ display:flex; align-items:center; justify-content:space-between; margin:56px 0 24px; }
+  .entries-list{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+  .entry-card{ background:#fff; border:1px solid #e9e2d3; border-radius:14px; padding:20px; }
+  .entry-card h4{ font-family:'Sora',sans-serif; font-size:15.5px; color:#0b2545; margin-bottom:4px; }
+  .entry-card .meta{ font-size:12px; color:#8a8f9c; margin-bottom:10px; }
+  .entry-card .fmt-tag{ display:inline-block; font-size:10.5px; font-weight:700; text-transform:uppercase; background:#f5a623; color:#0b2545; padding:3px 9px; border-radius:20px; margin-bottom:8px; }
+  .entry-card p{ font-size:13px; color:#5a6178; margin-bottom:6px; }
+  .entry-card a{ font-size:12.5px; color:#2563eb; font-weight:600; text-decoration:none; margin-right:12px; }
+  .entry-card a:hover{ text-decoration:underline; }
+  .empty-state{ text-align:center; padding:40px 20px; color:#8a8f9c; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="{% url 'rakhi_idea' %}" class="back">← Concept dobara dekho</a>
+  <div style="margin-top:16px;">
+    <div class="eyebrow">Final Step</div>
+    <h1>Apni Entry Submit Karo</h1>
+    <p class="sub">Poster/image seedha upload kar sakte ho. Reel bada file hai to link de do (Drive, Instagram, YouTube). Story/status proof — screenshot upload karo ya link do, jo bhi aasan ho.</p>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="msg {% if message.tags == 'error' %}err{% else %}ok{% endif %}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form class="form-card" method="post" action="" enctype="multipart/form-data" id="entryForm">
+    {% csrf_token %}
+
+    <div class="section-tag">Participant Details</div>
+    <div class="row2">
+      <div class="field">
+        <label>Name / Team Name *</label>
+        <input type="text" name="s_name" required placeholder="e.g. Ayesha Khan">
+      </div>
+      <div class="field">
+        <label>College / City <span class="hint">optional</span></label>
+        <input type="text" name="s_college" placeholder="e.g. Chandigarh University">
+      </div>
+    </div>
+    <div class="field">
+      <label>Instagram Handle <span class="hint">optional, public</span></label>
+      <input type="text" name="s_handle" placeholder="@yourhandle">
+    </div>
+
+    <div class="section-tag">Round 1 — Perfect Room</div>
+    <div class="field">
+      <label>Gemini Prompt Used *</label>
+      <textarea name="s_prompt" required placeholder="Paste the exact prompt you gave Gemini..."></textarea>
+    </div>
+    <div class="field">
+      <label>Room Design Summary *</label>
+      <textarea name="s_room" required placeholder="Budget, location, amenities, safety, lifestyle fit..."></textarea>
+    </div>
+
+    <div class="section-tag">Round 2 — Rakhi Surprise</div>
+    <div class="field">
+      <label>Rakhi Concept *</label>
+      <textarea name="s_rakhi" required placeholder="Rakhi setup, surprise, gift, decoration, personalized message..."></textarea>
+    </div>
+
+    <div class="section-tag">Final Output</div>
+    <div class="field">
+      <label>Format *</label>
+      <select name="s_output_type" required>
+        <option value="">Select format</option>
+        <option value="poster">Poster</option>
+        <option value="reel">30-sec Reel</option>
+        <option value="image">Room / Rakhi Image Concept</option>
+        <option value="mini_ad">Mini Advertisement</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Upload File <span class="hint">poster / image — image or short video</span></label>
+      <input type="file" name="s_output_file" accept="image/*,video/*">
+    </div>
+    <div class="or-divider">OR</div>
+    <div class="field">
+      <label>Link to Your Work <span class="hint">for reels/large videos</span></label>
+      <input type="url" name="s_output_link" placeholder="https://drive.google.com/... or Instagram link">
+    </div>
+
+    <div class="section-tag">Story / Status Proof</div>
+    <p style="font-size:13px; color:#5a6178; margin-bottom:12px;">Instagram story ya WhatsApp status pe share karke uska screenshot upload karo, ya link do (agar abhi live hai).</p>
+    <div class="field">
+      <label>Screenshot Upload</label>
+      <input type="file" name="s_proof_screenshot" accept="image/*">
+    </div>
+    <div class="or-divider">OR</div>
+    <div class="field">
+      <label>Story / Status Link</label>
+      <input type="url" name="s_proof_link" placeholder="https://instagram.com/stories/...">
+    </div>
+
+    <button type="submit" class="submit-btn" id="submitBtn">Submit Entry</button>
+  </form>
+
+  <div class="entries-head">
+    <h2 style="font-family:'Sora',sans-serif; font-size:20px; color:#0b2545;">Submitted Entries</h2>
+  </div>
+  <div class="entries-list">
+    {% for entry in entries %}
+      <div class="entry-card">
+        <span class="fmt-tag">{{ entry.get_output_type_display }}</span>
+        <h4>{{ entry.name }}</h4>
+        <div class="meta">{{ entry.college }}{% if entry.instagram_handle %} · {{ entry.instagram_handle }}{% endif %}</div>
+        <p><strong>Rakhi Concept:</strong> {{ entry.rakhi_concept|truncatechars:100 }}</p>
+        <div>
+          {% if entry.output_file %}<a href="{{ entry.output_file.url }}" target="_blank" rel="noopener">View Output →</a>{% endif %}
+          {% if entry.output_link %}<a href="{{ entry.output_link }}" target="_blank" rel="noopener">Output Link →</a>{% endif %}
+          {% if entry.proof_screenshot %}<a href="{{ entry.proof_screenshot.url }}" target="_blank" rel="noopener">Proof Screenshot →</a>{% endif %}
+          {% if entry.proof_link %}<a href="{{ entry.proof_link }}" target="_blank" rel="noopener">Proof Link →</a>{% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state">No entries yet. Be the first to submit! 🎗️</div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  const entryForm = document.getElementById('entryForm');
+  const submitBtn = document.getElementById('submitBtn');
+  entryForm.addEventListener('submit', ()=>{
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
+  });
+</script>
+</body>
+</html>

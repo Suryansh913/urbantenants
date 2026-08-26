@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Rakhi Challenge — UrbanTenants × Gemini</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&family=Caveat:wght@500;600&display=swap');
+  :root{ --navy:#0b2545; --navy-2:#123166; --blue:#2563eb; --gold:#f5a623; --maroon:#7a1f2b; --cream:#faf6ee; --ink:#14213d; --max:1080px; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+  body{ font-family:'DM Sans',sans-serif; color:var(--ink); background:var(--cream); line-height:1.6; }
+  h1,h2,h3{ font-family:'Sora',sans-serif; color:var(--navy); }
+  .wrap{ max-width:var(--max); margin:0 auto; padding:0 24px; }
+  section{ padding:72px 0; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--gold); margin-bottom:16px; }
+  .eyebrow::before{ content:''; width:22px; height:2px; background:var(--gold); }
+
+  nav.topnav{ position:sticky; top:0; z-index:50; background:rgba(11,37,69,.92); backdrop-filter:blur(8px); border-bottom:1px solid rgba(245,166,35,.2); }
+  nav.topnav .wrap{ display:flex; align-items:center; justify-content:space-between; padding:14px 24px; }
+  .nav-brand{ font-family:'Sora',sans-serif; font-weight:700; color:#fff; font-size:15px; }
+  .nav-brand span{ color:var(--gold); }
+  .nav-links{ display:flex; gap:20px; }
+  .nav-links a{ color:#c9d4ea; text-decoration:none; font-size:13.5px; font-weight:600; }
+  .nav-links a:hover{ color:var(--gold); }
+  .nav-links a.cta{ background:var(--gold); color:var(--navy); padding:8px 16px; border-radius:8px; }
+
+  .hero{ background:radial-gradient(1200px 600px at 15% -10%, #16336e 0%, var(--navy) 55%), var(--navy); color:#fff; padding:80px 0 60px; }
+  .hero h1{ color:#fff; font-size:clamp(36px,6vw,64px); font-weight:800; line-height:1.05; max-width:760px; }
+  .hero h1 span{ color:var(--gold); }
+  .hero p.sub{ margin-top:18px; font-size:18px; color:#c9d4ea; max-width:560px; }
+  .tagline{ font-family:'Caveat',cursive; font-size:28px; color:var(--gold); margin-top:20px; }
+  .hero-cta{ margin-top:36px; display:flex; gap:14px; flex-wrap:wrap; }
+  .btn{ font-family:'Sora',sans-serif; font-weight:700; font-size:15px; padding:14px 26px; border-radius:8px; border:none; cursor:pointer; text-decoration:inline-block; display:inline-block; }
+  .btn-primary{ background:var(--gold); color:var(--navy); }
+  .btn-ghost{ background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.35); }
+
+  .story .wrap{ max-width:780px; }
+  .quote{ font-family:'Caveat',cursive; font-size:30px; color:var(--maroon); margin:28px 0; padding-left:20px; border-left:3px solid var(--gold); }
+
+  .rounds{ background:var(--navy); color:#fff; }
+  .rounds h2{ color:#fff; margin-bottom:36px; }
+  .round-item{ display:grid; grid-template-columns:70px 1fr; gap:20px; padding:26px 0; border-top:1px solid rgba(255,255,255,.12); }
+  .round-item:last-child{ border-bottom:1px solid rgba(255,255,255,.12); }
+  .round-num{ font-family:'Sora',sans-serif; font-weight:800; font-size:30px; color:var(--gold); }
+  .round-item h3{ color:#fff; font-size:19px; margin-bottom:6px; }
+  .round-item p{ color:#c9d4ea; font-size:15px; max-width:600px; }
+  .round-tag{ display:inline-block; font-size:11px; font-weight:700; text-transform:uppercase; color:var(--navy); background:var(--gold); padding:3px 10px; border-radius:20px; margin-bottom:8px; }
+
+  .build h2{ margin-bottom:8px; }
+  .build > .wrap > p{ color:#5a6178; max-width:560px; margin-bottom:36px; }
+  .grid4{ display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; }
+  .card{ background:#fff; border:1px solid #e9e2d3; border-radius:14px; padding:24px; }
+  .card .ic{ font-size:24px; margin-bottom:12px; display:block; }
+  .card h3{ font-size:16px; margin-bottom:6px; }
+  .card p{ font-size:13.5px; color:#5a6178; }
+  .card ul{ margin-top:8px; padding-left:16px; font-size:13px; color:#5a6178; }
+
+  .judging table{ width:100%; border-collapse:collapse; }
+  .judging th{ text-align:left; font-family:'Sora',sans-serif; font-size:12px; text-transform:uppercase; color:#8a8f9c; padding:10px 0; border-bottom:2px solid var(--navy); }
+  .judging th:last-child, .judging td:last-child{ text-align:right; }
+  .judging td{ padding:14px 0; border-bottom:1px solid #eee; font-size:15px; }
+  .judging tr.total td{ font-weight:700; color:var(--navy); border-bottom:none; padding-top:18px; font-size:16px; }
+
+  .reward-card{ background:linear-gradient(135deg,var(--navy),var(--navy-2)); color:#fff; border-radius:18px; padding:40px; border:1px solid rgba(245,166,35,.35); }
+  .reward-card h2{ color:#fff; max-width:520px; }
+  .reward-card .amount{ font-family:'Sora',sans-serif; font-weight:800; font-size:clamp(28px,4vw,40px); color:var(--gold); margin-top:6px; }
+  .reward-card p.desc{ color:#c9d4ea; margin-top:12px; max-width:520px; }
+  .fine-print{ margin-top:26px; padding-top:16px; border-top:1px dashed rgba(255,255,255,.25); font-size:11px; color:rgba(255,255,255,.55); max-width:520px; }
+
+  footer{ background:var(--navy); color:#8fa0c4; padding:44px 0; text-align:center; }
+  footer .tag2{ font-family:'Caveat',cursive; font-size:24px; color:var(--gold); }
+  footer .brand{ font-family:'Sora',sans-serif; font-weight:700; color:#fff; margin-top:8px; font-size:14px; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="wrap">
+    <div class="nav-brand">AI <span>Rakhi</span> Challenge</div>
+    <div class="nav-links">
+      <a href="#challenge">Challenge</a>
+      <a href="#reward">Reward</a>
+      <a href="{% url 'rakhi_register' %}" class="cta">Register</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow">UrbanTenants × Gemini · Raksha Bandhan Special</div>
+    <h1>AI Rakhi <span>Challenge</span></h1>
+    <p class="sub">Design a home. Create a memory. Celebrate the bond — using Gemini to build the perfect living experience for a sibling who's far from home.</p>
+    <div class="tagline">"Ghar sirf ek jagah nahi, apno ka ehsaas hai."</div>
+    <div class="hero-cta">
+      <a href="{% url 'rakhi_register' %}" class="btn btn-primary">Register Karo</a>
+      <a href="{% url 'rakhi_submit' %}" class="btn btn-ghost">Entry Submit Karo →</a>
+    </div>
+  </div>
+</section>
+
+<section class="story">
+  <div class="wrap">
+    <div class="eyebrow">The Concept</div>
+    <h2>Ek sibling ghar se door hai. Iss baar Rakhi par, unka room hi unka ghar ban jaayega.</h2>
+    <p style="color:#3a4258; margin-top:14px;">Participant ko imagine karna hai — unka sibling ek naye city me shift ho raha hai. Ab Gemini ki madad se unhe uske liye ek perfect living setup design karna hai: sahi budget, sahi location, safety, aur wo chhoti-chhoti cheezein jo kisi jagah ko "ghar" banati hain.</p>
+    <p style="color:#3a4258; margin-top:10px;">UrbanTenants yahan sirf ek platform nahi — story ka wo hissa hai jahan solution actually milta hai. Aur Gemini wo tool hai jo participant ki soch ko ek real, thoughtful design me badalta hai.</p>
+    <div class="quote">"Kisi ke liye ghar dhoondhna — asal me, unke liye pyaar dhoondhna hai."</div>
+  </div>
+</section>
+
+<section class="rounds" id="challenge">
+  <div class="wrap">
+    <div class="eyebrow">How It Works</div>
+    <h2>Teen rounds, ek kahani</h2>
+    <div class="round-item">
+      <div class="round-num">01</div>
+      <div>
+        <span class="round-tag">Round 1</span>
+        <h3>Find My Sibling a Home</h3>
+        <p>Gemini ko prompt dekar, sibling ki requirements (budget, location, amenities, safety, lifestyle) ke hisaab se ek perfect room design karo.</p>
+      </div>
+    </div>
+    <div class="round-item">
+      <div class="round-num">02</div>
+      <div>
+        <span class="round-tag">Round 2</span>
+        <h3>Rakhi Surprise</h3>
+        <p>Same room ko ek Raksha Bandhan theme me transform karo — rakhi setup, surprise, gift, decoration, ek personalized message ke saath.</p>
+      </div>
+    </div>
+    <div class="round-item">
+      <div class="round-num">Final</div>
+      <div>
+        <span class="round-tag">Final Round</span>
+        <h3>UrbanTenants AI Story</h3>
+        <p>Ek 60-second story/reel banao — "Ek sibling ghar se door hai, lekin Raksha Bandhan par uska room hi uske ghar jaisa feel karne lagta hai." Ideation, script, ya visual concept Gemini se le sakte ho.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="build">
+  <div class="wrap">
+    <div class="eyebrow">What To Submit</div>
+    <h2>Chaar cheezein banani hain</h2>
+    <p>Final submission page pe sab kuch ek saath jama karna hoga — apna Gemini prompt bhi.</p>
+    <div class="grid4">
+      <div class="card"><span class="ic">🏠</span><h3>Perfect Room</h3><p>Sibling ke liye designed living setup.</p><ul><li>Budget</li><li>Location</li><li>Amenities</li><li>Safety</li></ul></div>
+      <div class="card"><span class="ic">🎁</span><h3>Rakhi Concept</h3><p>Ek thoughtful, personal idea for the sibling.</p><ul><li>Rakhi setup</li><li>Surprise</li><li>Gift</li><li>Message</li></ul></div>
+      <div class="card"><span class="ic">🎨</span><h3>Final Output</h3><p>Poster, room concept, mini ad ya reel — file upload ya link.</p></div>
+      <div class="card"><span class="ic">📱</span><h3>Story Proof</h3><p>Instagram story / WhatsApp status ka screenshot ya link submit karo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="judging">
+  <div class="wrap">
+    <div class="eyebrow">Scoring</div>
+    <h2>Judging Criteria</h2>
+    <table>
+      <thead><tr><th>Criteria</th><th>Marks</th></tr></thead>
+      <tbody>
+        <tr><td>Gemini Prompt Quality</td><td>25</td></tr>
+        <tr><td>Creativity</td><td>25</td></tr>
+        <tr><td>Raksha Bandhan Connection</td><td>20</td></tr>
+        <tr><td>UrbanTenants Integration</td><td>20</td></tr>
+        <tr><td>Final Presentation</td><td>10</td></tr>
+        <tr class="total"><td>Total</td><td>100</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="reward" id="reward">
+  <div class="wrap">
+    <div class="reward-card">
+      <div class="eyebrow">For 80+ Scorers</div>
+      <h2>Ek mahina rent-free — apno jaisa ghar, thoda aur asaan.</h2>
+      <div class="amount">1 Month FREE Rent</div>
+      <p class="desc">Jo participants 80+ marks score karte hain, unhe UrbanTenants par kisi bhi eligible listing par pehle mahine ka rent free milega.</p>
+      <div class="fine-print">*T&C Apply: Free month applicable only on bookings made with a minimum 6-month rental agreement. Valid on select listings only. Offer non-transferable and non-refundable in cash. UrbanTenants reserves the right to modify or withdraw terms at any time.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="tag2">Design a Home. Create a Memory. Celebrate the Bond.</div>
+    <div class="brand">UrbanTenants × Gemini — AI Rakhi Challenge</div>
+  </div>
+</footer>
+
+</body>
+</html>
