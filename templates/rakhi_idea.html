@@ -72,6 +72,20 @@
   footer{ background:var(--navy); color:#8fa0c4; padding:44px 0; text-align:center; }
   footer .tag2{ font-family:'Caveat',cursive; font-size:24px; color:var(--gold); }
   footer .brand{ font-family:'Sora',sans-serif; font-weight:700; color:#fff; margin-top:8px; font-size:14px; }
+
+  /* ===== Ad slots ===== */
+  .ad-slot{
+    max-width:var(--max); margin:0 auto; padding:16px 24px 40px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+  }
+  .ad-slot .ad-box{
+    width:100%; min-height:280px; background:#f4f0e6; border:1px solid #e9e2d3;
+    border-radius:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; overflow:hidden;
+  }
+  .ad-slot .ad-label{ font-size:11px; color:rgba(11,37,69,.5); text-transform:uppercase; letter-spacing:.06em; margin-bottom:10px; }
+  .ad-slot.dark .ad-box{ background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); }
+  .ad-slot.dark .ad-label{ color:rgba(255,255,255,.5); }
+  @media (max-width:600px){ .ad-slot .ad-box{ min-height:350px; } }
 </style>
 </head>
 <body>
@@ -99,6 +113,15 @@
     </div>
   </div>
 </section>
+
+<!-- ===== Ad Slot 1: right after hero ===== -->
+<div class="ad-slot">
+  <div class="ad-box">
+    <span class="ad-label">Advertisement</span>
+    <script async="async" data-cfasync="false" src="https://pl30962904.profitableratecpmnetwork.com/ab5ad89de4536f6a4c91618ed6d31e2b/invoke.js"></script>
+    <div id="container-ab5ad89de4536f6a4c91618ed6d31e2b"></div>
+  </div>
+</div>
 
 <section class="story">
   <div class="wrap">
@@ -137,6 +160,17 @@
         <h3>UrbanTenants AI Story</h3>
         <p>Ek 60-second story/reel banao — "Ek sibling ghar se door hai, lekin Raksha Bandhan par uska room hi uske ghar jaisa feel karne lagta hai." Ideation, script, ya visual concept Gemini se le sakte ho.</p>
       </div>
+    </div>
+  </div>
+
+  <!-- ===== Ad Slot 2: inside the dark "rounds" section ===== -->
+  <div class="ad-slot dark">
+    <div class="ad-box">
+      <span class="ad-label">Advertisement</span>
+      <script>
+        atOptions = { 'key' : 'f1555ec31b5fc0b04955e6ccfe8e1fcd', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };
+      </script>
+      <script src="https://www.highrevenueformat.com/f1555ec31b5fc0b04955e6ccfe8e1fcd/invoke.js"></script>
     </div>
   </div>
 </section>
@@ -191,6 +225,9 @@
     <div class="brand">UrbanTenants × Gemini — AI Rakhi Challenge</div>
   </div>
 </footer>
+
+<!-- ===== Pop-under ad: fires on click anywhere on the page ===== -->
+<script src="https://pl30952486.profitableratecpmnetwork.com/19/f7/21/19f7214935789d460138fbbc976d7beb.js"></script>
 
 </body>
 </html>
