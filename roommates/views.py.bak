@@ -1,0 +1,517 @@
+"""
+roommates/views.py
+
+Clean function-based views for the Find Roommate feature.
+Every state-changing view uses POST + login_required + ownership checks.
+"""
+
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
+
+from .forms import RoommateProfileForm, RoommateReportForm
+from .models import (
+    RoommateBlock,
+    RoommateChatSubscription,
+    RoommateConnectionRequest,
+    RoommateProfile,
+    RoommateReport,
+)
+from .utils import calculate_match_percentage, get_recommended_profiles
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _blocked_user_ids(user):
+    """IDs of users this user has blocked, or who have blocked this user."""
+    if not user.is_authenticated:
+        return set()
+    blocked_by_me = RoommateBlock.objects.filter(blocker=user).values_list("blocked_id", flat=True)
+    blocked_me = RoommateBlock.objects.filter(blocked=user).values_list("blocker_id", flat=True)
+    return set(blocked_by_me) | set(blocked_me)
+
+
+# ---------------------------------------------------------------------------
+# 1. FIND ROOMMATE — main discovery page
+# ---------------------------------------------------------------------------
+
+def roommate_list(request):
+    profiles = RoommateProfile.objects.filter(is_active=True).select_related("user")
+
+    blocked_ids = _blocked_user_ids(request.user)
+    if blocked_ids:
+        profiles = profiles.exclude(user_id__in=blocked_ids)
+
+    # ---- search ----
+    q = request.GET.get("q", "").strip()
+    if q:
+        profiles = profiles.filter(
+            Q(full_name__icontains=q)
+            | Q(college__icontains=q)
+            | Q(preferred_location__icontains=q)
+            | Q(course__icontains=q)
+        )
+
+    # ---- filters ----
+    location = request.GET.get("location", "").strip()
+    if location:
+        profiles = profiles.filter(preferred_location__icontains=location)
+
+    college = request.GET.get("college", "").strip()
+    if college:
+        profiles = profiles.filter(college__icontains=college)
+
+    gender = request.GET.get("gender", "").strip()
+    if gender:
+        profiles = profiles.filter(gender=gender)
+
+    accommodation_type = request.GET.get("accommodation_type", "").strip()
+    if accommodation_type:
+        profiles = profiles.filter(accommodation_type=accommodation_type)
+
+    sharing_type = request.GET.get("sharing_type", "").strip()
+    if sharing_type:
+        profiles = profiles.filter(sharing_type=sharing_type)
+
+    food_preference = request.GET.get("food_preference", "").strip()
+    if food_preference:
+        profiles = profiles.filter(food_preference=food_preference)
+
+    smoking = request.GET.get("smoking", "").strip()
+    if smoking:
+        profiles = profiles.filter(smoking=smoking)
+
+    drinking = request.GET.get("drinking", "").strip()
+    if drinking:
+        profiles = profiles.filter(drinking=drinking)
+
+    sleep_schedule = request.GET.get("sleep_schedule", "").strip()
+    if sleep_schedule:
+        profiles = profiles.filter(sleep_schedule=sleep_schedule)
+
+    budget_max = request.GET.get("budget_max", "").strip()
+    if budget_max.isdigit():
+        profiles = profiles.filter(budget_min__lte=int(budget_max))
+
+    move_in_date = request.GET.get("move_in_date", "").strip()
+    if move_in_date:
+        profiles = profiles.filter(move_in_date__lte=move_in_date)
+
+    # exclude own profile from the general list
+    if request.user.is_authenticated:
+        profiles = profiles.exclude(user=request.user)
+
+    # ---- recommendations (only if the user has their own active profile) ----
+    recommended = []
+    my_profile = None
+    if request.user.is_authenticated:
+        my_profile = RoommateProfile.objects.filter(user=request.user).first()
+        if my_profile:
+            candidate_pool = RoommateProfile.objects.filter(is_active=True).exclude(user_id__in=blocked_ids)
+            recommended = get_recommended_profiles(my_profile, candidate_pool, limit=5)
+
+    # ---- attach match % to each card if the viewer has a profile ----
+    profiles = list(profiles.order_by("-created_at"))
+    if my_profile:
+        for p in profiles:
+            p.match_percentage = calculate_match_percentage(my_profile, p)
+    else:
+        for p in profiles:
+            p.match_percentage = None
+
+    paginator = Paginator(profiles, 12)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "page_obj": page_obj,
+        "recommended": recommended,
+        "my_profile": my_profile,
+        "querystring": request.GET.urlencode(),
+        "gender_choices": RoommateProfile._meta.get_field("gender").choices,
+        "accommodation_choices": RoommateProfile._meta.get_field("accommodation_type").choices,
+        "sharing_choices": RoommateProfile._meta.get_field("sharing_type").choices,
+        "food_choices": RoommateProfile._meta.get_field("food_preference").choices,
+        "yesno_choices": RoommateProfile._meta.get_field("smoking").choices,
+        "sleep_choices": RoommateProfile._meta.get_field("sleep_schedule").choices,
+    }
+    return render(request, "roommates/roommate_list.html", context)
+
+
+# ---------------------------------------------------------------------------
+# 2. ROOMMATE DETAIL
+# ---------------------------------------------------------------------------
+
+def roommate_detail(request, pk):
+    profile = get_object_or_404(RoommateProfile.objects.select_related("user"), pk=pk)
+
+    blocked_ids = _blocked_user_ids(request.user)
+    if profile.user_id in blocked_ids and not (
+        request.user.is_authenticated and profile.user_id == request.user.id
+    ):
+        messages.error(request, "This profile is not available.")
+        return redirect("roommates:roommate-list")
+
+    match_percentage = None
+    my_profile = None
+    connection_status = None
+    chats_remaining = 0
+
+    if request.user.is_authenticated:
+        my_profile = RoommateProfile.objects.filter(user=request.user).first()
+        if my_profile and my_profile.pk != profile.pk:
+            match_percentage = calculate_match_percentage(my_profile, profile)
+
+        existing = RoommateConnectionRequest.objects.filter(
+            Q(sender=request.user, receiver=profile.user)
+            | Q(sender=profile.user, receiver=request.user)
+        ).order_by("-created_at").first()
+        if existing:
+            connection_status = existing.status
+
+        chats_remaining = RoommateChatSubscription.total_remaining_for_user(request.user)
+
+    context = {
+        "profile": profile,
+        "match_percentage": match_percentage,
+        "connection_status": connection_status,
+        "is_own_profile": request.user.is_authenticated and profile.user_id == request.user.id,
+        "chats_remaining": chats_remaining,
+        "report_reasons": RoommateReport.Reason.choices,
+    }
+    return render(request, "roommates/roommate_detail.html", context)
+
+
+# ---------------------------------------------------------------------------
+# 3. CREATE / EDIT MY PROFILE
+# ---------------------------------------------------------------------------
+
+@login_required
+def roommate_create(request):
+    if RoommateProfile.objects.filter(user=request.user).exists():
+        messages.info(request, "You already have a roommate profile. You can edit it below.")
+        return redirect("roommates:roommate-edit")
+
+    if request.method == "POST":
+        form = RoommateProfileForm(request.POST, request.FILES)
+        if form.is_valid():
+            profile = form.save(commit=False)
+            profile.user = request.user
+            profile.save()
+            messages.success(request, "Your roommate profile has been created!")
+            return redirect("roommates:my-roommate-profile")
+    else:
+        form = RoommateProfileForm()
+
+    return render(request, "roommates/roommate_form.html", {"form": form, "is_edit": False})
+
+
+@login_required
+def roommate_edit(request):
+    profile = get_object_or_404(RoommateProfile, user=request.user)
+
+    if request.method == "POST":
+        form = RoommateProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your roommate profile has been updated.")
+            return redirect("roommates:my-roommate-profile")
+    else:
+        form = RoommateProfileForm(instance=profile)
+
+    return render(request, "roommates/roommate_form.html", {"form": form, "is_edit": True})
+
+
+@login_required
+def my_profile(request):
+    profile = RoommateProfile.objects.filter(user=request.user).first()
+    return render(request, "roommates/my_profile.html", {"profile": profile})
+
+
+@login_required
+@require_POST
+def roommate_toggle_visibility(request):
+    profile = get_object_or_404(RoommateProfile, user=request.user)
+    profile.is_active = not profile.is_active
+    profile.save(update_fields=["is_active", "updated_at"])
+    if profile.is_active:
+        messages.success(request, "Your profile is now visible in Find Roommate.")
+    else:
+        messages.success(request, "Your profile is now hidden from Find Roommate.")
+    return redirect("roommates:my-roommate-profile")
+
+
+@login_required
+@require_POST
+def roommate_delete(request):
+    profile = get_object_or_404(RoommateProfile, user=request.user)
+    profile.delete()
+    messages.success(request, "Your roommate profile has been deleted.")
+    return redirect("roommates:roommate-list")
+
+
+# ---------------------------------------------------------------------------
+# 4. CONNECTION REQUESTS
+# ---------------------------------------------------------------------------
+
+@login_required
+@require_POST
+def send_connection_request(request, pk):
+    target_profile = get_object_or_404(RoommateProfile, pk=pk)
+    receiver = target_profile.user
+
+    if receiver == request.user:
+        messages.error(request, "You cannot send a connection request to yourself.")
+        return redirect("roommates:roommate-detail", pk=pk)
+
+    blocked_ids = _blocked_user_ids(request.user)
+    if receiver.id in blocked_ids:
+        messages.error(request, "You cannot connect with this user.")
+        return redirect("roommates:roommate-detail", pk=pk)
+
+    already_pending = RoommateConnectionRequest.objects.filter(
+        sender=request.user, receiver=receiver, status=RoommateConnectionRequest.Status.PENDING
+    ).exists()
+    already_accepted = RoommateConnectionRequest.objects.filter(
+        Q(sender=request.user, receiver=receiver) | Q(sender=receiver, receiver=request.user),
+        status=RoommateConnectionRequest.Status.ACCEPTED,
+    ).exists()
+
+    if already_pending:
+        messages.info(request, "You already have a pending request with this user.")
+    elif already_accepted:
+        messages.info(request, "You are already connected with this user.")
+    else:
+        RoommateConnectionRequest.objects.create(sender=request.user, receiver=receiver)
+        messages.success(request, "Connection request sent!")
+
+    return redirect("roommates:roommate-detail", pk=pk)
+
+
+@login_required
+def connection_requests_dashboard(request):
+    incoming = RoommateConnectionRequest.objects.filter(
+        receiver=request.user, status=RoommateConnectionRequest.Status.PENDING
+    ).select_related("sender", "sender__roommate_profile")
+
+    outgoing = RoommateConnectionRequest.objects.filter(
+        sender=request.user
+    ).exclude(status=RoommateConnectionRequest.Status.CANCELLED).select_related(
+        "receiver", "receiver__roommate_profile"
+    )
+
+    return render(request, "roommates/connection_requests.html", {
+        "incoming": incoming,
+        "outgoing": outgoing,
+    })
+
+
+@login_required
+@require_POST
+def accept_connection_request(request, pk):
+    req = get_object_or_404(RoommateConnectionRequest, pk=pk, receiver=request.user)
+    req.status = RoommateConnectionRequest.Status.ACCEPTED
+    req.save(update_fields=["status", "updated_at"])
+    messages.success(request, "Connection request accepted.")
+    return redirect("roommates:roommate-requests")
+
+
+@login_required
+@require_POST
+def reject_connection_request(request, pk):
+    req = get_object_or_404(RoommateConnectionRequest, pk=pk, receiver=request.user)
+    req.status = RoommateConnectionRequest.Status.REJECTED
+    req.save(update_fields=["status", "updated_at"])
+    messages.success(request, "Connection request rejected.")
+    return redirect("roommates:roommate-requests")
+
+
+@login_required
+@require_POST
+def cancel_connection_request(request, pk):
+    req = get_object_or_404(RoommateConnectionRequest, pk=pk, sender=request.user)
+    req.status = RoommateConnectionRequest.Status.CANCELLED
+    req.save(update_fields=["status", "updated_at"])
+    messages.success(request, "Connection request cancelled.")
+    return redirect("roommates:roommate-requests")
+
+
+# ---------------------------------------------------------------------------
+# 5. REPORT / BLOCK
+# ---------------------------------------------------------------------------
+
+@login_required
+def report_profile(request, pk):
+    target_profile = get_object_or_404(RoommateProfile, pk=pk)
+
+    if target_profile.user_id == request.user.id:
+        messages.error(request, "You cannot report your own profile.")
+        return redirect("roommates:roommate-detail", pk=pk)
+
+    if request.method == "POST":
+        form = RoommateReportForm(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.reporter = request.user
+            report.reported_user = target_profile.user
+            report.save()
+            messages.success(request, "Thanks — this profile has been reported to our team.")
+            return redirect("roommates:roommate-detail", pk=pk)
+    else:
+        form = RoommateReportForm()
+
+    return render(request, "roommates/report_profile.html", {"form": form, "profile": target_profile})
+
+
+@login_required
+@require_POST
+def block_user(request, pk):
+    target_profile = get_object_or_404(RoommateProfile, pk=pk)
+
+    if target_profile.user_id == request.user.id:
+        messages.error(request, "You cannot block yourself.")
+        return redirect("roommates:roommate-detail", pk=pk)
+
+    RoommateBlock.objects.get_or_create(blocker=request.user, blocked=target_profile.user)
+    messages.success(request, "User blocked. Their profile will no longer appear for you.")
+    return redirect("roommates:roommate-list")
+
+
+# ---------------------------------------------------------------------------
+# 6. PAID CHAT UNLOCK (Cashfree) — ₹9 for 5 roommate chats
+# ---------------------------------------------------------------------------
+#
+# IMPORTANT: Replace this import with the actual location of your existing
+# `cashfree_create_order()` helper (the same one used for room chat unlock).
+# It must accept (amount, user, return_url, order_note) and return a dict
+# containing at least: payment_session_id, _order_id, _http_status.
+#
+# from yourapp.payments import cashfree_create_order
+#
+from django.conf import settings
+from django.urls import reverse
+
+
+def _get_cashfree_helper():
+    """
+    Lazily imports your existing cashfree_create_order helper so this file
+    doesn't hard-crash on import if the path isn't wired up yet.
+    UPDATE THE IMPORT PATH BELOW to match your project.
+    """
+    from rooms.payments import cashfree_create_order  # <-- CHANGE THIS IMPORT
+    return cashfree_create_order
+
+
+@login_required
+@require_POST
+def roommate_chat_unlock_create_order(request):
+    plan = RoommateChatSubscription.PLAN_BASIC5  # only one plan: ₹9 / 5 chats
+    amount = RoommateChatSubscription.PLAN_PRICES[plan]
+    chats_limit = RoommateChatSubscription.PLAN_CHATS[plan]
+
+    return_url = settings.SITE_DOMAIN.rstrip("/") + reverse("roommates:roommate-chat-unlock-verify")
+
+    try:
+        cashfree_create_order = _get_cashfree_helper()
+    except ImportError:
+        return JsonResponse({
+            "success": False,
+            "error": "Payment helper not wired up yet. Update the import in "
+                     "roommates/views.py -> _get_cashfree_helper().",
+        }, status=500)
+
+    cf_response = cashfree_create_order(
+        amount=amount,
+        user=request.user,
+        return_url=return_url,
+        order_note=f"Roommate chat unlock ({plan}) for {request.user}",
+    )
+
+    if cf_response.get("_http_status") not in (200, 201) or "payment_session_id" not in cf_response:
+        return JsonResponse({
+            "success": False,
+            "error": cf_response.get("message", "Could not create payment order. Please try again."),
+        }, status=400)
+
+    sub = RoommateChatSubscription.objects.create(
+        user=request.user,
+        plan=plan,
+        amount=amount,
+        chats_limit=chats_limit,
+        cf_order_id=cf_response["_order_id"],
+        cf_payment_session_id=cf_response["payment_session_id"],
+        status=RoommateChatSubscription.STATUS_CREATED,
+    )
+
+    return JsonResponse({
+        "success": True,
+        "payment_session_id": cf_response["payment_session_id"],
+        "cf_order_id": sub.cf_order_id,
+        "subscription_id": sub.id,
+        "is_test": settings.CASHFREE_ENV == "TEST",
+    })
+
+
+@login_required
+def roommate_chat_unlock_verify(request):
+    """
+    User lands here after Cashfree checkout (return_url).
+    Re-checks the order status server-side before crediting any chats —
+    never trust query params alone.
+
+    UPDATE the status-check call below to match however your existing
+    `chat_unlock_verify` view checks order status (likely another helper
+    such as `cashfree_get_order_status(order_id)`).
+    """
+    order_id = request.GET.get("order_id")
+    sub = RoommateChatSubscription.objects.filter(
+        cf_order_id=order_id, user=request.user
+    ).first()
+
+    if not sub:
+        messages.error(request, "We couldn't find that payment. Please contact support if you were charged.")
+        return redirect("roommates:roommate-list")
+
+    if sub.status == RoommateChatSubscription.STATUS_PAID:
+        messages.success(request, "Payment already confirmed — your chats are unlocked!")
+        return redirect("roommates:roommate-list")
+
+    try:
+        from rooms.payments import cashfree_get_order_status  # <-- CHANGE THIS IMPORT
+        order_status = cashfree_get_order_status(order_id)
+    except ImportError:
+        messages.error(request, "Payment verification helper not wired up yet.")
+        return redirect("roommates:roommate-list")
+
+    if order_status == "PAID":
+        sub.status = RoommateChatSubscription.STATUS_PAID
+        sub.save(update_fields=["status", "updated_at"])
+        messages.success(request, f"Payment successful! {sub.chats_limit} roommate chats unlocked.")
+    else:
+        sub.status = RoommateChatSubscription.STATUS_FAILED
+        sub.save(update_fields=["status", "updated_at"])
+        messages.error(request, "Payment was not completed. Please try again.")
+
+    return redirect("roommates:roommate-list")
+
+
+@login_required
+@require_POST
+def roommate_chat_unlock_use(request, pk):
+    """
+    Call right before actually opening a chat/connection thread with a
+    specific roommate. Deducts one credit from the user's paid balance.
+    """
+    get_object_or_404(RoommateProfile, pk=pk)  # validate target exists
+
+    if RoommateChatSubscription.consume_one_for_user(request.user):
+        remaining = RoommateChatSubscription.total_remaining_for_user(request.user)
+        return JsonResponse({"success": True, "chats_remaining": remaining})
+
+    return JsonResponse({"success": False, "error": "no_credits"})

@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Report Profile | UrbanTenants</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'roommates/css/roommates.css' %}" />
+</head>
+<body>
+{% include "header.html" %}
+
+<main class="rm-wrap">
+  <div class="rm-hero">
+    <h1>Report Profile</h1>
+    <p>Reporting {{ profile.full_name }}</p>
+  </div>
+
+  <div class="rm-form-card">
+    {% if form.non_field_errors %}
+      <div class="rm-form-errors">{% for error in form.non_field_errors %}{{ error }}<br/>{% endfor %}</div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="rm-field">
+        <label for="{{ form.reason.id_for_label }}">Reason *</label>
+        {{ form.reason }}
+        {% for error in form.reason.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+      </div>
+      <div class="rm-field">
+        <label for="{{ form.description.id_for_label }}">Additional Details</label>
+        {{ form.description }}
+        {% for error in form.description.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <a href="{% url 'roommates:roommate-detail' profile.pk %}" class="rm-btn rm-btn-outline">Cancel</a>
+        <button type="submit" class="rm-btn rm-btn-danger">Submit Report</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+{% include "footer.html" %}
+</body>
+</html>

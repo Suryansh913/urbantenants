@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Roommate Profile | UrbanTenants</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'roommates/css/roommates.css' %}" />
+</head>
+<body>
+{% include "header.html" %}
+
+<main class="rm-wrap" style="max-width:800px;">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="rm-form-errors" style="background:#F0FDF4;border-color:#bbf7d0;color:#16a34a;">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {% if not profile %}
+    <div class="rm-empty">
+      <h3>You haven't created a roommate profile yet.</h3>
+      <p>Create one to appear in Find Roommate and get matched with compatible roommates.</p>
+      <a href="{% url 'roommates:roommate-create' %}" class="rm-btn rm-btn-green">Create Profile</a>
+    </div>
+  {% else %}
+    <div class="rm-detail-card">
+      <div class="rm-detail-head">
+        {% if profile.profile_photo %}
+          <img src="{{ profile.profile_photo.url }}" class="rm-detail-avatar" alt="{{ profile.full_name }}" />
+        {% else %}
+          <div class="rm-detail-avatar"></div>
+        {% endif %}
+        <div>
+          <div class="rm-detail-name">{{ profile.full_name }}, {{ profile.age }}</div>
+          <div class="rm-detail-sub">{{ profile.college }}</div>
+          {% if profile.is_active %}
+            <span class="rm-status-pill rm-status-accepted" style="margin-top:8px;display:inline-block;">Visible in search</span>
+          {% else %}
+            <span class="rm-status-pill rm-status-rejected" style="margin-top:8px;display:inline-block;">Hidden from search</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="rm-info-grid">
+        <div class="rm-info-item"><div class="rm-info-label">Location</div><div class="rm-info-value">{{ profile.preferred_location }}</div></div>
+        <div class="rm-info-item"><div class="rm-info-label">Budget</div><div class="rm-info-value">₹{{ profile.budget_min }} - ₹{{ profile.budget_max }}</div></div>
+        <div class="rm-info-item"><div class="rm-info-label">Accommodation</div><div class="rm-info-value">{{ profile.get_accommodation_type_display }}</div></div>
+        <div class="rm-info-item"><div class="rm-info-label">Sharing</div><div class="rm-info-value">{{ profile.get_sharing_type_display }}</div></div>
+      </div>
+
+      <div class="rm-detail-actions">
+        <a href="{% url 'roommates:roommate-edit' %}" class="rm-btn rm-btn-primary">Edit Profile</a>
+
+        <form method="post" action="{% url 'roommates:roommate-toggle-visibility' %}">
+          {% csrf_token %}
+          {% if profile.is_active %}
+            <button type="submit" class="rm-btn rm-btn-outline">Hide Profile</button>
+          {% else %}
+            <button type="submit" class="rm-btn rm-btn-green">Make Profile Visible</button>
+          {% endif %}
+        </form>
+
+        <form method="post" action="{% url 'roommates:roommate-delete' %}"
+              onsubmit="return confirm('Delete your roommate profile? This cannot be undone.');">
+          {% csrf_token %}
+          <button type="submit" class="rm-btn rm-btn-danger">Delete Profile</button>
+        </form>
+
+        <a href="{% url 'roommates:roommate-requests' %}" class="rm-btn rm-btn-outline">View Connection Requests</a>
+      </div>
+    </div>
+  {% endif %}
+
+</main>
+
+{% include "footer.html" %}
+</body>
+</html>

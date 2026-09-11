@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% if is_edit %}Edit{% else %}Create{% endif %} Roommate Profile | UrbanTenants</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'roommates/css/roommates.css' %}" />
+</head>
+<body>
+{% include "header.html" %}
+
+<main class="rm-wrap">
+  <div class="rm-hero">
+    <h1>{% if is_edit %}Edit Your Roommate Profile{% else %}Create Your Roommate Profile{% endif %}</h1>
+    <p>Tell us about yourself so we can find your perfect match.</p>
+  </div>
+
+  <div class="rm-form-card">
+    {% if form.non_field_errors %}
+      <div class="rm-form-errors">
+        {% for error in form.non_field_errors %}{{ error }}<br/>{% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="rm-field">
+        <label for="{{ form.profile_photo.id_for_label }}">Profile Photo</label>
+        {{ form.profile_photo }}
+        {% if form.instance.profile_photo %}
+          <img src="{{ form.instance.profile_photo.url }}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;margin-top:8px;" />
+        {% endif %}
+        {% for error in form.profile_photo.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+      </div>
+
+      <div class="rm-form-grid">
+        <div class="rm-field">
+          <label for="{{ form.full_name.id_for_label }}">Full Name *</label>
+          {{ form.full_name }}
+          {% for error in form.full_name.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.age.id_for_label }}">Age *</label>
+          {{ form.age }}
+          {% for error in form.age.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.gender.id_for_label }}">Gender *</label>
+          {{ form.gender }}
+          {% for error in form.gender.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.college.id_for_label }}">College / University *</label>
+          {{ form.college }}
+          {% for error in form.college.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.course.id_for_label }}">Course</label>
+          {{ form.course }}
+          {% for error in form.course.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.preferred_location.id_for_label }}">Preferred Location *</label>
+          {{ form.preferred_location }}
+          {% for error in form.preferred_location.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.budget_min.id_for_label }}">Min Budget (₹/month) *</label>
+          {{ form.budget_min }}
+          {% for error in form.budget_min.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.budget_max.id_for_label }}">Max Budget (₹/month) *</label>
+          {{ form.budget_max }}
+          {% for error in form.budget_max.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.accommodation_type.id_for_label }}">Accommodation *</label>
+          {{ form.accommodation_type }}
+          {% for error in form.accommodation_type.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.sharing_type.id_for_label }}">Sharing *</label>
+          {{ form.sharing_type }}
+          {% for error in form.sharing_type.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.move_in_date.id_for_label }}">Move-in Date *</label>
+          {{ form.move_in_date }}
+          {% for error in form.move_in_date.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.food_preference.id_for_label }}">Food *</label>
+          {{ form.food_preference }}
+          {% for error in form.food_preference.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.smoking.id_for_label }}">Smoking *</label>
+          {{ form.smoking }}
+          {% for error in form.smoking.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.drinking.id_for_label }}">Drinking *</label>
+          {{ form.drinking }}
+          {% for error in form.drinking.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.sleep_schedule.id_for_label }}">Sleep Schedule *</label>
+          {{ form.sleep_schedule }}
+          {% for error in form.sleep_schedule.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.cleanliness.id_for_label }}">Cleanliness *</label>
+          {{ form.cleanliness }}
+          {% for error in form.cleanliness.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="rm-field">
+          <label for="{{ form.study_habits.id_for_label }}">Study Habits *</label>
+          {{ form.study_habits }}
+          {% for error in form.study_habits.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+
+      <div class="rm-field">
+        <label for="{{ form.interests.id_for_label }}">Interests</label>
+        {{ form.interests }}
+        {% for error in form.interests.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+      </div>
+
+      <div class="rm-field">
+        <label for="{{ form.bio.id_for_label }}">About Me / Bio</label>
+        {{ form.bio }}
+        {% for error in form.bio.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+      </div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px;">
+        <a href="{% url 'roommates:roommate-list' %}" class="rm-btn rm-btn-outline">Cancel</a>
+        <button type="submit" class="rm-btn rm-btn-primary">{% if is_edit %}Save Changes{% else %}Create Profile{% endif %}</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+{% include "footer.html" %}
+</body>
+</html>

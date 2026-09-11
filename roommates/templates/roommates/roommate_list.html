@@ -1,0 +1,154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Roommate | UrbanTenants</title>
+  <meta name="description" content="Find your ideal roommate on UrbanTenants — search by location, budget, college and lifestyle to find someone who matches your vibe." />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'roommates/css/roommates.css' %}" />
+</head>
+<body>
+{% include "header.html" %}
+
+<main class="rm-wrap">
+
+  <div class="rm-hero">
+    <h1>Find Your Roommate</h1>
+    <p>Find someone who matches your vibe.</p>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="rm-form-errors" style="background:#F0FDF4;border-color:#bbf7d0;color:#16a34a;">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Search -->
+  <form method="get" class="rm-search-bar">
+    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search by name, college, location or course..." />
+    <button type="submit" class="rm-btn rm-btn-primary">Search</button>
+    {% if my_profile %}
+      <a href="{% url 'roommates:my-roommate-profile' %}" class="rm-btn rm-btn-outline">My Profile</a>
+    {% else %}
+      <a href="{% url 'roommates:roommate-create' %}" class="rm-btn rm-btn-green">+ Create Profile</a>
+    {% endif %}
+
+    <!-- Filters -->
+    <div class="rm-filters" style="width:100%;">
+      <select name="gender">
+        <option value="">Any Gender</option>
+        {% for value, label in gender_choices %}
+          <option value="{{ value }}" {% if request.GET.gender == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <input type="text" name="location" value="{{ request.GET.location }}" placeholder="Location" />
+      <input type="text" name="college" value="{{ request.GET.college }}" placeholder="College" />
+
+      <select name="accommodation_type">
+        <option value="">Any Accommodation</option>
+        {% for value, label in accommodation_choices %}
+          <option value="{{ value }}" {% if request.GET.accommodation_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="sharing_type">
+        <option value="">Any Sharing</option>
+        {% for value, label in sharing_choices %}
+          <option value="{{ value }}" {% if request.GET.sharing_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="food_preference">
+        <option value="">Any Food Preference</option>
+        {% for value, label in food_choices %}
+          <option value="{{ value }}" {% if request.GET.food_preference == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="smoking">
+        <option value="">Smoking - Any</option>
+        {% for value, label in yesno_choices %}
+          <option value="{{ value }}" {% if request.GET.smoking == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <select name="sleep_schedule">
+        <option value="">Any Sleep Schedule</option>
+        {% for value, label in sleep_choices %}
+          <option value="{{ value }}" {% if request.GET.sleep_schedule == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      <input type="number" name="budget_max" value="{{ request.GET.budget_max }}" placeholder="Max Budget ₹" />
+      <input type="date" name="move_in_date" value="{{ request.GET.move_in_date }}" />
+
+      <div class="rm-filter-actions">
+        <a href="{% url 'roommates:roommate-list' %}" class="rm-btn rm-btn-outline rm-btn-sm">Clear Filters</a>
+        <button type="submit" class="rm-btn rm-btn-primary rm-btn-sm">Apply Filters</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Recommended -->
+  {% if my_profile %}
+    {% if recommended %}
+      <div class="rm-recommended">
+        <h2>Recommended for You</h2>
+        <div class="rm-recommended-row">
+          {% for rec_profile, score in recommended %}
+            <a href="{% url 'roommates:roommate-detail' rec_profile.pk %}" class="rm-recommended-card">
+              {% if rec_profile.profile_photo %}
+                <img src="{{ rec_profile.profile_photo.url }}" class="rm-recommended-avatar" alt="{{ rec_profile.full_name }}" />
+              {% else %}
+                <div class="rm-recommended-avatar"></div>
+              {% endif %}
+              <div class="rm-recommended-match">{{ score }}% Match</div>
+              <div class="rm-recommended-name">{{ rec_profile.full_name }}</div>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="rm-recommended" style="text-align:center;">
+      <p style="margin-bottom:12px;color:var(--rm-neutral-600);">Create your roommate profile to get personalized matches.</p>
+      <a href="{% url 'roommates:roommate-create' %}" class="rm-btn rm-btn-green">Create Profile</a>
+    </div>
+  {% endif %}
+
+  <!-- Profile cards -->
+  {% if page_obj.object_list %}
+    <div class="rm-grid">
+      {% for profile in page_obj %}
+        {% include "roommates/partials/roommate_card.html" with profile=profile %}
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="rm-pagination">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&{{ querystring }}">Previous</a>
+      {% endif %}
+      <span class="active">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&{{ querystring }}">Next</a>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="rm-empty">
+      <h3>No roommate profiles found</h3>
+      <p>Try adjusting your search or filters, or check back later.</p>
+      {% if not my_profile %}
+        <a href="{% url 'roommates:roommate-create' %}" class="rm-btn rm-btn-green">Create Your Profile</a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+</main>
+
+{% include "footer.html" %}
+</body>
+</html>

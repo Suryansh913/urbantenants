@@ -1,0 +1,36 @@
+<div class="rm-card">
+  <div class="rm-card-top">
+    {% if profile.profile_photo %}
+      <img src="{{ profile.profile_photo.url }}" class="rm-card-avatar" alt="{{ profile.full_name }}" />
+    {% else %}
+      <div class="rm-card-avatar"></div>
+    {% endif %}
+    <div>
+      <div class="rm-card-name">{{ profile.full_name }}, {{ profile.age }}</div>
+      <div class="rm-card-sub">{{ profile.college }}</div>
+    </div>
+    {% if profile.match_percentage is not None %}
+      <span class="rm-match-pill">{{ profile.match_percentage }}% Match</span>
+    {% endif %}
+  </div>
+
+  <div class="rm-card-loc">📍 {{ profile.preferred_location }}</div>
+  <div class="rm-card-budget">₹{{ profile.budget_min }} - ₹{{ profile.budget_max }}/month</div>
+
+  <div class="rm-tag-row">
+    <span class="rm-tag">{{ profile.get_sharing_type_display }}</span>
+    <span class="rm-tag">{{ profile.get_sleep_schedule_display }}</span>
+    <span class="rm-tag">{{ profile.get_food_preference_display }}</span>
+    {% if profile.smoking == "no" %}<span class="rm-tag">Non-Smoker</span>{% endif %}
+  </div>
+
+  {% if profile.bio %}
+    <p class="rm-card-bio">&ldquo;{{ profile.bio }}&rdquo;</p>
+  {% else %}
+    <div style="flex-grow:1;"></div>
+  {% endif %}
+
+  <div class="rm-card-footer">
+    <a href="{% url 'roommates:roommate-detail' profile.pk %}" class="rm-btn rm-btn-primary">View Profile</a>
+  </div>
+</div>

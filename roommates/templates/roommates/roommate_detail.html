@@ -1,0 +1,188 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ profile.full_name }} - Roommate Profile | UrbanTenants</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'roommates/css/roommates.css' %}" />
+</head>
+<body>
+{% include "header.html" %}
+
+<main class="rm-wrap" style="max-width:800px;">
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="rm-form-errors {% if message.tags == 'success' %}rm-msg-success{% endif %}"
+           style="{% if message.tags == 'success' %}background:#F0FDF4;border-color:#bbf7d0;color:#16a34a;{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="rm-detail-card">
+    <div class="rm-detail-head">
+      {% if profile.profile_photo %}
+        <img src="{{ profile.profile_photo.url }}" class="rm-detail-avatar" alt="{{ profile.full_name }}" />
+      {% else %}
+        <div class="rm-detail-avatar"></div>
+      {% endif %}
+      <div>
+        <div class="rm-detail-name">{{ profile.full_name }}, {{ profile.age }}</div>
+        <div class="rm-detail-sub">{{ profile.college }}{% if profile.course %} &middot; {{ profile.course }}{% endif %}</div>
+        {% if match_percentage is not None %}
+          <span class="rm-match-pill" style="margin-top:8px;display:inline-block;">{{ match_percentage }}% Match</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="rm-info-grid">
+      <div class="rm-info-item"><div class="rm-info-label">Location</div><div class="rm-info-value">📍 {{ profile.preferred_location }}</div></div>
+      <div class="rm-info-item"><div class="rm-info-label">Budget</div><div class="rm-info-value">₹{{ profile.budget_min }} - ₹{{ profile.budget_max }}/mo</div></div>
+      <div class="rm-info-item"><div class="rm-info-label">Accommodation</div><div class="rm-info-value">{{ profile.get_accommodation_type_display }}</div></div>
+      <div class="rm-info-item"><div class="rm-info-label">Sharing</div><div class="rm-info-value">{{ profile.get_sharing_type_display }}</div></div>
+      <div class="rm-info-item"><div class="rm-info-label">Move-in Date</div><div class="rm-info-value">{{ profile.move_in_date|date:"d M Y" }}</div></div>
+      <div class="rm-info-item"><div class="rm-info-label">Food</div><div class="rm-info-value">{{ profile.get_food_preference_display }}</div></div>
+      <div class="rm-info-item"><div class="rm-info-label">Smoking</div><div class="rm-info-value">{{ profile.get_smoking_display }}</div></div>
+      <div class="rm-info-item"><div class="rm-info-label">Drinking</div><div class="rm-info-value">{{ profile.get_drinking_display }}</div></div>
+      <div class="rm-info-item"><div class="rm-info-label">Sleep Schedule</div><div class="rm-info-value">{{ profile.get_sleep_schedule_display }}</div></div>
+      <div class="rm-info-item"><div class="rm-info-label">Cleanliness</div><div class="rm-info-value">{{ profile.get_cleanliness_display }}</div></div>
+      <div class="rm-info-item"><div class="rm-info-label">Study Habits</div><div class="rm-info-value">{{ profile.get_study_habits_display }}</div></div>
+    </div>
+
+    {% if profile.interests_list %}
+      <div style="margin-bottom:16px;">
+        <div class="rm-info-label" style="margin-bottom:8px;">Interests</div>
+        <div class="rm-tag-row">
+          {% for interest in profile.interests_list %}
+            <span class="rm-tag">{{ interest }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if profile.bio %}
+      <div>
+        <div class="rm-info-label" style="margin-bottom:6px;">About</div>
+        <p style="font-size:14px;color:var(--rm-neutral-600);line-height:1.7;">{{ profile.bio }}</p>
+      </div>
+    {% endif %}
+
+    <div class="rm-detail-actions">
+      {% if is_own_profile %}
+        <a href="{% url 'roommates:roommate-edit' %}" class="rm-btn rm-btn-primary">Edit My Profile</a>
+      {% else %}
+
+        {% if connection_status == "pending" %}
+          <button class="rm-btn rm-btn-outline" disabled>Request Pending</button>
+        {% elif connection_status == "accepted" %}
+          <span class="rm-btn rm-btn-green" style="cursor:default;">✓ Connected</span>
+        {% else %}
+          <form method="post" action="{% url 'roommates:send-roommate-request' profile.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="rm-btn rm-btn-primary">Send Connection Request</button>
+          </form>
+        {% endif %}
+
+        <!-- ===== PAID CHAT UNLOCK — ₹9 for 5 roommate chats ===== -->
+        {% if request.user.is_authenticated %}
+          {% if chats_remaining > 0 %}
+            <button type="button" class="rm-btn rm-btn-green" id="rmChatBtn" data-profile-id="{{ profile.pk }}">
+              💬 Chat Now ({{ chats_remaining }} left)
+            </button>
+          {% else %}
+            <button type="button" class="rm-btn rm-chat-locked" id="rmChatUnlockBtn">
+              🔒 Unlock 5 Chats for ₹9
+            </button>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'loginv' %}?next={{ request.path }}" class="rm-btn rm-chat-locked">
+            🔒 Login to Chat
+          </a>
+        {% endif %}
+
+        <a href="{% url 'roommates:report-roommate' profile.pk %}" class="rm-btn rm-btn-outline">Report Profile</a>
+
+        <form method="post" action="{% url 'roommates:block-roommate' profile.pk %}"
+              onsubmit="return confirm('Block this user? They will no longer appear in your search or recommendations.');">
+          {% csrf_token %}
+          <button type="submit" class="rm-btn rm-btn-danger">Block User</button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+</main>
+
+{% include "footer.html" %}
+
+<!-- ===== Chat unlock: Cashfree checkout ===== -->
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+<script>
+(function () {
+  function getCookie(name) {
+    const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return m ? decodeURIComponent(m.pop()) : '';
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  const unlockBtn = document.getElementById('rmChatUnlockBtn');
+  if (unlockBtn) {
+    unlockBtn.addEventListener('click', async () => {
+      unlockBtn.disabled = true;
+      unlockBtn.textContent = 'Please wait...';
+      try {
+        const resp = await fetch("{% url 'roommates:roommate-chat-unlock-create-order' %}", {
+          method: "POST",
+          headers: { "X-CSRFToken": csrftoken },
+        });
+        const data = await resp.json();
+        if (!data.success) {
+          alert(data.error || "Payment could not be started. Please try again.");
+          unlockBtn.disabled = false;
+          unlockBtn.textContent = "🔒 Unlock 5 Chats for ₹9";
+          return;
+        }
+        const cashfree = Cashfree({ mode: data.is_test ? "sandbox" : "production" });
+        cashfree.checkout({
+          paymentSessionId: data.payment_session_id,
+          redirectTarget: "_self",
+        });
+      } catch (err) {
+        alert("Something went wrong. Please try again.");
+        unlockBtn.disabled = false;
+        unlockBtn.textContent = "🔒 Unlock 5 Chats for ₹9";
+      }
+    });
+  }
+
+  const chatBtn = document.getElementById('rmChatBtn');
+  if (chatBtn) {
+    chatBtn.addEventListener('click', async () => {
+      const profileId = chatBtn.dataset.profileId;
+      chatBtn.disabled = true;
+      try {
+        const resp = await fetch(`/roommates/${profileId}/chat-unlock/use/`, {
+          method: "POST",
+          headers: { "X-CSRFToken": csrftoken },
+        });
+        const data = await resp.json();
+        if (data.success) {
+          // TODO: point this at your actual chat/messaging thread URL once built
+          alert("Chat unlocked! (" + data.chats_remaining + " remaining) Connect this button to your chat thread.");
+        } else {
+          alert("No chats remaining. Please unlock again.");
+        }
+      } catch (err) {
+        alert("Something went wrong. Please try again.");
+      } finally {
+        chatBtn.disabled = false;
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
