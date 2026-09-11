@@ -285,6 +285,14 @@
             {% for error in form.gender.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
           </div>
           <div class="rm-field">
+            <label for="{{ form.phone_number.id_for_label }}">Phone Number (WhatsApp)</label>
+            {{ form.phone_number }}
+          <div style="font-size:12px;color:var(--rm-neutral-600);margin-top:4px;">
+             Only shown to users after they unlock chat — not visible on your public card.
+          </div>
+          {% for error in form.phone_number.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
             <label for="{{ form.college.id_for_label }}">College / university *</label>
             {{ form.college }}
             {% for error in form.college.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}

@@ -105,6 +105,11 @@ class RoommateProfile(models.Model):
         help_text="Comma-separated, e.g. Music, Football, Reading"
     )
     bio = models.TextField(max_length=800, blank=True)
+    phone_number = models.CharField(
+        max_length=10,
+        blank=True,
+        help_text="10-digit mobile number. Only shown to users who've unlocked chat credits.",
+    )
 
     is_active = models.BooleanField(default=True, help_text="Uncheck to hide profile from search")
 

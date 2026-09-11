@@ -29,6 +29,7 @@ class RoommateProfileForm(forms.ModelForm):
             "study_habits",
             "interests",
             "bio",
+            "phone_number",
         ]
         widgets = {
             "move_in_date": forms.DateInput(attrs={"type": "date"}),
@@ -41,8 +42,23 @@ class RoommateProfileForm(forms.ModelForm):
             "preferred_location": forms.TextInput(attrs={"placeholder": "e.g. Gharuan"}),
             "budget_min": forms.NumberInput(attrs={"placeholder": "Min ₹/month"}),
             "budget_max": forms.NumberInput(attrs={"placeholder": "Max ₹/month"}),
+            "phone_number": forms.TextInput(attrs={"placeholder": "10-digit mobile number"}),
         }
+    def clean_phone_number(self):
+        raw = self.cleaned_data.get("phone_number", "").strip()
+        if not raw:
+            return raw  # optional field
 
+        digits = raw.replace(" ", "").replace("-", "")
+        if digits.startswith("+91"):
+            digits = digits[3:]
+        elif digits.startswith("91") and len(digits) == 12:
+            digits = digits[2:]
+
+        if not digits.isdigit() or len(digits) != 10:
+            raise forms.ValidationError("Enter a valid 10-digit mobile number.")
+
+        return digits
     def clean_age(self):
         age = self.cleaned_data["age"]
         if age < 16 or age > 100:

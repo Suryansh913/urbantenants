@@ -404,7 +404,7 @@ def _get_cashfree_helper():
     doesn't hard-crash on import if the path isn't wired up yet.
     UPDATE THE IMPORT PATH BELOW to match your project.
     """
-    from listings.utils import cashfree_create_order
+    from listings.utils import cashfree_create_order  
     return cashfree_create_order
 
 
@@ -462,13 +462,12 @@ def roommate_chat_unlock_create_order(request):
 def roommate_chat_unlock_verify(request):
     """
     User lands here after Cashfree checkout (return_url).
-    Re-checks the order status server-side before crediting any chats —
+    Mirrors your existing room-listing `chat_unlock_verify`: re-checks the
+    order status via cashfree_get_order() before crediting any chats —
     never trust query params alone.
-
-    UPDATE the status-check call below to match however your existing
-    `chat_unlock_verify` view checks order status (likely another helper
-    such as `cashfree_get_order_status(order_id)`).
     """
+    from listings.utils import cashfree_get_order
+
     order_id = request.GET.get("order_id")
     sub = RoommateChatSubscription.objects.filter(
         cf_order_id=order_id, user=request.user
@@ -482,21 +481,19 @@ def roommate_chat_unlock_verify(request):
         messages.success(request, "Payment already confirmed — your chats are unlocked!")
         return redirect("roommates:roommate-list")
 
-    try:
-        from rooms.payments import cashfree_get_order_status  # <-- CHANGE THIS IMPORT
-        order_status = cashfree_get_order_status(order_id)
-    except ImportError:
-        messages.error(request, "Payment verification helper not wired up yet.")
-        return redirect("roommates:roommate-list")
+    cf_data = cashfree_get_order(order_id)
+    order_status = cf_data.get("order_status")
 
     if order_status == "PAID":
         sub.status = RoommateChatSubscription.STATUS_PAID
         sub.save(update_fields=["status", "updated_at"])
         messages.success(request, f"Payment successful! {sub.chats_limit} roommate chats unlocked.")
+    elif order_status in ("ACTIVE", "PENDING"):
+        messages.info(request, "Your payment is still processing. Please wait a moment and refresh.")
     else:
         sub.status = RoommateChatSubscription.STATUS_FAILED
         sub.save(update_fields=["status", "updated_at"])
-        messages.error(request, "Payment was not completed. Please try again.")
+        messages.error(request, "Payment failed or was cancelled. Please try again.")
 
     return redirect("roommates:roommate-list")
 
