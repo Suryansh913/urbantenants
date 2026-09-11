@@ -6,72 +6,364 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Roommate Profile | UrbanTenants</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{% static 'roommates/css/roommates.css' %}" />
+  <style>
+    :root {
+      --ut-navy: #0B1F3A;
+      --ut-navy-mid: #16305A;
+      --ut-gold: #C89A3C;
+      --ut-gold-deep: #9C7623;
+      --ut-paper: #FAF9F6;
+      --ut-text: #2A3140;
+      --ut-text-soft: #6E7686;
+      --ut-line: #E4E1D8;
+    }
+
+    .rm-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 20px 90px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ut-text);
+      background: var(--ut-paper);
+    }
+
+    .rm-hero {
+      position: relative;
+      background: linear-gradient(135deg, var(--ut-navy) 0%, var(--ut-navy-mid) 100%);
+      border-radius: 18px;
+      padding: 34px 30px;
+      margin-bottom: 22px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .rm-hero-text { position: relative; z-index: 1; }
+    .rm-hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--ut-gold);
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    .rm-hero-eyebrow svg { width: 14px; height: 14px; fill: var(--ut-gold); }
+    .rm-hero h1 {
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      font-size: 25px;
+      color: #fff;
+      margin: 0 0 6px;
+    }
+    .rm-hero p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.72);
+      margin: 0;
+      max-width: 360px;
+    }
+    .rm-hero-art {
+      position: relative;
+      z-index: 1;
+      width: 92px;
+      height: 92px;
+      flex-shrink: 0;
+    }
+    .rm-hero-art svg { width: 100%; height: 100%; }
+
+    .rm-alert {
+      background: #fff;
+      border-left: 3px solid var(--ut-gold);
+      border-radius: 0;
+      padding: 12px 16px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: var(--ut-text);
+    }
+
+    .rm-empty {
+      background: #fff;
+      border: 1px solid var(--ut-line);
+      border-radius: 14px;
+      padding: 52px 36px;
+      text-align: center;
+    }
+    .rm-empty h3 {
+      font-family: 'Sora', sans-serif;
+      font-size: 20px;
+      color: var(--ut-navy);
+      margin: 0 0 8px;
+    }
+    .rm-empty p {
+      font-size: 14px;
+      color: var(--ut-text-soft);
+      max-width: 400px;
+      margin: 0 auto 22px;
+    }
+
+    .rm-card {
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      background: linear-gradient(160deg, var(--ut-navy), var(--ut-navy-mid));
+      aspect-ratio: 3 / 4;
+      max-height: 560px;
+    }
+    .rm-card-photo {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 22%;
+    }
+    .rm-card-fallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Sora', sans-serif;
+      font-size: 84px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.24);
+    }
+
+    .rm-card-top {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 2;
+    }
+    .rm-share-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+    }
+    .rm-share-btn svg { width: 18px; height: 18px; stroke: var(--ut-navy); fill: none; stroke-width: 1.7; }
+
+    .rm-card-scrim {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      padding: 60px 20px 20px;
+      background: linear-gradient(0deg, rgba(6,14,28,0.92) 0%, rgba(6,14,28,0.55) 55%, rgba(6,14,28,0) 100%);
+    }
+    .rm-card-name {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: 'Sora', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 3px;
+    }
+    .rm-card-name .rm-age { color: rgba(255,255,255,0.75); font-weight: 400; }
+    .rm-verified { width: 18px; height: 18px; flex-shrink: 0; }
+    .rm-card-sub {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.78);
+      margin: 0 0 14px;
+    }
+    .rm-card-sub .rm-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,0.5); }
+
+    .rm-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .rm-chip {
+      font-size: 12.5px;
+      font-weight: 500;
+      padding: 7px 13px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      backdrop-filter: blur(2px);
+    }
+    .rm-chip.is-budget {
+      background: var(--ut-gold);
+      color: var(--ut-gold-deep);
+    }
+
+    .rm-status-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 14px 2px 12px;
+    }
+    .rm-status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .rm-status-dot.is-live { background: #2f9e5c; }
+    .rm-status-dot.is-hidden { background: #b3792a; }
+    .rm-status-line span {
+      font-size: 13px;
+      color: var(--ut-text-soft);
+    }
+
+    .rm-manage-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .rm-manage-bar form { display: inline-flex; }
+
+    .rm-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 20px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .rm-btn-primary { background: var(--ut-navy); color: #fff; }
+    .rm-btn-primary:hover { background: var(--ut-navy-mid); }
+
+    .rm-btn-outline {
+      background: #fff;
+      color: var(--ut-navy);
+      border: 1px solid var(--ut-line);
+    }
+    .rm-btn-outline:hover { border-color: var(--ut-navy); }
+
+    .rm-btn-danger {
+      background: transparent;
+      color: #a3372b;
+      border: 1px solid transparent;
+    }
+    .rm-btn-danger:hover { background: #FBEAE7; }
+
+    @media (max-width: 640px) {
+      .rm-hero { flex-direction: column; align-items: flex-start; padding: 26px 22px; }
+      .rm-hero-art { width: 64px; height: 64px; align-self: flex-end; margin-top: -20px; }
+      .rm-hero p { max-width: none; }
+      .rm-card { aspect-ratio: 3 / 4.4; }
+      .rm-manage-bar { flex-direction: column; }
+      .rm-manage-bar form, .rm-manage-bar a { width: 100%; }
+      .rm-btn { width: 100%; }
+    }
+  </style>
 </head>
 <body>
 {% include "header.html" %}
 
-<main class="rm-wrap" style="max-width:800px;">
+<main class="rm-wrap">
 
   {% if messages %}
     {% for message in messages %}
-      <div class="rm-form-errors" style="background:#F0FDF4;border-color:#bbf7d0;color:#16a34a;">{{ message }}</div>
+      <div class="rm-alert">{{ message }}</div>
     {% endfor %}
   {% endif %}
 
+  <div class="rm-hero">
+    <div class="rm-hero-text">
+      <span class="rm-hero-eyebrow">
+        <svg viewBox="0 0 24 24"><path d="M12 2 2 8v13h20V8z"/></svg>
+        UrbanTenants roommate match
+      </span>
+      <h1>Two people, one room, zero awkward surprises</h1>
+      <p>Your card is what other students on UrbanTenants see when they're looking for someone to share with.</p>
+    </div>
+    <div class="rm-hero-art">
+      <svg viewBox="0 0 100 100">
+        <circle cx="38" cy="34" r="16" fill="#F5C542" opacity="0.9"/>
+        <circle cx="64" cy="42" r="20" fill="#fff" opacity="0.14"/>
+        <path d="M38 54c-13 0-22 8-22 20v6h44v-6c0-12-9-20-22-20z" fill="#F5C542" opacity="0.9"/>
+        <path d="M64 62c-11 0-19 7-19 17v5h38v-5c0-10-8-17-19-17z" fill="#fff" opacity="0.14"/>
+      </svg>
+    </div>
+  </div>
+
   {% if not profile %}
     <div class="rm-empty">
-      <h3>You haven't created a roommate profile yet.</h3>
-      <p>Create one to appear in Find Roommate and get matched with compatible roommates.</p>
-      <a href="{% url 'roommates:roommate-create' %}" class="rm-btn rm-btn-green">Create Profile</a>
+      <h3>Set up your roommate card</h3>
+      <p>Add your budget, location and preferences so other students on UrbanTenants can find and match with you.</p>
+      <a href="{% url 'roommates:roommate-create' %}" class="rm-btn rm-btn-primary">Create profile</a>
     </div>
   {% else %}
-    <div class="rm-detail-card">
-      <div class="rm-detail-head">
-        {% if profile.profile_photo %}
-          <img src="{{ profile.profile_photo.url }}" class="rm-detail-avatar" alt="{{ profile.full_name }}" />
-        {% else %}
-          <div class="rm-detail-avatar"></div>
-        {% endif %}
-        <div>
-          <div class="rm-detail-name">{{ profile.full_name }}, {{ profile.age }}</div>
-          <div class="rm-detail-sub">{{ profile.college }}</div>
+
+    <div class="rm-page-head">
+      <h1>My roommate profile</h1>
+      <p>This is the card other students see in Find Roommate.</p>
+    </div>
+
+    <div class="rm-card">
+      {% if profile.profile_photo %}
+        <img src="{{ profile.profile_photo.url }}" alt="{{ profile.full_name }}" class="rm-card-photo" />
+      {% else %}
+        <div class="rm-card-fallback">{{ profile.full_name|slice:":1" }}</div>
+      {% endif %}
+
+      <div class="rm-card-top">
+        <button type="button" class="rm-share-btn" aria-label="Share profile" onclick="navigator.share ? navigator.share({title: '{{ profile.full_name }}', url: window.location.href}) : null;">
+          <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.4"/><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="19" r="2.4"/><path d="M8.2 10.8l7.6-4.2M8.2 13.2l7.6 4.2"/></svg>
+        </button>
+      </div>
+
+      <div class="rm-card-scrim">
+        <div class="rm-card-name">
+          {{ profile.full_name }}<span class="rm-age">, {{ profile.age }}</span>
           {% if profile.is_active %}
-            <span class="rm-status-pill rm-status-accepted" style="margin-top:8px;display:inline-block;">Visible in search</span>
-          {% else %}
-            <span class="rm-status-pill rm-status-rejected" style="margin-top:8px;display:inline-block;">Hidden from search</span>
+            <svg class="rm-verified" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#3B9EF2"/><path d="M8 12.5l2.5 2.5 5.5-6" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
           {% endif %}
         </div>
-      </div>
-
-      <div class="rm-info-grid">
-        <div class="rm-info-item"><div class="rm-info-label">Location</div><div class="rm-info-value">{{ profile.preferred_location }}</div></div>
-        <div class="rm-info-item"><div class="rm-info-label">Budget</div><div class="rm-info-value">₹{{ profile.budget_min }} - ₹{{ profile.budget_max }}</div></div>
-        <div class="rm-info-item"><div class="rm-info-label">Accommodation</div><div class="rm-info-value">{{ profile.get_accommodation_type_display }}</div></div>
-        <div class="rm-info-item"><div class="rm-info-label">Sharing</div><div class="rm-info-value">{{ profile.get_sharing_type_display }}</div></div>
-      </div>
-
-      <div class="rm-detail-actions">
-        <a href="{% url 'roommates:roommate-edit' %}" class="rm-btn rm-btn-primary">Edit Profile</a>
-
-        <form method="post" action="{% url 'roommates:roommate-toggle-visibility' %}">
-          {% csrf_token %}
-          {% if profile.is_active %}
-            <button type="submit" class="rm-btn rm-btn-outline">Hide Profile</button>
-          {% else %}
-            <button type="submit" class="rm-btn rm-btn-green">Make Profile Visible</button>
-          {% endif %}
-        </form>
-
-        <form method="post" action="{% url 'roommates:roommate-delete' %}"
-              onsubmit="return confirm('Delete your roommate profile? This cannot be undone.');">
-          {% csrf_token %}
-          <button type="submit" class="rm-btn rm-btn-danger">Delete Profile</button>
-        </form>
-
-        <a href="{% url 'roommates:roommate-requests' %}" class="rm-btn rm-btn-outline">View Connection Requests</a>
+        <div class="rm-card-sub">
+          <span>{{ profile.college }}</span>
+          <span class="rm-dot"></span>
+          <span>{{ profile.preferred_location }}</span>
+        </div>
+        <div class="rm-chip-row">
+          <span class="rm-chip is-budget">₹{{ profile.budget_min }}&ndash;{{ profile.budget_max }}</span>
+          <span class="rm-chip">{{ profile.get_accommodation_type_display }}</span>
+          <span class="rm-chip">{{ profile.get_sharing_type_display }}</span>
+        </div>
       </div>
     </div>
+
+    <div class="rm-status-line">
+      <span class="rm-status-dot {% if profile.is_active %}is-live{% else %}is-hidden{% endif %}"></span>
+      <span>{% if profile.is_active %}Live &mdash; visible in Find Roommate{% else %}Hidden from search{% endif %}</span>
+    </div>
+
+    <div class="rm-manage-bar">
+      <a href="{% url 'roommates:roommate-edit' %}" class="rm-btn rm-btn-primary">Edit profile</a>
+      <a href="{% url 'roommates:roommate-requests' %}" class="rm-btn rm-btn-outline">Connection requests</a>
+
+      <form method="post" action="{% url 'roommates:roommate-toggle-visibility' %}">
+        {% csrf_token %}
+        {% if profile.is_active %}
+          <button type="submit" class="rm-btn rm-btn-outline">Hide from search</button>
+        {% else %}
+          <button type="submit" class="rm-btn rm-btn-primary">Make visible</button>
+        {% endif %}
+      </form>
+
+      <form method="post" action="{% url 'roommates:roommate-delete' %}"
+            onsubmit="return confirm('Delete your roommate profile? This cannot be undone.');">
+        {% csrf_token %}
+        <button type="submit" class="rm-btn rm-btn-danger">Delete profile</button>
+      </form>
+    </div>
+
   {% endif %}
 
 </main>

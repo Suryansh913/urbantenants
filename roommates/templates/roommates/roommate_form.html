@@ -6,15 +6,234 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{% if is_edit %}Edit{% else %}Create{% endif %} Roommate Profile | UrbanTenants</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{% static 'roommates/css/roommates.css' %}" />
+  <style>
+    :root {
+      --ut-navy: #0B1F3A;
+      --ut-navy-mid: #16305A;
+      --ut-gold: #C89A3C;
+      --ut-gold-deep: #9C7623;
+      --ut-paper: #FAF9F6;
+      --ut-text: #2A3140;
+      --ut-text-soft: #6E7686;
+      --ut-line: #E4E1D8;
+      --ut-danger: #a3372b;
+    }
+
+    .rm-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 40px 20px 90px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ut-text);
+      background: var(--ut-paper);
+    }
+
+    .rm-hero {
+      position: relative;
+      background: linear-gradient(135deg, var(--ut-navy) 0%, var(--ut-navy-mid) 100%);
+      border-radius: 18px;
+      padding: 32px 30px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      overflow: hidden;
+    }
+    .rm-hero-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(212,197,151,0.16);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .rm-hero-icon svg { width: 26px; height: 26px; stroke: var(--ut-gold); fill: none; stroke-width: 1.6; }
+    .rm-hero h1 {
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      color: #fff;
+      margin: 0 0 4px;
+    }
+    .rm-hero p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.72);
+      margin: 0;
+    }
+
+    .rm-form-errors {
+      background: #FBEAE7;
+      border-left: 3px solid var(--ut-danger);
+      color: var(--ut-danger);
+      padding: 12px 16px;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    .rm-form-card {
+      background: #fff;
+      border: 1px solid var(--ut-line);
+      border-radius: 16px;
+      padding: 8px 30px 30px;
+    }
+
+    .rm-section {
+      padding: 24px 0;
+      border-bottom: 1px solid var(--ut-line);
+    }
+    .rm-section:last-of-type { border-bottom: none; padding-bottom: 8px; }
+
+    .rm-section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .rm-section-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: var(--ut-paper);
+      border: 1px solid var(--ut-line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .rm-section-icon svg { width: 16px; height: 16px; stroke: var(--ut-navy); fill: none; stroke-width: 1.7; }
+    .rm-section-head h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ut-navy);
+      margin: 0;
+    }
+    .rm-section-head span {
+      font-size: 12.5px;
+      color: var(--ut-text-soft);
+      display: block;
+    }
+
+    .rm-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px 18px;
+    }
+
+    .rm-field { margin-bottom: 16px; }
+    .rm-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ut-text);
+      margin-bottom: 6px;
+    }
+    .rm-field-error {
+      font-size: 12.5px;
+      color: var(--ut-danger);
+      margin-top: 5px;
+    }
+
+    .rm-field input[type="text"],
+    .rm-field input[type="number"],
+    .rm-field input[type="date"],
+    .rm-field input[type="email"],
+    .rm-field input:not([type="file"]):not([type="checkbox"]):not([type="radio"]),
+    .rm-field select,
+    .rm-field textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ut-text);
+      background: var(--ut-paper);
+      border: 1px solid var(--ut-line);
+      border-radius: 9px;
+      transition: border-color 0.15s ease;
+    }
+    .rm-field input:focus,
+    .rm-field select:focus,
+    .rm-field textarea:focus {
+      outline: none;
+      border-color: var(--ut-navy);
+      background: #fff;
+    }
+    .rm-field textarea { min-height: 90px; resize: vertical; }
+
+    .rm-field input[type="file"] {
+      width: 100%;
+      font-size: 13px;
+      color: var(--ut-text-soft);
+      padding: 8px 0;
+    }
+    .rm-photo-preview {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-top: 10px;
+      border: 2px solid var(--ut-line);
+      display: block;
+    }
+
+    .rm-photo-field {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .rm-photo-field > div { flex: 1; }
+
+    .rm-form-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+
+    .rm-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 22px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .rm-btn-primary { background: var(--ut-navy); color: #fff; }
+    .rm-btn-primary:hover { background: var(--ut-navy-mid); }
+    .rm-btn-outline { background: #fff; color: var(--ut-navy); border: 1px solid var(--ut-line); }
+    .rm-btn-outline:hover { border-color: var(--ut-navy); }
+
+    @media (max-width: 640px) {
+      .rm-form-card { padding: 8px 20px 24px; }
+      .rm-form-grid { grid-template-columns: 1fr; }
+      .rm-hero { flex-direction: column; align-items: flex-start; text-align: left; }
+      .rm-form-actions { flex-direction: column-reverse; }
+      .rm-form-actions .rm-btn { width: 100%; }
+    }
+  </style>
 </head>
 <body>
 {% include "header.html" %}
 
 <main class="rm-wrap">
   <div class="rm-hero">
-    <h1>{% if is_edit %}Edit Your Roommate Profile{% else %}Create Your Roommate Profile{% endif %}</h1>
-    <p>Tell us about yourself so we can find your perfect match.</p>
+    <div class="rm-hero-icon">
+      <svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.6"/><path d="M2.5 20c.6-3.4 3-5.5 5.5-5.5s4.9 2.1 5.5 5.5"/><path d="M13.5 20c.4-2.6 2-4.3 4-4.3s3.6 1.7 4 4.3"/></svg>
+    </div>
+    <div>
+      <h1>{% if is_edit %}Edit your roommate profile{% else %}Create your roommate profile{% endif %}</h1>
+      <p>Tell us about yourself so we can find your perfect match.</p>
+    </div>
   </div>
 
   <div class="rm-form-card">
@@ -27,118 +246,174 @@
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
 
-      <div class="rm-field">
-        <label for="{{ form.profile_photo.id_for_label }}">Profile Photo</label>
-        {{ form.profile_photo }}
-        {% if form.instance.profile_photo %}
-          <img src="{{ form.instance.profile_photo.url }}" style="width:70px;height:70px;border-radius:50%;object-fit:cover;margin-top:8px;" />
-        {% endif %}
-        {% for error in form.profile_photo.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-      </div>
+      <div class="rm-section">
+        <div class="rm-section-head">
+          <div class="rm-section-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+          </div>
+          <div>
+            <h2>Basic details</h2>
+            <span>Who you are, in brief.</span>
+          </div>
+        </div>
 
-      <div class="rm-form-grid">
-        <div class="rm-field">
-          <label for="{{ form.full_name.id_for_label }}">Full Name *</label>
-          {{ form.full_name }}
-          {% for error in form.full_name.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        <div class="rm-photo-field">
+          <div class="rm-field" style="margin-bottom:0;">
+            <label for="{{ form.profile_photo.id_for_label }}">Profile photo</label>
+            {{ form.profile_photo }}
+            {% for error in form.profile_photo.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          {% if form.instance.profile_photo %}
+            <img src="{{ form.instance.profile_photo.url }}" class="rm-photo-preview" alt="Current photo" />
+          {% endif %}
         </div>
-        <div class="rm-field">
-          <label for="{{ form.age.id_for_label }}">Age *</label>
-          {{ form.age }}
-          {% for error in form.age.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.gender.id_for_label }}">Gender *</label>
-          {{ form.gender }}
-          {% for error in form.gender.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.college.id_for_label }}">College / University *</label>
-          {{ form.college }}
-          {% for error in form.college.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.course.id_for_label }}">Course</label>
-          {{ form.course }}
-          {% for error in form.course.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.preferred_location.id_for_label }}">Preferred Location *</label>
-          {{ form.preferred_location }}
-          {% for error in form.preferred_location.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.budget_min.id_for_label }}">Min Budget (₹/month) *</label>
-          {{ form.budget_min }}
-          {% for error in form.budget_min.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.budget_max.id_for_label }}">Max Budget (₹/month) *</label>
-          {{ form.budget_max }}
-          {% for error in form.budget_max.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.accommodation_type.id_for_label }}">Accommodation *</label>
-          {{ form.accommodation_type }}
-          {% for error in form.accommodation_type.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.sharing_type.id_for_label }}">Sharing *</label>
-          {{ form.sharing_type }}
-          {% for error in form.sharing_type.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.move_in_date.id_for_label }}">Move-in Date *</label>
-          {{ form.move_in_date }}
-          {% for error in form.move_in_date.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.food_preference.id_for_label }}">Food *</label>
-          {{ form.food_preference }}
-          {% for error in form.food_preference.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.smoking.id_for_label }}">Smoking *</label>
-          {{ form.smoking }}
-          {% for error in form.smoking.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.drinking.id_for_label }}">Drinking *</label>
-          {{ form.drinking }}
-          {% for error in form.drinking.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.sleep_schedule.id_for_label }}">Sleep Schedule *</label>
-          {{ form.sleep_schedule }}
-          {% for error in form.sleep_schedule.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.cleanliness.id_for_label }}">Cleanliness *</label>
-          {{ form.cleanliness }}
-          {% for error in form.cleanliness.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
-        </div>
-        <div class="rm-field">
-          <label for="{{ form.study_habits.id_for_label }}">Study Habits *</label>
-          {{ form.study_habits }}
-          {% for error in form.study_habits.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+
+        <div class="rm-form-grid">
+          <div class="rm-field">
+            <label for="{{ form.full_name.id_for_label }}">Full name *</label>
+            {{ form.full_name }}
+            {% for error in form.full_name.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.age.id_for_label }}">Age *</label>
+            {{ form.age }}
+            {% for error in form.age.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.gender.id_for_label }}">Gender *</label>
+            {{ form.gender }}
+            {% for error in form.gender.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.college.id_for_label }}">College / university *</label>
+            {{ form.college }}
+            {% for error in form.college.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.course.id_for_label }}">Course</label>
+            {{ form.course }}
+            {% for error in form.course.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
         </div>
       </div>
 
-      <div class="rm-field">
-        <label for="{{ form.interests.id_for_label }}">Interests</label>
-        {{ form.interests }}
-        {% for error in form.interests.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+      <div class="rm-section">
+        <div class="rm-section-head">
+          <div class="rm-section-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></svg>
+          </div>
+          <div>
+            <h2>Location &amp; budget</h2>
+            <span>Where and how much.</span>
+          </div>
+        </div>
+
+        <div class="rm-form-grid">
+          <div class="rm-field">
+            <label for="{{ form.preferred_location.id_for_label }}">Preferred location *</label>
+            {{ form.preferred_location }}
+            {% for error in form.preferred_location.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.move_in_date.id_for_label }}">Move-in date *</label>
+            {{ form.move_in_date }}
+            {% for error in form.move_in_date.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.budget_min.id_for_label }}">Min budget (₹/month) *</label>
+            {{ form.budget_min }}
+            {% for error in form.budget_min.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.budget_max.id_for_label }}">Max budget (₹/month) *</label>
+            {{ form.budget_max }}
+            {% for error in form.budget_max.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.accommodation_type.id_for_label }}">Accommodation *</label>
+            {{ form.accommodation_type }}
+            {% for error in form.accommodation_type.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.sharing_type.id_for_label }}">Sharing *</label>
+            {{ form.sharing_type }}
+            {% for error in form.sharing_type.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
       </div>
 
-      <div class="rm-field">
-        <label for="{{ form.bio.id_for_label }}">About Me / Bio</label>
-        {{ form.bio }}
-        {% for error in form.bio.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+      <div class="rm-section">
+        <div class="rm-section-head">
+          <div class="rm-section-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>
+          </div>
+          <div>
+            <h2>Lifestyle &amp; habits</h2>
+            <span>Helps us match you with someone compatible.</span>
+          </div>
+        </div>
+
+        <div class="rm-form-grid">
+          <div class="rm-field">
+            <label for="{{ form.food_preference.id_for_label }}">Food *</label>
+            {{ form.food_preference }}
+            {% for error in form.food_preference.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.smoking.id_for_label }}">Smoking *</label>
+            {{ form.smoking }}
+            {% for error in form.smoking.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.drinking.id_for_label }}">Drinking *</label>
+            {{ form.drinking }}
+            {% for error in form.drinking.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.sleep_schedule.id_for_label }}">Sleep schedule *</label>
+            {{ form.sleep_schedule }}
+            {% for error in form.sleep_schedule.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.cleanliness.id_for_label }}">Cleanliness *</label>
+            {{ form.cleanliness }}
+            {% for error in form.cleanliness.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+          <div class="rm-field">
+            <label for="{{ form.study_habits.id_for_label }}">Study habits *</label>
+            {{ form.study_habits }}
+            {% for error in form.study_habits.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
       </div>
 
-      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px;">
+      <div class="rm-section">
+        <div class="rm-section-head">
+          <div class="rm-section-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+          <div>
+            <h2>About you</h2>
+            <span>What makes you, you.</span>
+          </div>
+        </div>
+
+        <div class="rm-field">
+          <label for="{{ form.interests.id_for_label }}">Interests</label>
+          {{ form.interests }}
+          {% for error in form.interests.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+
+        <div class="rm-field" style="margin-bottom:0;">
+          <label for="{{ form.bio.id_for_label }}">About me / bio</label>
+          {{ form.bio }}
+          {% for error in form.bio.errors %}<div class="rm-field-error">{{ error }}</div>{% endfor %}
+        </div>
+      </div>
+
+      <div class="rm-form-actions">
         <a href="{% url 'roommates:roommate-list' %}" class="rm-btn rm-btn-outline">Cancel</a>
-        <button type="submit" class="rm-btn rm-btn-primary">{% if is_edit %}Save Changes{% else %}Create Profile{% endif %}</button>
+        <button type="submit" class="rm-btn rm-btn-primary">{% if is_edit %}Save changes{% else %}Create profile{% endif %}</button>
       </div>
     </form>
   </div>

@@ -6,111 +6,399 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{{ profile.full_name }} - Roommate Profile | UrbanTenants</title>
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{% static 'roommates/css/roommates.css' %}" />
+  <style>
+    :root {
+      --ut-navy: #0B1F3A;
+      --ut-navy-mid: #16305A;
+      --ut-gold: #C89A3C;
+      --ut-gold-deep: #9C7623;
+      --ut-paper: #FAF9F6;
+      --ut-text: #2A3140;
+      --ut-text-soft: #6E7686;
+      --ut-line: #E4E1D8;
+      --ut-danger: #a3372b;
+      --ut-danger-bg: #FBEAE7;
+    }
+
+    .rm-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 40px 20px 90px;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ut-text);
+      background: var(--ut-paper);
+    }
+
+    .rm-alert {
+      background: #fff;
+      border-left: 3px solid var(--ut-line);
+      padding: 12px 16px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: var(--ut-text);
+    }
+    .rm-alert.rm-msg-success { border-left-color: #2f9e5c; color: #146c3f; background: #F0FDF4; }
+
+    .rm-detail-card {
+      background: #fff;
+      border: 1px solid var(--ut-line);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .rm-detail-band {
+      height: 76px;
+      background: linear-gradient(100deg, var(--ut-navy-mid), var(--ut-navy));
+    }
+
+    .rm-detail-body { padding: 0 30px 30px; }
+
+    .rm-detail-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin: -42px 0 22px;
+    }
+    .rm-detail-avatar-wrap { display: flex; align-items: flex-end; gap: 16px; }
+    .rm-detail-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      object-fit: cover;
+      object-position: center 20%;
+      background: #EDE9DF;
+      display: block;
+    }
+    .rm-avatar-fallback {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 4px solid #fff;
+      background: linear-gradient(160deg, var(--ut-navy), var(--ut-navy-mid));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Sora', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .rm-detail-name {
+      font-family: 'Sora', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ut-navy);
+      padding-bottom: 4px;
+    }
+    .rm-detail-name .rm-age { font-weight: 400; color: var(--ut-text-soft); }
+    .rm-detail-sub {
+      font-size: 14px;
+      color: var(--ut-text-soft);
+      margin-top: 2px;
+    }
+
+    .rm-match-pill {
+      background: var(--ut-gold);
+      color: var(--ut-gold-deep);
+      font-family: 'Sora', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      margin-bottom: 3px;
+      white-space: nowrap;
+    }
+
+    .rm-spec-sheet {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 24px;
+      margin: 0 0 22px;
+    }
+    .rm-spec-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 0;
+      border-top: 1px solid var(--ut-line);
+    }
+    .rm-spec-sheet .rm-spec-row:nth-last-child(1),
+    .rm-spec-sheet .rm-spec-row:nth-last-child(2) {
+      border-bottom: 1px solid var(--ut-line);
+    }
+    .rm-spec-row dt {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 13.5px;
+      color: var(--ut-text-soft);
+      margin: 0;
+    }
+    .rm-spec-row dt svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: var(--ut-navy);
+      stroke-width: 1.6;
+      flex-shrink: 0;
+    }
+    .rm-spec-row dd {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--ut-navy);
+      margin: 0;
+      text-align: right;
+    }
+
+    .rm-section-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ut-text-soft);
+      margin-bottom: 10px;
+    }
+
+    .rm-tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .rm-tag {
+      font-size: 12.5px;
+      font-weight: 500;
+      padding: 6px 13px;
+      border-radius: 20px;
+      background: var(--ut-paper);
+      border: 1px solid var(--ut-line);
+      color: var(--ut-navy);
+    }
+
+    .rm-bio {
+      margin-bottom: 26px;
+    }
+    .rm-bio p {
+      font-size: 14px;
+      color: var(--ut-text);
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .rm-detail-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 22px;
+      border-top: 1px solid var(--ut-line);
+    }
+    .rm-detail-actions form { display: inline-flex; }
+
+    .rm-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 11px 20px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+    }
+    .rm-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+    .rm-btn-primary { background: var(--ut-navy); color: #fff; }
+    .rm-btn-primary:hover { background: var(--ut-navy-mid); }
+    .rm-btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .rm-btn-outline {
+      background: #fff;
+      color: var(--ut-navy);
+      border: 1px solid var(--ut-line);
+    }
+    .rm-btn-outline:hover { border-color: var(--ut-navy); }
+    .rm-btn-outline:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .rm-btn-connected {
+      background: #F0FDF4;
+      color: #146c3f;
+      cursor: default;
+    }
+
+    .rm-btn-gold {
+      background: var(--ut-gold);
+      color: var(--ut-gold-deep);
+    }
+    .rm-btn-gold:hover { background: #D6AC53; }
+
+    .rm-btn-danger {
+      background: transparent;
+      color: var(--ut-danger);
+      border: 1px solid transparent;
+    }
+    .rm-btn-danger:hover { background: var(--ut-danger-bg); }
+
+    @media (max-width: 640px) {
+      .rm-detail-body { padding: 0 20px 24px; }
+      .rm-spec-sheet { grid-template-columns: 1fr; }
+      .rm-detail-head { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .rm-detail-actions { flex-direction: column; }
+      .rm-detail-actions form, .rm-detail-actions a, .rm-detail-actions button { width: 100%; }
+      .rm-btn { width: 100%; }
+    }
+  </style>
 </head>
 <body>
 {% include "header.html" %}
 
-<main class="rm-wrap" style="max-width:800px;">
+<main class="rm-wrap">
 
   {% if messages %}
     {% for message in messages %}
-      <div class="rm-form-errors {% if message.tags == 'success' %}rm-msg-success{% endif %}"
-           style="{% if message.tags == 'success' %}background:#F0FDF4;border-color:#bbf7d0;color:#16a34a;{% endif %}">
+      <div class="rm-alert {% if message.tags == 'success' %}rm-msg-success{% endif %}">
         {{ message }}
       </div>
     {% endfor %}
   {% endif %}
 
   <div class="rm-detail-card">
-    <div class="rm-detail-head">
-      {% if profile.profile_photo %}
-        <img src="{{ profile.profile_photo.url }}" class="rm-detail-avatar" alt="{{ profile.full_name }}" />
-      {% else %}
-        <div class="rm-detail-avatar"></div>
-      {% endif %}
-      <div>
-        <div class="rm-detail-name">{{ profile.full_name }}, {{ profile.age }}</div>
-        <div class="rm-detail-sub">{{ profile.college }}{% if profile.course %} &middot; {{ profile.course }}{% endif %}</div>
+    <div class="rm-detail-band"></div>
+
+    <div class="rm-detail-body">
+      <div class="rm-detail-head">
+        <div class="rm-detail-avatar-wrap">
+          {% if profile.profile_photo %}
+            <img src="{{ profile.profile_photo.url }}" class="rm-detail-avatar" alt="{{ profile.full_name }}" />
+          {% else %}
+            <div class="rm-avatar-fallback">{{ profile.full_name|slice:":1" }}</div>
+          {% endif %}
+          <div>
+            <div class="rm-detail-name">{{ profile.full_name }}<span class="rm-age">, {{ profile.age }}</span></div>
+            <div class="rm-detail-sub">{{ profile.college }}{% if profile.course %} &middot; {{ profile.course }}{% endif %}</div>
+          </div>
+        </div>
+
         {% if match_percentage is not None %}
-          <span class="rm-match-pill" style="margin-top:8px;display:inline-block;">{{ match_percentage }}% Match</span>
+          <span class="rm-match-pill">{{ match_percentage }}% match</span>
         {% endif %}
       </div>
-    </div>
 
-    <div class="rm-info-grid">
-      <div class="rm-info-item"><div class="rm-info-label">Location</div><div class="rm-info-value">📍 {{ profile.preferred_location }}</div></div>
-      <div class="rm-info-item"><div class="rm-info-label">Budget</div><div class="rm-info-value">₹{{ profile.budget_min }} - ₹{{ profile.budget_max }}/mo</div></div>
-      <div class="rm-info-item"><div class="rm-info-label">Accommodation</div><div class="rm-info-value">{{ profile.get_accommodation_type_display }}</div></div>
-      <div class="rm-info-item"><div class="rm-info-label">Sharing</div><div class="rm-info-value">{{ profile.get_sharing_type_display }}</div></div>
-      <div class="rm-info-item"><div class="rm-info-label">Move-in Date</div><div class="rm-info-value">{{ profile.move_in_date|date:"d M Y" }}</div></div>
-      <div class="rm-info-item"><div class="rm-info-label">Food</div><div class="rm-info-value">{{ profile.get_food_preference_display }}</div></div>
-      <div class="rm-info-item"><div class="rm-info-label">Smoking</div><div class="rm-info-value">{{ profile.get_smoking_display }}</div></div>
-      <div class="rm-info-item"><div class="rm-info-label">Drinking</div><div class="rm-info-value">{{ profile.get_drinking_display }}</div></div>
-      <div class="rm-info-item"><div class="rm-info-label">Sleep Schedule</div><div class="rm-info-value">{{ profile.get_sleep_schedule_display }}</div></div>
-      <div class="rm-info-item"><div class="rm-info-label">Cleanliness</div><div class="rm-info-value">{{ profile.get_cleanliness_display }}</div></div>
-      <div class="rm-info-item"><div class="rm-info-label">Study Habits</div><div class="rm-info-value">{{ profile.get_study_habits_display }}</div></div>
-    </div>
+      <dl class="rm-spec-sheet">
+        <div class="rm-spec-row">
+          <dt><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.4"/></svg>Location</dt>
+          <dd>{{ profile.preferred_location }}</dd>
+        </div>
+        <div class="rm-spec-row">
+          <dt><svg viewBox="0 0 24 24"><path d="M4 17V7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg>Budget</dt>
+          <dd>₹{{ profile.budget_min }}&ndash;{{ profile.budget_max }}/mo</dd>
+        </div>
+        <div class="rm-spec-row">
+          <dt><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg>Accommodation</dt>
+          <dd>{{ profile.get_accommodation_type_display }}</dd>
+        </div>
+        <div class="rm-spec-row">
+          <dt><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="9" r="2.6"/><path d="M2.5 20c.6-3.4 3-5.5 5.5-5.5s4.9 2.1 5.5 5.5"/><path d="M13.5 20c.4-2.6 2-4.3 4-4.3s3.6 1.7 4 4.3"/></svg>Sharing</dt>
+          <dd>{{ profile.get_sharing_type_display }}</dd>
+        </div>
+        <div class="rm-spec-row">
+          <dt><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Move-in date</dt>
+          <dd>{{ profile.move_in_date|date:"d M Y" }}</dd>
+        </div>
+        <div class="rm-spec-row">
+          <dt><svg viewBox="0 0 24 24"><path d="M6 3v18M6 3c4 0 4 4 8 4M6 11c4 0 4-4 8-4"/></svg>Food</dt>
+          <dd>{{ profile.get_food_preference_display }}</dd>
+        </div>
+        <div class="rm-spec-row">
+          <dt><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>Sleep schedule</dt>
+          <dd>{{ profile.get_sleep_schedule_display }}</dd>
+        </div>
+        <div class="rm-spec-row">
+          <dt><svg viewBox="0 0 24 24"><path d="M7 2v6a5 5 0 0 0 10 0V2"/><path d="M12 13v9"/></svg>Smoking</dt>
+          <dd>{{ profile.get_smoking_display }}</dd>
+        </div>
+        <div class="rm-spec-row">
+          <dt><svg viewBox="0 0 24 24"><path d="M8 2h8l-1 6h-6z"/><path d="M7 8h10l1 12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/></svg>Drinking</dt>
+          <dd>{{ profile.get_drinking_display }}</dd>
+        </div>
+        <div class="rm-spec-row">
+          <dt><svg viewBox="0 0 24 24"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>Cleanliness</dt>
+          <dd>{{ profile.get_cleanliness_display }}</dd>
+        </div>
+        <div class="rm-spec-row">
+          <dt><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Study habits</dt>
+          <dd>{{ profile.get_study_habits_display }}</dd>
+        </div>
+      </dl>
 
-    {% if profile.interests_list %}
-      <div style="margin-bottom:16px;">
-        <div class="rm-info-label" style="margin-bottom:8px;">Interests</div>
+      {% if profile.interests_list %}
+        <div class="rm-section-label">Interests</div>
         <div class="rm-tag-row">
           {% for interest in profile.interests_list %}
             <span class="rm-tag">{{ interest }}</span>
           {% endfor %}
         </div>
-      </div>
-    {% endif %}
+      {% endif %}
 
-    {% if profile.bio %}
-      <div>
-        <div class="rm-info-label" style="margin-bottom:6px;">About</div>
-        <p style="font-size:14px;color:var(--rm-neutral-600);line-height:1.7;">{{ profile.bio }}</p>
-      </div>
-    {% endif %}
+      {% if profile.bio %}
+        <div class="rm-bio">
+          <div class="rm-section-label">About</div>
+          <p>{{ profile.bio }}</p>
+        </div>
+      {% endif %}
 
-    <div class="rm-detail-actions">
-      {% if is_own_profile %}
-        <a href="{% url 'roommates:roommate-edit' %}" class="rm-btn rm-btn-primary">Edit My Profile</a>
-      {% else %}
-
-        {% if connection_status == "pending" %}
-          <button class="rm-btn rm-btn-outline" disabled>Request Pending</button>
-        {% elif connection_status == "accepted" %}
-          <span class="rm-btn rm-btn-green" style="cursor:default;">✓ Connected</span>
+      <div class="rm-detail-actions">
+        {% if is_own_profile %}
+          <a href="{% url 'roommates:roommate-edit' %}" class="rm-btn rm-btn-primary">Edit my profile</a>
         {% else %}
-          <form method="post" action="{% url 'roommates:send-roommate-request' profile.pk %}">
+
+          {% if connection_status == "pending" %}
+            <button class="rm-btn rm-btn-outline" disabled>Request pending</button>
+          {% elif connection_status == "accepted" %}
+            <span class="rm-btn rm-btn-connected">
+              <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" stroke="#146c3f" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Connected
+            </span>
+          {% else %}
+            <form method="post" action="{% url 'roommates:send-roommate-request' profile.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="rm-btn rm-btn-primary">Send connection request</button>
+            </form>
+          {% endif %}
+
+          <!-- ===== PAID CHAT UNLOCK — ₹9 for 5 roommate chats ===== -->
+          {% if request.user.is_authenticated %}
+            {% if chats_remaining > 0 %}
+              <button type="button" class="rm-btn rm-btn-gold" id="rmChatBtn" data-profile-id="{{ profile.pk }}">
+                <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="#9C7623" stroke-width="1.6" fill="none"/></svg>
+                Chat now ({{ chats_remaining }} left)
+              </button>
+            {% else %}
+              <button type="button" class="rm-btn rm-btn-gold" id="rmChatUnlockBtn">
+                <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1.5" stroke="#9C7623" stroke-width="1.6" fill="none"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#9C7623" stroke-width="1.6" fill="none"/></svg>
+                Unlock 5 chats for ₹9
+              </button>
+            {% endif %}
+          {% else %}
+            <a href="{% url 'loginv' %}?next={{ request.path }}" class="rm-btn rm-btn-gold">
+              <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1.5" stroke="#9C7623" stroke-width="1.6" fill="none"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="#9C7623" stroke-width="1.6" fill="none"/></svg>
+              Login to chat
+            </a>
+          {% endif %}
+
+          <a href="{% url 'roommates:report-roommate' profile.pk %}" class="rm-btn rm-btn-outline">Report profile</a>
+
+          <form method="post" action="{% url 'roommates:block-roommate' profile.pk %}"
+                onsubmit="return confirm('Block this user? They will no longer appear in your search or recommendations.');">
             {% csrf_token %}
-            <button type="submit" class="rm-btn rm-btn-primary">Send Connection Request</button>
+            <button type="submit" class="rm-btn rm-btn-danger">Block user</button>
           </form>
         {% endif %}
-
-        <!-- ===== PAID CHAT UNLOCK — ₹9 for 5 roommate chats ===== -->
-        {% if request.user.is_authenticated %}
-          {% if chats_remaining > 0 %}
-            <button type="button" class="rm-btn rm-btn-green" id="rmChatBtn" data-profile-id="{{ profile.pk }}">
-              💬 Chat Now ({{ chats_remaining }} left)
-            </button>
-          {% else %}
-            <button type="button" class="rm-btn rm-chat-locked" id="rmChatUnlockBtn">
-              🔒 Unlock 5 Chats for ₹9
-            </button>
-          {% endif %}
-        {% else %}
-          <a href="{% url 'loginv' %}?next={{ request.path }}" class="rm-btn rm-chat-locked">
-            🔒 Login to Chat
-          </a>
-        {% endif %}
-
-        <a href="{% url 'roommates:report-roommate' profile.pk %}" class="rm-btn rm-btn-outline">Report Profile</a>
-
-        <form method="post" action="{% url 'roommates:block-roommate' profile.pk %}"
-              onsubmit="return confirm('Block this user? They will no longer appear in your search or recommendations.');">
-          {% csrf_token %}
-          <button type="submit" class="rm-btn rm-btn-danger">Block User</button>
-        </form>
-      {% endif %}
+      </div>
     </div>
   </div>
 
@@ -142,7 +430,7 @@
         if (!data.success) {
           alert(data.error || "Payment could not be started. Please try again.");
           unlockBtn.disabled = false;
-          unlockBtn.textContent = "🔒 Unlock 5 Chats for ₹9";
+          unlockBtn.textContent = "Unlock 5 chats for ₹9";
           return;
         }
         const cashfree = Cashfree({ mode: data.is_test ? "sandbox" : "production" });
@@ -153,7 +441,7 @@
       } catch (err) {
         alert("Something went wrong. Please try again.");
         unlockBtn.disabled = false;
-        unlockBtn.textContent = "🔒 Unlock 5 Chats for ₹9";
+        unlockBtn.textContent = "Unlock 5 chats for ₹9";
       }
     });
   }

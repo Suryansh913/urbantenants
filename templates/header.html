@@ -598,7 +598,9 @@ crossorigin="anonymous"></script>
             <li>
                 <a class="n2-item {% if request.path == '/pg/' or request.path == '/pg' %}active2{% endif %}"
                    href="/pg">PG</a>
-    <a href="{% url 'roommates:roommate-list' %}">Find Roommate</a>
+    <a href="{% url 'roommates:roommate-list' %}" class="n2-item">
+        Find Roommate
+    </a>
             </li>
             <li>
                 <a class="n2-item {% if request.resolver_match.url_name == 'all_listings_map' %}active2{% endif %}"
