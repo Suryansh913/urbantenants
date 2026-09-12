@@ -1,158 +1,210 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
-  /* All card styling lives here — no dependency on an external stylesheet. */
-  .rm-card {
-    background: #fff;
-    border: 1px solid #D8E1EF;
-    border-radius: 22px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(24,95,165,0.07);
+  /* Cross-document View Transition: gives a smooth morph/fade when the
+     browser navigates from this card to the detail page. Supported in
+     Chrome/Edge 126+; ignored harmlessly everywhere else. */
+  @view-transition {
+    navigation: auto;
+  }
+
+  .rmv-card {
+    position: relative;
+    background: #0B1F3A;
+    border-radius: 26px;
+    overflow: hidden;
+    box-shadow: 0 8px 28px rgba(11,31,58,0.18);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     display: flex;
     flex-direction: column;
-    transition: box-shadow 0.18s, transform 0.12s;
+    height: 460px;
     font-family: 'DM Sans', sans-serif;
+    text-decoration: none;
+    color: inherit;
   }
-  .rm-card:hover {
-    box-shadow: 0 6px 24px rgba(24,95,165,0.13);
-    transform: translateY(-2px);
-  }
-
-  .rm-card-top {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-  .rm-card-avatar {
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    background: #D8E1EF;
-  }
-  .rm-card-name {
-    font-family: 'Sora', sans-serif;
-    font-weight: 700;
-    font-size: 15.5px;
-    color: #111827;
-  }
-  .rm-card-sub {
-    font-size: 12.5px;
-    color: #506180;
+  .rmv-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(11,31,58,0.28);
   }
 
-  .rm-match-pill {
-    margin-left: auto;
-    background: #F0FDF4;
-    color: #22C55E;
-    font-size: 12px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 100px;
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-
-  .rm-card-loc {
-    font-size: 13px;
-    color: #506180;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .rm-card-budget {
-    font-family: 'Sora', sans-serif;
-    font-weight: 700;
-    color: #0E4A84;
-    font-size: 14.5px;
-    margin-bottom: 10px;
-  }
-
-  .rm-tag-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 10px;
-  }
-  .rm-tag {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 100px;
-    background: #E6F1FB;
-    color: #0E4A84;
-    border: 1px solid #B5D4F4;
-  }
-
-  .rm-card-bio {
-    font-size: 13px;
-    color: #506180;
-    font-style: italic;
-    margin-bottom: 14px;
+  .rmv-photo-wrap {
+    position: relative;
+    flex: 1;
     overflow: hidden;
-    text-overflow: ellipsis;
+    background: #0B1F3A;
+  }
+  .rmv-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .rmv-photo-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, #16305A, #0B1F3A);
+    color: #fff;
+    font-family: 'Anton', sans-serif;
+    font-size: 64px;
+  }
+  .rmv-photo-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(11,31,58,0) 40%, rgba(11,31,58,0.85) 100%);
+    pointer-events: none;
+  }
+
+  .rmv-match-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: rgba(255,255,255,0.95);
+    color: #22C55E;
+    font-family: 'Anton', sans-serif;
+    letter-spacing: 0.03em;
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 100px;
+    z-index: 2;
+  }
+
+  .rmv-arrow-btn {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #22C55E;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    box-shadow: 0 4px 12px rgba(34,197,94,0.4);
+    transition: transform 0.18s ease;
+  }
+  .rmv-card:hover .rmv-arrow-btn { transform: scale(1.08); }
+  .rmv-arrow-btn svg { width: 18px; height: 18px; }
+
+  .rmv-name-overlay {
+    position: absolute;
+    left: 18px;
+    bottom: 16px;
+    z-index: 2;
+    right: 70px;
+  }
+  .rmv-name {
+    font-family: 'Anton', sans-serif;
+    font-size: 26px;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+  .rmv-name span { color: rgba(255,255,255,0.75); font-size: 20px; }
+  .rmv-loc-tag {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #0B1F3A;
+    background: #fff;
+    padding: 3px 10px;
+    border-radius: 100px;
+  }
+
+  .rmv-body {
+    background: #fff;
+    padding: 14px 18px 16px;
+  }
+  .rmv-about-label {
+    font-family: 'Anton', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #8FA5C4;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .rmv-about-text {
+    font-size: 13px;
+    color: #334155;
+    line-height: 1.5;
+    margin-bottom: 12px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    flex-grow: 1;
+    overflow: hidden;
   }
-
-  .rm-card-footer { margin-top: auto; }
-
-  .rm-btn {
+  .rmv-pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .rmv-pill {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 10px 18px;
+    gap: 5px;
+    background: #EEF2FF;
+    color: #4C5FD7;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 5px 10px;
     border-radius: 100px;
-    font-weight: 600;
-    font-size: 13.5px;
-    font-family: 'Sora', sans-serif;
-    text-decoration: none;
-    cursor: pointer;
-    border: none;
-    width: 100%;
-    transition: background 0.18s, transform 0.12s;
   }
-  .rm-btn-primary { background: #185FA5; color: #fff; }
-  .rm-btn-primary:hover { background: #0E4A84; transform: translateY(-1px); }
+  .rmv-pill.verified { background: #F0FDF4; color: #16a34a; }
+  .rmv-pill svg { width: 11px; height: 11px; flex-shrink: 0; }
 </style>
 
-<div class="rm-card">
-  <div class="rm-card-top">
+<a href="{% url 'roommates:roommate-detail' profile.pk %}" class="rmv-card">
+  <div class="rmv-photo-wrap">
     {% if profile.profile_photo %}
-      <img src="{{ profile.profile_photo.url }}" class="rm-card-avatar" alt="{{ profile.full_name }}" />
+      <img src="{{ profile.profile_photo.url }}"
+           alt="{{ profile.full_name }}"
+           class="rmv-photo"
+           style="view-transition-name: roommate-photo-{{ profile.pk }};"
+           loading="lazy" />
     {% else %}
-      <div class="rm-card-avatar"></div>
+      <div class="rmv-photo-fallback">{{ profile.full_name|slice:":1" }}</div>
     {% endif %}
-    <div>
-      <div class="rm-card-name">{{ profile.full_name }}, {{ profile.age }}</div>
-      <div class="rm-card-sub">{{ profile.college }}</div>
-    </div>
+    <div class="rmv-photo-gradient"></div>
+
     {% if profile.match_percentage is not None %}
-      <span class="rm-match-pill">{{ profile.match_percentage }}% Match</span>
+      <span class="rmv-match-badge">{{ profile.match_percentage }}% MATCH</span>
     {% endif %}
+
+    <div class="rmv-name-overlay">
+      <div class="rmv-name">{{ profile.full_name }}<span>, {{ profile.age }}</span></div>
+      <span class="rmv-loc-tag">📍 {{ profile.preferred_location }}</span>
+    </div>
+
+    <span class="rmv-arrow-btn" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/>
+      </svg>
+    </span>
   </div>
 
-  <div class="rm-card-loc">📍 {{ profile.preferred_location }}</div>
-  <div class="rm-card-budget">₹{{ profile.budget_min }} - ₹{{ profile.budget_max }}/month</div>
-
-  <div class="rm-tag-row">
-    <span class="rm-tag">{{ profile.get_sharing_type_display }}</span>
-    <span class="rm-tag">{{ profile.get_sleep_schedule_display }}</span>
-    <span class="rm-tag">{{ profile.get_food_preference_display }}</span>
-    {% if profile.smoking == "no" %}<span class="rm-tag">Non-Smoker</span>{% endif %}
+  <div class="rmv-body">
+    <div class="rmv-about-label">About me</div>
+    <p class="rmv-about-text">
+      {% if profile.bio %}{{ profile.bio }}{% else %}{{ profile.college }} &middot; ₹{{ profile.budget_min }}&ndash;{{ profile.budget_max }}/month{% endif %}
+    </p>
+    <div class="rmv-pill-row">
+      <span class="rmv-pill verified">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 14.4 7.2 17l.9-5.4L4.2 7.8l5.4-.8z"/></svg>
+        {{ profile.get_accommodation_type_display }}
+      </span>
+      <span class="rmv-pill">{{ profile.get_sharing_type_display }}</span>
+      <span class="rmv-pill">{{ profile.get_sleep_schedule_display }}</span>
+      <span class="rmv-pill">{{ profile.get_food_preference_display }}</span>
+    </div>
   </div>
-
-  {% if profile.bio %}
-    <p class="rm-card-bio">&ldquo;{{ profile.bio }}&rdquo;</p>
-  {% else %}
-    <div style="flex-grow:1;"></div>
-  {% endif %}
-
-  <div class="rm-card-footer">
-    <a href="{% url 'roommates:roommate-detail' profile.pk %}" class="rm-btn rm-btn-primary">View Profile</a>
-  </div>
-</div>
+</a>
