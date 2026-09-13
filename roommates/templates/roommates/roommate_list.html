@@ -9,96 +9,349 @@
   <meta name="description" content="Find your ideal roommate on UrbanTenants — search by location, budget, college and lifestyle to find someone who matches your vibe." />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'roommates/css/roommates.css' %}" />
- 
+  <style>
+    /* --- Scoped styles for Find Roommate page (does not touch roommates.css) --- */
+    .rm-hero.rq-hero {
+      background: linear-gradient(135deg, #0B1F3A 0%, #14294f 55%, #0B1F3A 100%);
+      border-radius: 20px;
+      padding: 44px 40px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+      font-family: 'Sora', sans-serif;
+      color: #FAF9F6;
+      text-align: left;
+    }
+    .rm-hero.rq-hero::before {
+      content: "";
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(200,154,60,0.28) 0%, rgba(200,154,60,0) 70%);
+      border-radius: 50%;
+    }
+    .rm-hero.rq-hero::after {
+      content: "";
+      position: absolute;
+      bottom: -80px;
+      left: -40px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(200,154,60,0.15) 0%, rgba(200,154,60,0) 70%);
+      border-radius: 50%;
+    }
+    .rm-hero.rq-hero > * { position: relative; z-index: 1; }
+    .rm-hero.rq-hero .rq-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #C89A3C;
+      background: rgba(200,154,60,0.12);
+      border: 1px solid rgba(200,154,60,0.35);
+      padding: 5px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+    .rm-hero.rq-hero h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 8px;
+      color: #FAF9F6;
+    }
+    .rm-hero.rq-hero p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14.5px;
+      color: rgba(250,249,246,0.75);
+      max-width: 480px;
+      margin: 0;
+      line-height: 1.6;
+    }
+
+    .rq-alert-success {
+      font-family: 'DM Sans', sans-serif;
+      background: #F0FDF4;
+      border: 1px solid #bbf7d0;
+      color: #16a34a;
+      padding: 12px 18px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    /* Search bar card */
+    .rq-search-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(11,31,58,0.08);
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 18px rgba(11,31,58,0.05);
+    }
+    .rq-search-card .rm-search-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .rq-search-card input[type="text"],
+    .rq-search-card input[type="number"],
+    .rq-search-card input[type="date"],
+    .rq-search-card select {
+      font-family: 'DM Sans', sans-serif;
+      border: 1px solid rgba(11,31,58,0.15);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 13.5px;
+      color: #0B1F3A;
+      background: #FAF9F6;
+      transition: border-color 0.15s ease;
+    }
+    .rq-search-card input:focus,
+    .rq-search-card select:focus {
+      outline: none;
+      border-color: #C89A3C;
+    }
+    .rq-search-card input[name="q"] {
+      flex: 1 1 260px;
+    }
+    .rq-search-card .rm-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(11,31,58,0.12);
+    }
+    .rq-search-card .rm-filters > select,
+    .rq-search-card .rm-filters > input {
+      flex: 1 1 160px;
+    }
+    .rq-search-card .rm-filter-actions {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    /* Buttons — gold primary, navy outline, keep class names but restyle */
+    .rq-search-card .rm-btn-primary,
+    .rm-recommended .rm-btn-green,
+    main > .rm-btn-green {
+      background: #0B1F3A;
+      color: #FAF9F6;
+      border: 1px solid #0B1F3A;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13.5px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .rq-search-card .rm-btn-outline {
+      background: transparent;
+      color: #0B1F3A;
+      border: 1px solid rgba(11,31,58,0.25);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13.5px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .rq-search-card .rm-btn-green {
+      background: #C89A3C;
+      border: 1px solid #C89A3C;
+      color: #0B1F3A;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13.5px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Recommended section */
+    .rq-section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .rq-section-head .rq-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(200,154,60,0.14);
+      flex-shrink: 0;
+    }
+    .rq-section-head .rq-icon svg {
+      width: 16px;
+      height: 16px;
+      stroke: #C89A3C;
+    }
+    .rq-section-head h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #0B1F3A;
+      margin: 0;
+    }
+    .rm-recommended {
+      background: #FAF9F6;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    /* Empty state polish */
+    .rm-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 48px 20px;
+      background: #FAF9F6;
+      border: 1px dashed rgba(11,31,58,0.15);
+      border-radius: 16px;
+    }
+    .rm-empty h3 {
+      font-family: 'Sora', sans-serif;
+      color: #0B1F3A;
+      font-size: 18px;
+      margin: 0 0 6px;
+    }
+    .rm-empty p {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--rm-neutral-600, #6b7280);
+      font-size: 14px;
+      margin: 0 0 16px;
+    }
+
+    @media (max-width: 640px) {
+      .rm-hero.rq-hero { padding: 30px 22px; }
+      .rm-hero.rq-hero h1 { font-size: 24px; }
+      .rq-search-card { padding: 16px; }
+    }
+  </style>
 </head>
 <body>
 {% include "header.html" %}
 
 <main class="rm-wrap">
 
-  <div class="rm-hero">
-    <h1>Find Your Roommate</h1>
-    <p>Find someone who matches your vibe.</p>
+  <div class="rm-hero rq-hero">
+    <span class="rq-eyebrow">Roommate Network</span>
+    <h1>Good roommates are hard to find, harder to leave, impossible to forget</h1>
+    <p>Search by location, budget, college and lifestyle to find someone who actually matches your vibe.</p>
   </div>
 
   {% if messages %}
     {% for message in messages %}
-      <div class="rm-form-errors" style="background:#F0FDF4;border-color:#bbf7d0;color:#16a34a;">{{ message }}</div>
+      <div class="rq-alert-success">{{ message }}</div>
     {% endfor %}
   {% endif %}
 
   <!-- Search -->
-  <form method="get" class="rm-search-bar">
-    <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search by name, college, location or course..." />
-    <button type="submit" class="rm-btn rm-btn-primary">Search</button>
-    {% if my_profile %}
-      <a href="{% url 'roommates:my-roommate-profile' %}" class="rm-btn rm-btn-outline">My Profile</a>
-    {% else %}
-      <a href="{% url 'roommates:roommate-create' %}" class="rm-btn rm-btn-green">+ Create Profile</a>
-    {% endif %}
+  <div class="rq-search-card">
+    <form method="get" class="rm-search-bar">
+      <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search by name, college, location or course..." />
+      <button type="submit" class="rm-btn rm-btn-primary">Search</button>
+      {% if my_profile %}
+        <a href="{% url 'roommates:my-roommate-profile' %}" class="rm-btn rm-btn-outline">My Profile</a>
+      {% else %}
+        <a href="{% url 'roommates:roommate-create' %}" class="rm-btn rm-btn-green">+ Create Profile</a>
+      {% endif %}
 
-    <!-- Filters -->
-    <div class="rm-filters" style="width:100%;">
-      <select name="gender">
-        <option value="">Any Gender</option>
-        {% for value, label in gender_choices %}
-          <option value="{{ value }}" {% if request.GET.gender == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
+      <!-- Filters -->
+      <div class="rm-filters" style="width:100%;">
+        <select name="gender">
+          <option value="">Any Gender</option>
+          {% for value, label in gender_choices %}
+            <option value="{{ value }}" {% if request.GET.gender == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
 
-      <input type="text" name="location" value="{{ request.GET.location }}" placeholder="Location" />
-      <input type="text" name="college" value="{{ request.GET.college }}" placeholder="College" />
+        <input type="text" name="location" value="{{ request.GET.location }}" placeholder="Location" />
+        <input type="text" name="college" value="{{ request.GET.college }}" placeholder="College" />
 
-      <select name="accommodation_type">
-        <option value="">Any Accommodation</option>
-        {% for value, label in accommodation_choices %}
-          <option value="{{ value }}" {% if request.GET.accommodation_type == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
+        <select name="accommodation_type">
+          <option value="">Any Accommodation</option>
+          {% for value, label in accommodation_choices %}
+            <option value="{{ value }}" {% if request.GET.accommodation_type == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
 
-      <select name="sharing_type">
-        <option value="">Any Sharing</option>
-        {% for value, label in sharing_choices %}
-          <option value="{{ value }}" {% if request.GET.sharing_type == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
+        <select name="sharing_type">
+          <option value="">Any Sharing</option>
+          {% for value, label in sharing_choices %}
+            <option value="{{ value }}" {% if request.GET.sharing_type == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
 
-      <select name="food_preference">
-        <option value="">Any Food Preference</option>
-        {% for value, label in food_choices %}
-          <option value="{{ value }}" {% if request.GET.food_preference == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
+        <select name="food_preference">
+          <option value="">Any Food Preference</option>
+          {% for value, label in food_choices %}
+            <option value="{{ value }}" {% if request.GET.food_preference == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
 
-      <select name="smoking">
-        <option value="">Smoking - Any</option>
-        {% for value, label in yesno_choices %}
-          <option value="{{ value }}" {% if request.GET.smoking == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
+        <select name="smoking">
+          <option value="">Smoking - Any</option>
+          {% for value, label in yesno_choices %}
+            <option value="{{ value }}" {% if request.GET.smoking == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
 
-      <select name="sleep_schedule">
-        <option value="">Any Sleep Schedule</option>
-        {% for value, label in sleep_choices %}
-          <option value="{{ value }}" {% if request.GET.sleep_schedule == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
+        <select name="sleep_schedule">
+          <option value="">Any Sleep Schedule</option>
+          {% for value, label in sleep_choices %}
+            <option value="{{ value }}" {% if request.GET.sleep_schedule == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
 
-      <input type="number" name="budget_max" value="{{ request.GET.budget_max }}" placeholder="Max Budget ₹" />
-      <input type="date" name="move_in_date" value="{{ request.GET.move_in_date }}" />
+        <input type="number" name="budget_max" value="{{ request.GET.budget_max }}" placeholder="Max Budget ₹" />
+        <input type="date" name="move_in_date" value="{{ request.GET.move_in_date }}" />
 
-      <div class="rm-filter-actions">
-        <a href="{% url 'roommates:roommate-list' %}" class="rm-btn rm-btn-outline rm-btn-sm">Clear Filters</a>
-        <button type="submit" class="rm-btn rm-btn-primary rm-btn-sm">Apply Filters</button>
+        <div class="rm-filter-actions">
+          <a href="{% url 'roommates:roommate-list' %}" class="rm-btn rm-btn-outline rm-btn-sm">Clear Filters</a>
+          <button type="submit" class="rm-btn rm-btn-primary rm-btn-sm">Apply Filters</button>
+        </div>
       </div>
-    </div>
-  </form>
+    </form>
+  </div>
 
   <!-- Recommended -->
   {% if my_profile %}
     {% if recommended %}
       <div class="rm-recommended">
-        <h2>Recommended for You</h2>
+        <div class="rq-section-head">
+          <span class="rq-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg>
+          </span>
+          <h2>Recommended for You</h2>
+        </div>
         <div class="rm-recommended-row">
           {% for rec_profile, score in recommended %}
             <a href="{% url 'roommates:roommate-detail' rec_profile.pk %}" class="rm-recommended-card">

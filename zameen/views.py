@@ -1451,3 +1451,58 @@ def rakhi_submit(request):
  
     entries = RakhiSubmission.objects.all()[:200]
     return render(request, 'rakhi_submit.html', {'entries': entries})
+from listings.models import listings, BlacklistedRoom
+
+def blacklist_manage(request):
+    search_query = request.GET.get('listing_id', '').strip()
+    found_listing = None
+    already_blacklisted = None
+ 
+    if search_query:
+        found_listing = listings.objects.filter(listing_id__iexact=search_query).first()
+        if found_listing:
+            already_blacklisted = BlacklistedRoom.objects.filter(listing=found_listing).first()
+        else:
+            messages.error(request, f"No listing found with ID '{search_query}'.")
+ 
+    if request.method == 'POST':
+        listing_id = request.POST.get('listing_id')
+        reason = request.POST.get('reason', '').strip()
+        target = get_object_or_404(listings, listing_id=listing_id)
+ 
+        if not reason:
+            messages.error(request, "Please provide a reason for blacklisting.")
+        else:
+            BlacklistedRoom.objects.update_or_create(
+                listing=target,
+                defaults={'reason': reason, 'blacklisted_by': request.user}
+            )
+            messages.success(request, f"Listing {target.listing_id} has been blacklisted.")
+        return redirect('blacklist-manage')
+ 
+    blacklisted_rooms = BlacklistedRoom.objects.select_related('listing', 'blacklisted_by').all()
+ 
+    context = {
+        'search_query': search_query,
+        'found_listing': found_listing,
+        'already_blacklisted': already_blacklisted,
+        'blacklisted_rooms': blacklisted_rooms,
+    }
+    return render(request, 'templates/blacklist_manage.html', context)
+ 
+ 
+@staff_member_required
+def blacklist_remove(request, pk):
+    entry = get_object_or_404(BlacklistedRoom, pk=pk)
+    listing_id = entry.listing.listing_id
+    entry.delete()
+    messages.success(request, f"Listing {listing_id} removed from blacklist.")
+    return redirect('blacklist-manage')
+
+def blacklisted_rooms_list(request):
+    blacklisted_rooms = BlacklistedRoom.objects.select_related('listing').all()
+    context = {
+        'blacklisted_rooms': blacklisted_rooms,
+    }
+    return render(request, 'templates/blacklisted_rooms.html', context)
+ 

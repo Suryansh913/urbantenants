@@ -492,3 +492,26 @@ class RakhiSubmission(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.get_output_type_display()}"
+
+from django.conf import settings
+class BlacklistedRoom(models.Model):
+    listing = models.OneToOneField(
+        listings,
+        on_delete=models.CASCADE,
+        related_name='blacklist_entry'
+    )
+    reason = models.TextField()
+    blacklisted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    blacklisted_at = models.DateTimeField(auto_now_add=True)
+ 
+    class Meta:
+        ordering = ['-blacklisted_at']
+ 
+    def __str__(self):
+        return f"{self.listing.listing_id} — Blacklisted"
+ 

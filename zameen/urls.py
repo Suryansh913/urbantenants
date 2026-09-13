@@ -118,6 +118,11 @@ urlpatterns = [
     
 
     path("roommates/", include("roommates.urls")),
+    path('blacklist/', views.blacklist_manage, name='blacklist-manage'),
+    path('blacklist/<int:pk>/remove/', views.blacklist_remove, name='blacklist-remove'),
+    path('blacklisted-rooms/', views.blacklisted_rooms_list, name='blacklisted-rooms'),
+ 
+    
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

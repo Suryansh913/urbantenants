@@ -1,0 +1,268 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blacklisted Rooms | UrbanTenants Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #FAF9F6;
+      font-family: 'DM Sans', sans-serif;
+      color: #0B1F3A;
+    }
+    .bl-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+    .bl-hero {
+      background: linear-gradient(135deg, #0B1F3A 0%, #14294f 55%, #0B1F3A 100%);
+      border-radius: 20px;
+      padding: 36px 36px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+      color: #FAF9F6;
+    }
+    .bl-hero::before {
+      content: "";
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(200,154,60,0.28) 0%, rgba(200,154,60,0) 70%);
+      border-radius: 50%;
+    }
+    .bl-hero h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: 26px;
+      margin: 0 0 6px;
+      position: relative; z-index: 1;
+    }
+    .bl-hero p {
+      margin: 0;
+      font-size: 14px;
+      color: rgba(250,249,246,0.75);
+      position: relative; z-index: 1;
+    }
+
+    .bl-alert-success {
+      background: #F0FDF4; border: 1px solid #bbf7d0; color: #16a34a;
+      padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 14px;
+    }
+    .bl-alert-error {
+      background: #FEF2F2; border: 1px solid #fecaca; color: #dc2626;
+      padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 14px;
+    }
+
+    .bl-card {
+      background: #FFFFFF;
+      border: 1px solid rgba(11,31,58,0.08);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 18px rgba(11,31,58,0.05);
+    }
+    .bl-card h2 {
+      font-family: 'Sora', sans-serif;
+      font-size: 17px;
+      margin: 0 0 16px;
+    }
+    .bl-search-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .bl-search-form input[type="text"] {
+      flex: 1 1 240px;
+      border: 1px solid rgba(11,31,58,0.15);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      font-family: 'DM Sans', sans-serif;
+      background: #FAF9F6;
+    }
+    .bl-search-form input:focus { outline: none; border-color: #C89A3C; }
+
+    .bl-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 13.5px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bl-btn-primary { background: #0B1F3A; color: #FAF9F6; }
+    .bl-btn-danger { background: #dc2626; color: #FFFFFF; }
+    .bl-btn-outline { background: transparent; border: 1px solid rgba(11,31,58,0.25); color: #0B1F3A; }
+
+    .bl-found {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px dashed rgba(11,31,58,0.12);
+    }
+    .bl-found-title {
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+    .bl-found-meta {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 14px;
+    }
+    .bl-already-flag {
+      display: inline-block;
+      background: rgba(220,38,38,0.1);
+      color: #dc2626;
+      font-size: 12.5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .bl-reason-form textarea {
+      width: 100%;
+      min-height: 80px;
+      border: 1px solid rgba(11,31,58,0.15);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px;
+      background: #FAF9F6;
+      resize: vertical;
+      margin-bottom: 12px;
+    }
+    .bl-reason-form textarea:focus { outline: none; border-color: #C89A3C; }
+
+    .bl-table-wrap {
+      overflow-x: auto;
+    }
+    table.bl-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+    table.bl-table th {
+      text-align: left;
+      font-family: 'Sora', sans-serif;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #6b7280;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(11,31,58,0.1);
+    }
+    table.bl-table td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(11,31,58,0.06);
+      vertical-align: top;
+    }
+    table.bl-table tr:last-child td { border-bottom: none; }
+    .bl-listing-id {
+      font-family: 'Sora', sans-serif;
+      font-weight: 600;
+      color: #0B1F3A;
+    }
+    .bl-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6b7280;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="bl-wrap">
+    <div class="bl-hero">
+      <h1>Blacklisted Rooms</h1>
+      <p>Search a listing by its ID, add a reason, and manage the current blacklist.</p>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bl-alert-error{% else %}bl-alert-success{% endif %}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Search -->
+    <div class="bl-card">
+      <h2>Search Listing</h2>
+      <form method="get" class="bl-search-form">
+        <input type="text" name="listing_id" value="{{ search_query }}" placeholder="Enter Listing ID (e.g. UT0000001)" />
+        <button type="submit" class="bl-btn bl-btn-primary">Search</button>
+      </form>
+
+      {% if found_listing %}
+        <div class="bl-found">
+          <div class="bl-found-title">{{ found_listing.Room_title }}</div>
+          <div class="bl-found-meta">
+            ID: <span class="bl-listing-id">{{ found_listing.listing_id }}</span>
+            &nbsp;·&nbsp; ₹{{ found_listing.Room_rent }}
+            &nbsp;·&nbsp; {{ found_listing.location_name|default:"No location set" }}
+          </div>
+
+          {% if already_blacklisted %}
+            <div class="bl-already-flag">Already blacklisted — reason: {{ already_blacklisted.reason }}</div>
+          {% endif %}
+
+          <form method="post" class="bl-reason-form">
+            {% csrf_token %}
+            <input type="hidden" name="listing_id" value="{{ found_listing.listing_id }}" />
+            <textarea name="reason" placeholder="Reason for blacklisting this room...">{% if already_blacklisted %}{{ already_blacklisted.reason }}{% endif %}</textarea>
+            <button type="submit" class="bl-btn bl-btn-primary">
+              {% if already_blacklisted %}Update Reason{% else %}Blacklist This Room{% endif %}
+            </button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Current blacklist -->
+    <div class="bl-card">
+      <h2>Currently Blacklisted ({{ blacklisted_rooms|length }})</h2>
+      {% if blacklisted_rooms %}
+        <div class="bl-table-wrap">
+          <table class="bl-table">
+            <thead>
+              <tr>
+                <th>Listing ID</th>
+                <th>Title</th>
+                <th>Reason</th>
+                <th>Blacklisted On</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for entry in blacklisted_rooms %}
+                <tr>
+                  <td class="bl-listing-id">{{ entry.listing.listing_id }}</td>
+                  <td>{{ entry.listing.Room_title }}</td>
+                  <td>{{ entry.reason }}</td>
+                  <td>{{ entry.blacklisted_at|date:"d M Y, H:i" }}</td>
+                  <td>
+                    <form method="post" action="{% url 'blacklist-remove' entry.pk %}">
+                      {% csrf_token %}
+                      <button type="submit" class="bl-btn bl-btn-danger" onclick="return confirm('Remove this listing from blacklist?');">Remove</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="bl-empty">No rooms are currently blacklisted.</div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
