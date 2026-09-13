@@ -9,6 +9,7 @@
   <meta name="description" content="Find your ideal roommate on UrbanTenants — search by location, budget, college and lifestyle to find someone who matches your vibe." />
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'roommates/css/roommates.css' %}" />
+ 
 </head>
 <body>
 {% include "header.html" %}
@@ -119,7 +120,7 @@
       <a href="{% url 'roommates:roommate-create' %}" class="rm-btn rm-btn-green">Create Profile</a>
     </div>
   {% endif %}
-
+  
   <!-- Profile cards -->
   {% if page_obj.object_list %}
     <div class="rm-grid">
