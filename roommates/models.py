@@ -11,7 +11,7 @@ from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-
+from cloudinary.models import CloudinaryField
 
 # ---------------------------------------------------------------------------
 # CHOICES
@@ -75,8 +75,10 @@ class RoommateProfile(models.Model):
         related_name="roommate_profile",
     )
 
-    profile_photo = models.ImageField(
-        upload_to="roommates/profile_photos/", blank=True, null=True
+    profile_photo = CloudinaryField(
+        'image',
+        blank=True,
+        null=True
     )
     full_name = models.CharField(max_length=150)
     age = models.PositiveSmallIntegerField()
