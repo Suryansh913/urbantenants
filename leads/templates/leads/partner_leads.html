@@ -51,22 +51,31 @@
                 <td>{{ p.location }}</td>
                 <td><span class="pl-badge pl-badge-{{ p.status }}">{{ p.get_status_display }}</span></td>
                 <td>
-                    <details class="pl-tags">
-                        <summary>Contact status</summary>
-                        <div class="pl-tag-list">
-                            {% for row in p.tag_rows %}
-                            <form method="post" action="{% url 'leads:toggle_partner_tag' p.listing_id row.tag %}" class="pl-tag-form">
-                                {% csrf_token %}
-                                <label class="pl-chip {% if row.checked %}pl-chip-on{% endif %}">
-                                    <input type="checkbox" {% if row.checked %}checked{% endif %} onchange="this.form.requestSubmit()">
-                                    <span class="pl-chip-dot"></span>
-                                    <span class="pl-chip-label">{{ row.label }}</span>
-                                    {% if row.date %}<span class="pl-chip-date">{{ row.date }}</span>{% endif %}
-                                </label>
-                            </form>
+                    <form method="post" action="{% url 'leads:toggle_partner_contacted' p.listing_id %}" class="pl-contact-toggle-form">
+                        {% csrf_token %}
+                        <label class="pl-contact-check">
+                            <input
+                                type="checkbox"
+                                name="contacted"
+                                {% if p.contacted %}checked{% endif %}
+                                onchange="this.form.requestSubmit()"
+                            >
+                            {% if p.latest %}
+                                <span class="pl-contact-date">{{ p.latest.contacted_date|date:"d M Y" }}</span>
+                            {% endif %}
+                        </label>
+                    </form>
+
+                    {% if p.history_data %}
+                    <details class="pl-contact-history">
+                        <summary>History ({{ p.history_data|length }})</summary>
+                        <ul>
+                            {% for h in p.history_data %}
+                            <li>{{ h.date }} — {{ h.who }}</li>
                             {% endfor %}
-                        </div>
+                        </ul>
                     </details>
+                    {% endif %}
                 </td>
             </tr>
             {% empty %}
@@ -134,33 +143,79 @@
 .pl-badge-active { background:#e4f6ea; color:#1f9d55; }
 .pl-badge-inactive { background:#eceff3; color:#6b7280; }
 
-.pl-tags summary {
-    cursor:pointer; font-size:13px; color:#2f6feb; font-weight:600;
-    list-style:none; display:inline-flex; align-items:center; gap:6px;
+/* ---------- Contacted toggle ---------- */
+.pl-contact-toggle-form { margin: 0; }
+.pl-contact-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
 }
-.pl-tags summary::-webkit-details-marker { display:none; }
-.pl-tags summary::before { content:"▸"; color:#9aa2b1; font-size:11px; }
-.pl-tags[open] summary::before { content:"▾"; }
+.pl-contact-check input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 34px;
+    height: 20px;
+    border-radius: 20px;
+    background: #eceff3;
+    border: 1px solid #dde1e8;
+    position: relative;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    flex-shrink: 0;
+}
+.pl-contact-check input[type="checkbox"]::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #9aa2b1;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+.pl-contact-check input[type="checkbox"]:checked {
+    background: #e4f6ea;
+    border-color: #1f9d55;
+}
+.pl-contact-check input[type="checkbox"]:checked::after {
+    transform: translateX(14px);
+    background: #1f9d55;
+}
+.pl-contact-date {
+    font-size: 12px;
+    color: #7b8494;
+    font-variant-numeric: tabular-nums;
+}
 
-.pl-tag-list {
-    margin-top:10px; display:flex; flex-direction:column; gap:6px;
-    max-height:220px; overflow-y:auto; padding-right:4px;
+.pl-contact-history { margin-top: 8px; font-size: 12px; }
+.pl-contact-history summary {
+    cursor: pointer;
+    color: #2f6feb;
+    font-weight: 500;
+    list-style: none;
 }
-.pl-chip {
-    display:flex; align-items:center; gap:8px; padding:6px 10px;
-    border:1px solid #e7eaf0; border-radius:8px; font-size:12.5px;
-    cursor:pointer; background:#fafbfc; transition:all .12s ease;
+.pl-contact-history summary::-webkit-details-marker { display: none; }
+.pl-contact-history summary::before { content: '›  '; }
+.pl-contact-history[open] summary::before { content: '⌄  '; }
+.pl-contact-history ul {
+    margin: 8px 0 0 0;
+    padding-left: 0;
+    list-style: none;
+    border-left: 1px solid #e7eaf0;
 }
-.pl-chip:hover { border-color:#c8cedb; }
-.pl-chip input { display:none; }
-.pl-chip-dot {
-    width:8px; height:8px; border-radius:50%; background:#d3d7e0; flex-shrink:0;
+.pl-contact-history li {
+    position: relative;
+    padding: 0 0 8px 16px;
+    color: #7b8494;
 }
-.pl-chip-on { background:#eaf6ee; border-color:#bfe6cb; }
-.pl-chip-on .pl-chip-dot { background:#1f9d55; }
-.pl-chip-on .pl-chip-label { color:#1f9d55; font-weight:600; }
-.pl-chip-label { flex:1; color:#3a3f4c; }
-.pl-chip-date { font-size:11px; color:#9aa2b1; }
-.pl-chip-on .pl-chip-date { color:#1f9d55; }
+.pl-contact-history li::before {
+    content: '';
+    position: absolute;
+    left: -4px; top: 4px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #1f9d55;
+}
 </style>
 {% endblock %}
