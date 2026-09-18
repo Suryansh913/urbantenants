@@ -1,0 +1,370 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pay listing fee — UrbanTenants</title>
+<!-- BUILD-MARKER: cashfree-debug-v2 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #212820;
+    --ink-soft: #5b6459;
+    --paper: #F1EFE7;
+    --card: #FFFFFF;
+    --line: #DEDACB;
+    --teal: #24534C;
+    --teal-dark: #17342F;
+    --gold: #B4832C;
+    --gold-soft: #F3E7CE;
+    --error: #A4432F;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+  .card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .card__head {
+    padding: 28px 28px 22px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .card__head p.label {
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .card__head h1 {
+    margin: 0;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.3;
+    color: var(--teal-dark);
+  }
+  .card__body { padding: 24px 28px 28px; }
+
+  .receipt {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .receipt__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 14.5px;
+  }
+  .receipt__row span:first-child { color: var(--ink-soft); }
+  .receipt__row span:last-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+  }
+  .receipt__row--discount span:last-child { color: var(--teal); }
+  .receipt__divider { border-top: 1px solid var(--line); margin: 4px 0; }
+  .receipt__row--total {
+    font-size: 16px;
+    padding-top: 2px;
+  }
+  .receipt__row--total span:first-child { color: var(--ink); font-weight: 500; }
+  .receipt__row--total span:last-child {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--teal-dark);
+  }
+
+  .coupon {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .coupon input {
+    flex: 1;
+    min-width: 0;
+    padding: 11px 13px;
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .coupon input:focus {
+    outline: 2px solid var(--teal);
+    outline-offset: 1px;
+    background: var(--card);
+  }
+  .coupon input::placeholder { text-transform: none; font-family: 'Inter', sans-serif; color: var(--ink-soft); }
+  .coupon button {
+    padding: 0 18px;
+    border: 1px solid var(--teal);
+    background: var(--card);
+    color: var(--teal);
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .coupon button:hover { background: var(--gold-soft); }
+  .coupon button:disabled { opacity: 0.5; cursor: default; }
+
+  .coupon-msg {
+    font-size: 13px;
+    min-height: 18px;
+    margin: 0 0 18px;
+  }
+  .coupon-msg.success { color: var(--teal); }
+  .coupon-msg.error { color: var(--error); }
+
+  .pay-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 9px;
+    background: var(--teal-dark);
+    color: #F6F3E9;
+    font-size: 15.5px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .pay-btn:hover { background: var(--teal); }
+  .pay-btn:disabled { opacity: 0.6; cursor: default; }
+  .pay-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  .fine-print {
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin: 14px 0 0;
+  }
+  .fine-print a { color: var(--teal); text-decoration: none; }
+  .fine-print a:hover { text-decoration: underline; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pay-btn { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="card__head">
+    <p class="label">Before you list a room</p>
+    <h1>Pay the ₹49 listing fee</h1>
+  </div>
+
+  <div class="card__body">
+    <div class="receipt">
+      <div class="receipt__row">
+        <span>Listing fee</span>
+        <span>₹{{ base_amount }}</span>
+      </div>
+      <div class="receipt__row receipt__row--discount" id="discountRow" style="display:{% if discount %}flex{% else %}none{% endif %};">
+        <span>Coupon <span id="appliedCode">{% if coupon_code %}({{ coupon_code }}){% endif %}</span></span>
+        <span id="discountValue">−₹{{ discount }}</span>
+      </div>
+      <div class="receipt__divider"></div>
+      <div class="receipt__row receipt__row--total">
+        <span>Total due</span>
+        <span id="totalValue">₹{{ final_amount }}</span>
+      </div>
+    </div>
+
+    <form id="couponForm" class="coupon">
+      <input
+        type="text"
+        id="couponInput"
+        name="coupon_code"
+        placeholder="Have a coupon?"
+        value="{{ coupon_code }}"
+        autocomplete="off"
+      >
+      <button type="submit" id="couponBtn">Apply</button>
+    </form>
+    <p class="coupon-msg" id="couponMsg"></p>
+
+    <button class="pay-btn" id="payBtn">
+      {% if final_amount > 0 %}Pay ₹{{ final_amount }} & continue{% else %}Continue for free{% endif %}
+    </button>
+
+    <p class="fine-print">You'll fill in the room details right after this. <a href="{% url 'partner_dashboard' %}">Cancel</a></p>
+  </div>
+</div>
+
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
+<script>
+  const csrftoken = "{{ csrf_token }}";
+  const cashfreeMode = "{{ cashfree_mode }}"; // "sandbox" or "production"
+  let currentTotal = {{ final_amount }};
+
+  function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+  }
+  const csrfCookie = getCookie('csrftoken') || csrftoken;
+
+  const couponForm = document.getElementById('couponForm');
+  const couponMsg = document.getElementById('couponMsg');
+  const payBtn = document.getElementById('payBtn');
+  const discountRow = document.getElementById('discountRow');
+  const discountValue = document.getElementById('discountValue');
+  const totalValue = document.getElementById('totalValue');
+  const appliedCode = document.getElementById('appliedCode');
+
+  function setPayLabel() {
+    payBtn.textContent = currentTotal > 0 ? `Pay ₹${currentTotal} & continue` : 'Continue for free';
+  }
+
+  couponForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const code = document.getElementById('couponInput').value.trim();
+    const btn = document.getElementById('couponBtn');
+    btn.disabled = true;
+
+    try {
+      const res = await fetch(`/partner/add-listing/pay/apply-coupon/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': csrfCookie,
+        },
+        body: `coupon_code=${encodeURIComponent(code)}`,
+      });
+      const data = await res.json();
+
+      couponMsg.textContent = data.message || '';
+      couponMsg.className = 'coupon-msg ' + (data.valid ? 'success' : 'error');
+
+      if (data.valid) {
+        currentTotal = data.final_amount;
+        discountRow.style.display = data.discount ? 'flex' : 'none';
+        discountValue.textContent = `−₹${data.discount}`;
+        appliedCode.textContent = `(${code.toUpperCase()})`;
+        totalValue.textContent = `₹${currentTotal}`;
+        setPayLabel();
+      } else if (typeof data.final_amount === 'number') {
+        // e.g. coupon field cleared — reset the receipt back to the base amount
+        currentTotal = data.final_amount;
+        discountRow.style.display = 'none';
+        totalValue.textContent = `₹${currentTotal}`;
+        setPayLabel();
+      }
+    } catch (err) {
+      couponMsg.textContent = 'Could not check that coupon — try again.';
+      couponMsg.className = 'coupon-msg error';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  payBtn.addEventListener('click', async () => {
+    payBtn.disabled = true;
+    payBtn.textContent = 'Preparing payment…';
+
+    try {
+      console.log('[Cashfree] Step 1: creating order...');
+      const orderRes = await fetch(`/partner/add-listing/pay/create-order/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfCookie },
+      });
+
+      let order;
+      try {
+        order = await orderRes.json();
+      } catch (parseErr) {
+        throw new Error('Server returned an unexpected response (status ' + orderRes.status + '). Check server logs.');
+      }
+      console.log('[Cashfree] Order response:', order);
+
+      if (order.free) {
+        window.location.href = order.redirect_url;
+        return;
+      }
+      if (order.error) {
+        couponMsg.textContent = order.error;
+        couponMsg.className = 'coupon-msg error';
+        payBtn.disabled = false;
+        setPayLabel();
+        return;
+      }
+      if (!order.payment_session_id) {
+        throw new Error('Server did not return a payment_session_id. Raw response: ' + JSON.stringify(order));
+      }
+
+      // IMPORTANT: Cashfree's v3 JS SDK is a factory function — call it directly,
+      // do NOT use `new Cashfree(...)`. Using `new` here can silently misbehave
+      // in some browsers/SDK builds and is not the pattern Cashfree documents.
+      if (typeof Cashfree !== 'function') {
+        throw new Error('Cashfree SDK did not load (check ad-blocker or network, or that sdk.cashfree.com is reachable).');
+      }
+      console.log('[Cashfree] Step 2: opening checkout, mode =', cashfreeMode);
+      const cashfree = Cashfree({ mode: cashfreeMode });
+      const result = await cashfree.checkout({
+        paymentSessionId: order.payment_session_id,
+        redirectTarget: "_modal",
+      });
+      console.log('[Cashfree] Checkout result:', result);
+
+      if (result && result.error) {
+        throw new Error('Cashfree checkout error: ' + (result.error.message || JSON.stringify(result.error)));
+      }
+
+      // Regardless of what the modal reports, ask our own server to confirm with
+      // Cashfree directly — that's the only result we trust.
+      payBtn.textContent = 'Confirming…';
+      console.log('[Cashfree] Step 3: verifying payment with our server...');
+      const verifyRes = await fetch(`/partner/add-listing/pay/verify/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': csrfCookie,
+        },
+        body: `cf_order_id=${encodeURIComponent(order.cf_order_id)}`,
+      });
+      const verifyData = await verifyRes.json();
+      console.log('[Cashfree] Verify response:', verifyData);
+
+      if (verifyData.success) {
+        window.location.href = verifyData.redirect_url;
+      } else {
+        couponMsg.textContent = verifyData.message || 'Payment could not be confirmed.';
+        couponMsg.className = 'coupon-msg error';
+        payBtn.disabled = false;
+        setPayLabel();
+      }
+    } catch (err) {
+      console.error('Cashfree payment error:', err);
+      couponMsg.textContent = 'Payment error: ' + (err && err.message ? err.message : String(err));
+      couponMsg.className = 'coupon-msg error';
+      payBtn.disabled = false;
+      setPayLabel();
+    }
+  });
+</script>
+
+</body>
+</html>
