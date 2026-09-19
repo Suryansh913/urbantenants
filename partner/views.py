@@ -194,7 +194,7 @@ def partner_google_complete(request):
 # ₹49 listing-fee payment flow — Cashfree, pay BEFORE listing
 # ═══════════════════════════════════════════════════════════
 
-LISTING_FEE = 1  # rupees — change this in one place if the price ever changes
+LISTING_FEE = 49  # rupees — change this in one place if the price ever changes
 COUPON_SESSION_KEY = 'new_listing_coupon'   # holds coupon choice while on the payment page
 UNLOCK_SESSION_KEY = 'unlocked_payment_id'  # proves this partner just paid, lets them fill the form once
 
