@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- EZMob Site Validation Code: EZMRBM2DRLP6KCNPGOO -->
+    
     <meta name="a4e01bedf027905cdac5b2081efee3c9eab818b6" content="a4e01bedf027905cdac5b2081efee3c9eab818b6" />
     <!-- ===== SEO: Title & Meta (location-aware) ===== -->
     {% if request.GET.location == 'kanpur' %}
@@ -618,6 +618,59 @@
         }
     </style>
 
+    <!-- ===== Ezmob Prebid.js outstream video ad ===== -->
+    <script type="text/javascript" src="https://docdn.ezmob.com/prebid.js" async></script>
+    <script>
+        var pbjs = pbjs || {};
+        pbjs.que = pbjs.que || [];
+
+        pbjs.que.push(function() {
+            var adUnits = [{
+                code: 'container-1',
+                mediaTypes: {
+                    video: {
+                        context: 'outstream',
+                        playerSize: [300, 250],
+                        renderer: {
+                            url: 'https://docdn.ezmob.com/outstream_pb.js',
+                            render: renderOutstream
+                        }
+                    }
+                },
+                bids: [{
+                    bidder: 'adkernel',
+                    params: {
+                      zoneId: 411414,
+                      host: 'cpm.ezmob.com'
+                    }
+
+                }]
+            }];
+            pbjs.addAdUnits(adUnits);
+            pbjs.requestBids({
+                bidsBackHandler: function(bidResponses) {
+                    process('container-1');
+                }
+            });
+        });
+
+        function process(adUnit) {
+            var bidResponses = pbjs.getHighestCpmBids(adUnit);
+            if (bidResponses.length == 0) {
+                return;
+            }
+            var bid = bidResponses[0];
+            pbjs.renderAd(document, bid.adId);
+        }
+
+        function renderOutstream(bid) {
+            OutstreamPlayerPB(bid, {
+                displayMode: 'floating',
+                transitions: true,
+                vpaidMode: 2
+            });
+        }
+    </script>
 </head>
 <body>
 
@@ -941,6 +994,11 @@
 </div>
 
 <!-- ===== SEO: Popular Locations — clickable, switches the hero above ===== -->
+<div class="red-banner">
+    <span class="ad-label">Advertisement</span>
+    <div id="container-1"></div>
+</div>
+
 <nav class="seo-locations" aria-label="Popular locations">
     <h2>Popular Locations</h2>
     <div class="loc-chip-row" id="locChipRow">

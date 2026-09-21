@@ -272,6 +272,46 @@
     color: var(--ink);
   }
 
+  /* ---- Free listing highlight ---- */
+  .receipt__row--free {
+    align-items: center;
+    background: var(--cream);
+    padding: 8px 10px;
+    margin: 2px -10px;
+    border-radius: 8px;
+  }
+  .receipt__row--free span:first-child { color: var(--ink); font-weight: 600; }
+  .amount-free {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--blue-d);
+    font-weight: 700;
+  }
+  .free-tag {
+    display: inline-block;
+    padding: 2px 9px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    background: var(--blue);
+    color: #fff;
+    border-radius: 999px;
+  }
+
+  /* ---- Pricing note ---- */
+  .pricing-note {
+    margin: 14px 0 22px;
+    padding: 12px 14px;
+    background: var(--paper-2);
+    border: 1px dashed var(--line);
+    border-radius: 10px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+
   .coupon { display: flex; gap: 8px; margin-bottom: 8px; }
   .coupon input {
     flex: 1; min-width: 0;
@@ -368,7 +408,7 @@
   <div class="card">
   <div class="card__head">
     <p class="label" data-en="Standard Listing Package" data-hi="स्टैंडर्ड लिस्टिंग पैकेज">Standard Listing Package</p>
-    <h1 data-en-html="Pay the ₹{{ base_amount }} listing fee" data-hi-html="₹{{ base_amount }} लिस्टिंग फीस का भुगतान करें">Pay the ₹{{ base_amount }} listing fee</h1>
+    <h1 data-en="Activate Managed Listing Services" data-hi="मैनेज्ड लिस्टिंग सेवाएं सक्रिय करें">Activate Managed Listing Services</h1>
   </div>
 
   <div class="card__body">
@@ -378,43 +418,68 @@
         <span class="includes__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </span>
-        <span class="includes__text" data-en-html="Your listing goes live to <strong>1,000+</strong> renters searching in your area" data-hi-html="आपकी लिस्टिंग आपके इलाके में खोज रहे <strong>1,000+</strong> किरायेदारों तक पहुँचती है">Your listing goes live to <strong>1,000+</strong> renters searching in your area</span>
+        <span class="includes__text" data-en="Your room is listed on UrbanTenants" data-hi="आपका कमरा UrbanTenants पर लिस्ट किया जाता है">Your room is listed on UrbanTenants</span>
       </li>
       <li class="includes__row">
         <span class="includes__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>
         </span>
-        <span class="includes__text" data-en-html="We promote it with <strong>paid ads</strong> across the platform" data-hi-html="हम इसे <strong>पेड विज्ञापनों</strong> के ज़रिए प्लेटफ़ॉर्म पर प्रमोट करते हैं">We promote it with <strong>paid ads</strong> across the platform</span>
+        <span class="includes__text" data-en="Your listing is promoted to renters searching in your area" data-hi="आपकी लिस्टिंग आपके इलाके में खोज रहे किरायेदारों तक प्रमोट की जाती है">Your listing is promoted to renters searching in your area</span>
       </li>
       <li class="includes__row">
         <span class="includes__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         </span>
-        <span class="includes__text" data-en-html="Visit requests are <strong>scheduled and managed</strong> for you" data-hi-html="विज़िट रिक्वेस्ट आपके लिए <strong>शेड्यूल और मैनेज</strong> की जाती हैं">Visit requests are <strong>scheduled and managed</strong> for you</span>
+        <span class="includes__text" data-en="Visit requests are managed by our team" data-hi="विज़िट रिक्वेस्ट हमारी टीम द्वारा मैनेज की जाती हैं">Visit requests are managed by our team</span>
       </li>
       <li class="includes__row">
         <span class="includes__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
         </span>
-        <span class="includes__text" data-en-html="Enquiries from renters are <strong>handled by our team</strong>" data-hi-html="किरायेदारों की पूछताछ हमारी टीम <strong>संभालती है</strong>">Enquiries from renters are <strong>handled by our team</strong></span>
+        <span class="includes__text" data-en="Renter enquiries are handled by our team" data-hi="किरायेदारों की पूछताछ हमारी टीम द्वारा संभाली जाती है">Renter enquiries are handled by our team</span>
       </li>
     </ul>
 
     <div class="receipt">
       <div class="receipt__row">
-        <span data-en="Listing fee" data-hi="लिस्टिंग फीस">Listing fee</span>
-        <span>₹{{ base_amount }}</span>
+        <span data-en="Platform Fee" data-hi="प्लेटफ़ॉर्म फीस">Platform Fee</span>
+        <span>₹19</span>
       </div>
+      <div class="receipt__row receipt__row--free">
+        <span data-en="Listing Service" data-hi="लिस्टिंग सेवा">Listing Service</span>
+        <span class="amount-free" data-en-html='₹0 <span class="free-tag">FREE</span>' data-hi-html='₹0 <span class="free-tag">मुफ़्त</span>'>₹0 <span class="free-tag">FREE</span></span>
+      </div>
+      <div class="receipt__row">
+        <span data-en="Marketing &amp; Promotion" data-hi="मार्केटिंग और प्रमोशन">Marketing &amp; Promotion</span>
+        <span>₹15</span>
+      </div>
+      <div class="receipt__row">
+        <span data-en="Customer Support &amp; Management" data-hi="ग्राहक सहायता और प्रबंधन">Customer Support &amp; Management</span>
+        <span>₹15</span>
+      </div>
+      <!--
+        Coupon / discount line temporarily hidden from the frontend (backend
+        coupon functionality and the JS that updates these values are left
+        intact so this can be re-enabled by simply un-commenting this block).
+
       <div class="receipt__row receipt__row--discount" id="discountRow" style="display:{% if discount %}flex{% else %}none{% endif %};">
         <span><span data-en="Coupon" data-hi="कूपन">Coupon</span> <span id="appliedCode">{% if coupon_code %}({{ coupon_code }}){% endif %}</span></span>
         <span id="discountValue">−₹{{ discount }}</span>
       </div>
+      -->
       <div class="receipt__divider"></div>
       <div class="receipt__row receipt__row--total">
         <span data-en="Total due" data-hi="कुल देय">Total due</span>
         <span id="totalValue">₹{{ final_amount }}</span>
       </div>
     </div>
+
+    <p class="pricing-note" data-en="Basic Listing is FREE. ₹49 applies for UrbanTenants' additional platform, marketing &amp; management services." data-hi="बेसिक लिस्टिंग मुफ़्त है। ₹49 UrbanTenants की अतिरिक्त प्लेटफ़ॉर्म, मार्केटिंग और मैनेजमेंट सेवाओं के लिए लागू होता है।">Basic Listing is FREE. ₹49 applies for UrbanTenants' additional platform, marketing &amp; management services.</p>
+
+    <!--
+      Coupon input temporarily hidden from the frontend (backend coupon
+      functionality below and in the JS is left intact so this can be
+      re-enabled by simply un-commenting this block).
 
     <form id="couponForm" class="coupon">
       <input
@@ -429,6 +494,7 @@
       >
       <button type="submit" id="couponBtn" data-en="Apply" data-hi="लागू करें">Apply</button>
     </form>
+    -->
     <p class="coupon-msg" id="couponMsg"></p>
 
     <button class="pay-btn" id="payBtn">
@@ -485,6 +551,10 @@
   }
   const csrfCookie = getCookie('csrftoken') || csrftoken;
 
+  // couponForm is currently commented out of the markup above (see note there).
+  // These lookups are guarded with null-checks so the rest of the page
+  // (language toggle, payment button, etc.) keeps working while the coupon
+  // UI is hidden, without touching the backend coupon logic itself.
   const couponForm = document.getElementById('couponForm');
   const couponMsg = document.getElementById('couponMsg');
   const payBtn = document.getElementById('payBtn');
@@ -526,47 +596,49 @@
 
   applyLanguage(currentLang);
 
-  couponForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const code = document.getElementById('couponInput').value.trim();
-    const btn = document.getElementById('couponBtn');
-    btn.disabled = true;
+  if (couponForm) {
+    couponForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = document.getElementById('couponInput').value.trim();
+      const btn = document.getElementById('couponBtn');
+      btn.disabled = true;
 
-    try {
-      const res = await fetch(`/partner/add-listing/pay/apply-coupon/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'X-CSRFToken': csrfCookie,
-        },
-        body: `coupon_code=${encodeURIComponent(code)}`,
-      });
-      const data = await res.json();
+      try {
+        const res = await fetch(`/partner/add-listing/pay/apply-coupon/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrfCookie,
+          },
+          body: `coupon_code=${encodeURIComponent(code)}`,
+        });
+        const data = await res.json();
 
-      couponMsg.textContent = data.message || '';
-      couponMsg.className = 'coupon-msg ' + (data.valid ? 'success' : 'error');
+        couponMsg.textContent = data.message || '';
+        couponMsg.className = 'coupon-msg ' + (data.valid ? 'success' : 'error');
 
-      if (data.valid) {
-        currentTotal = data.final_amount;
-        discountRow.style.display = data.discount ? 'flex' : 'none';
-        discountValue.textContent = `−₹${data.discount}`;
-        appliedCode.textContent = `(${code.toUpperCase()})`;
-        totalValue.textContent = `₹${currentTotal}`;
-        setPayLabel();
-      } else if (typeof data.final_amount === 'number') {
-        // e.g. coupon field cleared — reset the receipt back to the base amount
-        currentTotal = data.final_amount;
-        discountRow.style.display = 'none';
-        totalValue.textContent = `₹${currentTotal}`;
-        setPayLabel();
+        if (data.valid) {
+          currentTotal = data.final_amount;
+          discountRow.style.display = data.discount ? 'flex' : 'none';
+          discountValue.textContent = `−₹${data.discount}`;
+          appliedCode.textContent = `(${code.toUpperCase()})`;
+          totalValue.textContent = `₹${currentTotal}`;
+          setPayLabel();
+        } else if (typeof data.final_amount === 'number') {
+          // e.g. coupon field cleared — reset the receipt back to the base amount
+          currentTotal = data.final_amount;
+          discountRow.style.display = 'none';
+          totalValue.textContent = `₹${currentTotal}`;
+          setPayLabel();
+        }
+      } catch (err) {
+        couponMsg.textContent = T[currentLang].couponNetworkError;
+        couponMsg.className = 'coupon-msg error';
+      } finally {
+        btn.disabled = false;
       }
-    } catch (err) {
-      couponMsg.textContent = T[currentLang].couponNetworkError;
-      couponMsg.className = 'coupon-msg error';
-    } finally {
-      btn.disabled = false;
-    }
-  });
+    });
+  }
 
   payBtn.addEventListener('click', async () => {
     payBtn.disabled = true;
