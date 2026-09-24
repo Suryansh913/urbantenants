@@ -20,7 +20,6 @@
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
     <meta name="keywords" content="PG in Kanpur, rooms in Nawabganj, flats for rent Unnao, rooms near Chandigarh University, 2BHK Kanpur, 3BHK Kanpur, student PG Uttar Pradesh, zero brokerage rooms">
-    <script async src="https://direct.us.adstork.com/v1/ab.js?pid=urbantenants.com"></script>
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="UrbanTenants">
@@ -514,69 +513,6 @@
             .review-modal { padding: 26px 20px 22px; }
         }
 
-        /* ===================== RAKHI CHALLENGE PROMO (v2) ===================== */
-        .rakhi-promo {
-            position: relative; display: block; text-decoration: none;
-            background:
-                radial-gradient(360px 200px at 100% 0%, rgba(255,178,32,0.22) 0%, transparent 60%),
-                linear-gradient(135deg, #5c1220 0%, #2c0a12 100%);
-            border-radius: 20px; padding: 0; margin-bottom: 1.5rem;
-            overflow: hidden; max-width: 500px;
-            box-shadow: 0 16px 38px rgba(44,10,18,0.35), 0 4px 12px rgba(44,10,18,0.2);
-            transition: transform 0.22s ease, box-shadow 0.22s ease;
-            animation: rise 0.55s 0.02s ease both; opacity: 0; animation-fill-mode: forwards;
-            border: 1px solid rgba(255,178,32,0.22);
-        }
-        .rakhi-promo:hover { transform: translateY(-3px); box-shadow: 0 22px 46px rgba(44,10,18,0.4), 0 6px 16px rgba(44,10,18,0.24); }
-
-        .rp-thread-border {
-            height: 6px; width: 100%;
-            background-image: repeating-linear-gradient(90deg, #ffb020 0, #ffb020 10px, transparent 10px, transparent 18px);
-            opacity: 0.85;
-        }
-
-        .rp-body { position: relative; padding: 22px 24px 24px; }
-
-        .rp-illustration { position: absolute; top: -8px; right: 6px; z-index: 0; opacity: 0.95; pointer-events: none; }
-
-        .rp-badge {
-            display: inline-flex; align-items: center; gap: 6px;
-            background: #ffb020; color: #3d0f1a;
-            font-family: var(--font-head); font-weight: 700; font-size: 11.5px;
-            text-transform: uppercase; letter-spacing: 0.05em;
-            padding: 6px 12px; border-radius: 30px; margin-bottom: 14px;
-            position: relative; z-index: 1;
-        }
-        .rp-title {
-            font-family: var(--font-head); font-weight: 700; font-size: 23px; color: #fff;
-            line-height: 1.28; margin-bottom: 9px; position: relative; z-index: 1; max-width: 78%;
-        }
-        .rp-title em { font-style: normal; color: #ffc93c; }
-        .rp-sub {
-            font-size: 13.5px; color: rgba(255,255,255,0.75); line-height: 1.65;
-            margin-bottom: 16px; max-width: 78%; position: relative; z-index: 1;
-        }
-        .rp-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; position: relative; z-index: 1; }
-        .rp-chip {
-            background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.18);
-            color: #fff; font-size: 11.5px; font-weight: 600; padding: 6px 12px; border-radius: 20px;
-        }
-        .rp-chip.gold { background: rgba(255,178,32,0.18); border-color: rgba(255,178,32,0.4); color: #ffc93c; }
-        .rp-cta {
-            display: inline-flex; align-items: center; gap: 8px;
-            background: #ffb020; color: #3d0f1a;
-            font-family: var(--font-head); font-weight: 700; font-size: 14px;
-            padding: 12px 22px; border-radius: 12px; position: relative; z-index: 1;
-            transition: background 0.2s ease, transform 0.2s ease;
-        }
-        .rakhi-promo:hover .rp-cta { background: #ffc93c; transform: translateX(2px); }
-        @media (max-width: 480px) {
-            .rp-body { padding: 20px 18px 20px; }
-            .rp-title { font-size: 19px; max-width: 100%; }
-            .rp-sub { max-width: 100%; }
-            .rp-illustration { opacity: 0.5; transform: scale(0.85); top: -14px; right: -6px; }
-        }
-
         /* ===================== RED BANNER (ad slot before each yellow section) ===================== */
         .red-banner {
             width: 100%;
@@ -617,60 +553,6 @@
             padding: 0;
         }
     </style>
-
-    <!-- ===== Ezmob Prebid.js outstream video ad ===== -->
-    <script type="text/javascript" src="https://docdn.ezmob.com/prebid.js" async></script>
-    <script>
-        var pbjs = pbjs || {};
-        pbjs.que = pbjs.que || [];
-
-        pbjs.que.push(function() {
-            var adUnits = [{
-                code: 'container-1',
-                mediaTypes: {
-                    video: {
-                        context: 'outstream',
-                        playerSize: [300, 250],
-                        renderer: {
-                            url: 'https://docdn.ezmob.com/outstream_pb.js',
-                            render: renderOutstream
-                        }
-                    }
-                },
-                bids: [{
-                    bidder: 'adkernel',
-                    params: {
-                      zoneId: 411414,
-                      host: 'cpm.ezmob.com'
-                    }
-
-                }]
-            }];
-            pbjs.addAdUnits(adUnits);
-            pbjs.requestBids({
-                bidsBackHandler: function(bidResponses) {
-                    process('container-1');
-                }
-            });
-        });
-
-        function process(adUnit) {
-            var bidResponses = pbjs.getHighestCpmBids(adUnit);
-            if (bidResponses.length == 0) {
-                return;
-            }
-            var bid = bidResponses[0];
-            pbjs.renderAd(document, bid.adId);
-        }
-
-        function renderOutstream(bid) {
-            OutstreamPlayerPB(bid, {
-                displayMode: 'floating',
-                transitions: true,
-                vpaidMode: 2
-            });
-        }
-    </script>
 </head>
 <body>
 
@@ -683,51 +565,6 @@
 
     <div class="hero-flex">
         <div class="hero-content">
-
-            <a href="{% url 'rakhi_idea' %}" class="rakhi-promo">
-                <div class="rp-thread-border"></div>
-                <div class="rp-body">
-                    <svg class="rp-illustration" width="150" height="140" viewBox="0 0 150 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- wrist thread arc -->
-                        <path d="M0 70 C 30 40, 90 40, 120 70" stroke="#ffb020" stroke-width="2.5" stroke-dasharray="4 5" opacity="0.55" fill="none"/>
-                        <!-- pendant outer ring -->
-                        <circle cx="98" cy="46" r="30" fill="#3d0f1a" stroke="#ffb020" stroke-width="2"/>
-                        <circle cx="98" cy="46" r="23" fill="none" stroke="#ffc93c" stroke-width="1.5" opacity="0.6"/>
-                        <!-- petal mandala -->
-                        <g opacity="0.9">
-                            <circle cx="98" cy="46" r="7" fill="#ffb020"/>
-                            <circle cx="98" cy="30" r="5" fill="#ffc93c" opacity="0.85"/>
-                            <circle cx="98" cy="62" r="5" fill="#ffc93c" opacity="0.85"/>
-                            <circle cx="82" cy="46" r="5" fill="#ffc93c" opacity="0.85"/>
-                            <circle cx="114" cy="46" r="5" fill="#ffc93c" opacity="0.85"/>
-                            <circle cx="87" cy="35" r="4" fill="#ffc93c" opacity="0.7"/>
-                            <circle cx="109" cy="35" r="4" fill="#ffc93c" opacity="0.7"/>
-                            <circle cx="87" cy="57" r="4" fill="#ffc93c" opacity="0.7"/>
-                            <circle cx="109" cy="57" r="4" fill="#ffc93c" opacity="0.7"/>
-                        </g>
-                        <circle cx="98" cy="46" r="3.5" fill="#5c1220"/>
-                        <!-- tassels hanging below pendant -->
-                        <line x1="88" y1="74" x2="84" y2="112" stroke="#ffb020" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="98" y1="76" x2="98" y2="118" stroke="#ffc93c" stroke-width="2" stroke-linecap="round"/>
-                        <line x1="108" y1="74" x2="112" y2="112" stroke="#ffb020" stroke-width="2" stroke-linecap="round"/>
-                        <circle cx="84" cy="116" r="4" fill="#ffb020"/>
-                        <circle cx="98" cy="122" r="4.5" fill="#ffc93c"/>
-                        <circle cx="112" cy="116" r="4" fill="#ffb020"/>
-                        <!-- sparkle -->
-                        <path d="M32 20l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#ffc93c" opacity="0.8"/>
-                    </svg>
-
-                    <span class="rp-badge">🪢 Raksha Bandhan Special</span>
-                    <div class="rp-title">AI Rakhi Challenge —<br>Design a Home, <em>Win Free Rent</em></div>
-                    <p class="rp-sub">Use Gemini to design your sibling's perfect room and a Rakhi surprise. Score 80+ and win a month of free rent on UrbanTenants.</p>
-                    <div class="rp-chips">
-                        <span class="rp-chip gold">🏠 1 Month Free Rent</span>
-                        <span class="rp-chip">🤖 Powered by Gemini</span>
-                        <span class="rp-chip">Free to enter</span>
-                    </div>
-                    <span class="rp-cta">Join the Challenge →</span>
-                </div>
-            </a>
 
             <div class="hero-badge">
                 <span class="dot">%</span>
@@ -994,11 +831,6 @@
 </div>
 
 <!-- ===== SEO: Popular Locations — clickable, switches the hero above ===== -->
-<div class="red-banner">
-    <span class="ad-label">Advertisement</span>
-    <div id="container-1"></div>
-</div>
-
 <nav class="seo-locations" aria-label="Popular locations">
     <h2>Popular Locations</h2>
     <div class="loc-chip-row" id="locChipRow">
@@ -1026,9 +858,16 @@
 <div class="red-banner">
     <span class="ad-label">Advertisement</span>
 
-    <div data-atk-fid="eacf7978-6d57-49dc-af4d-3a822a8f703d"></div>
-
-    <script async src="https://direct.us.adstork.com/v1/serve.js?fid=eacf7978-6d57-49dc-af4d-3a822a8f703d&instance=1"></script>
+    <script>
+      atOptions = {
+        'key' : 'f1555ec31b5fc0b04955e6ccfe8e1fcd',
+        'format' : 'iframe',
+        'height' : 250,
+        'width' : 300,
+        'params' : {}
+      };
+    </script>
+    <script src="https://www.highrevenueformat.com/f1555ec31b5fc0b04955e6ccfe8e1fcd/invoke.js"></script>
 </div>
 
 <div class="section-block">
@@ -1095,9 +934,16 @@
     <div class="red-banner">
         <span class="ad-label">Advertisement</span>
 
-        <div data-atk-fid="eacf7978-6d57-49dc-af4d-3a822a8f703d"></div>
-
-        <script async src="https://direct.us.adstork.com/v1/serve.js?fid=eacf7978-6d57-49dc-af4d-3a822a8f703d&instance=2"></script>
+        <script>
+          atOptions = {
+            'key' : 'f1555ec31b5fc0b04955e6ccfe8e1fcd',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
+            'params' : {}
+          };
+        </script>
+        <script src="https://www.highrevenueformat.com/f1555ec31b5fc0b04955e6ccfe8e1fcd/invoke.js"></script>
     </div>
 
     <div class="section-block">
